@@ -22,9 +22,15 @@ const ListWrapper = styled.div`
     }
     .item-dest {
       flex: 0.7;
+      @media (max-width: 374px) {
+        flex: 0.6
+      }
     }
     .item-time {
       flex: 1;
+    }
+    @media (max-width: 374px) {
+      font-size: 15px;
     }
   }
 `;

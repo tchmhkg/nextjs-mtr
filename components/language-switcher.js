@@ -24,6 +24,9 @@ const LocaleButton = styled.div`
     selected ? `-webkit-linear-gradient(to right, ${theme.primary2}, ${theme.primary1})` : 'transparent'};
   background: ${({selected, theme}) =>
     selected ? `linear-gradient(to right, ${theme.primary2}, ${theme.primary1})` : 'transparent'};
+  @media (max-width: 374px) {
+    font-size: 16px;
+  }
 `;
 
 const LanguageSwitcher = ({inNavbar = false}) => {

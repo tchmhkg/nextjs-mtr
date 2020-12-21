@@ -19,6 +19,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   font-size: 18px;
+  @media (max-width: 374px) {
+    font-size: 16px;
+  }
 `;
 
 const SelectorWrapper = styled.div`
