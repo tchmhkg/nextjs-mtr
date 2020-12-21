@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import Axios from 'axios';
 import Refresh from './refresh';
 import { format, formatDuration, intervalToDuration } from 'date-fns';
-import { Loading } from './spinner';
 
 const Heading = styled.h2`
   color: ${(props) => props.theme.text};
@@ -93,7 +92,6 @@ const ResultRight = styled.div`
   flex-direction: column;
   margin-bottom: 5px;
   margin-left: 3px;
-  position: relative;
 `;
 
 const Option = styled.div`
@@ -141,7 +139,6 @@ const Home = () => {
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const humanDuration = (time = 0, locale = 'en') => {
     if (time === '0') return t('arriving');
@@ -177,7 +174,6 @@ const Home = () => {
 
   const getData = async () => {
     if (!selectedStation) return;
-    setLoading(true);
     try {
       const res = await Axios.get('/api/mtr/next-train', {
         params: {
@@ -189,9 +185,8 @@ const Home = () => {
       if (res?.data?.data?.data) {
         setData(res?.data?.data?.data[`${selectedLine}-${selectedStation}`]);
       }
-      setLoading(false);
     } catch (err) {
-      setLoading(false);
+      console.log(err);
     }
   };
 
@@ -242,51 +237,38 @@ const Home = () => {
             </p>
             <ResultWrapper>
               <ResultLeft>
-                {loading ? (
-                  <Loading />
-                ) : (
-                  <>
-                    {t('To')}:{' '}
-                    {data?.DOWN?.[0]?.dest && t(data?.DOWN?.[0]?.dest)}
-                    <ListWrapper>
-                      {data?.DOWN?.map((times) => (
-                        <div className="list-item" key={times.seq}>
-                          <div className="item-dest">{t(times?.dest)}</div>
-                          <PlatFormWrapper>
-                            <PlatForm>{times?.plat}</PlatForm>
-                          </PlatFormWrapper>
-                          <div className="item-time">
-                            {humanTime(times?.time)} (
-                            {humanDuration(times?.ttnt, locale)})
-                          </div>
-                        </div>
-                      ))}
-                    </ListWrapper>
-                  </>
-                )}
+                {t('To')}: {data?.DOWN?.[0]?.dest && t(data?.DOWN?.[0]?.dest)}
+                <ListWrapper>
+                  {data?.DOWN?.map((times) => (
+                    <div className="list-item" key={times.seq}>
+                      <div className="item-dest">{t(times?.dest)}</div>
+                      <PlatFormWrapper>
+                        <PlatForm>{times?.plat}</PlatForm>
+                      </PlatFormWrapper>
+                      <div className="item-time">
+                        {humanTime(times?.time)} (
+                        {humanDuration(times?.ttnt, locale)})
+                      </div>
+                    </div>
+                  ))}
+                </ListWrapper>
               </ResultLeft>
               <ResultRight>
-                {loading ? (
-                  <Loading />
-                ) : (
-                  <>
-                    {t('To')}: {data?.UP?.[0]?.dest && t(data?.UP?.[0]?.dest)}
-                    <ListWrapper>
-                      {data?.UP?.map((times) => (
-                        <div className="list-item" key={times.seq}>
-                          <div className="item-dest">{t(times?.dest)}</div>
-                          <PlatFormWrapper>
-                            <PlatForm>{times?.plat}</PlatForm>
-                          </PlatFormWrapper>
-                          <div className="item-time">
-                            {humanTime(times?.time)} (
-                            {humanDuration(times?.ttnt, locale)})
-                          </div>
-                        </div>
-                      ))}
-                    </ListWrapper>
-                  </>
-                )}
+                {t('To')}: {data?.UP?.[0]?.dest && t(data?.UP?.[0]?.dest)}
+                <ListWrapper>
+                  {data?.UP?.map((times) => (
+                    <div className="list-item" key={times.seq}>
+                      <div className="item-dest">{t(times?.dest)}</div>
+                      <PlatFormWrapper>
+                        <PlatForm>{times?.plat}</PlatForm>
+                      </PlatFormWrapper>
+                      <div className="item-time">
+                        {humanTime(times?.time)} (
+                        {humanDuration(times?.ttnt, locale)})
+                      </div>
+                    </div>
+                  ))}
+                </ListWrapper>
               </ResultRight>
             </ResultWrapper>
           </>

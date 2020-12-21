@@ -46,20 +46,4 @@ const Spinner = () => {
   );
 };
 
-export const Loading = () => {
-  const { colors } = useTheme();
-  return (
-    <svg className={styles.loading} viewBox="0 0 50 50">
-      <defs>
-        <linearGradient id="spinnerLinearColors" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="20%" stopColor={colors.primary1} />
-          <stop offset="90%" stopColor={colors.primary2} />
-        </linearGradient>
-      </defs>
-      <Circle className={styles.path} cx="25" cy="25" r="20" fill="none" strokeWidth="4" />
-    </svg>
-  )
-
-}
-
 export default memo(Spinner);
