@@ -164,6 +164,7 @@ const Home = () => {
   const onChangeLine = (line) => {
     setSelectedLine(line);
     setSelectedStation(null);
+    setData(null);
   };
   const filterStations = () => {
     if (!selectedLine) return [];
