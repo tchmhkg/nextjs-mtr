@@ -7,6 +7,7 @@ import { stations } from '~/utils/next-train-data';
 import useTranslation from '~/hooks/useTranslation';
 import ResultList from './result-list';
 import Refresh from '~/components/refresh';
+import { MTR_NEXT_TRAIN_API } from '~/utils/apiUrls';
 
 const Wrapper = styled.div`
   display: flex;
@@ -27,12 +28,12 @@ const Header = styled.div`
     margin: 10px 0;
 `;
 
-const fetcher = (url, params) => Axios.get(url, {params}).then(res => res?.data?.data?.data[`${params?.line}-${params?.sta}`]);
+const fetcher = (url, params) => Axios.get(url, {params}).then(res => res?.data?.data[`${params?.line}-${params?.sta}`]);
 
 const Result = ({ line, sta }) => {
   const { t, locale } = useTranslation();
   const params = useMemo(() => ({line, sta, lang: locale === 'zh' ? 'tc' : 'en'}), [line, sta, locale]);
-  const { data, error, mutate } = useSWR([(line && sta) ? '/api/mtr/next-train' : null, params], fetcher);
+  const { data, error, mutate } = useSWR([(line && sta) ? MTR_NEXT_TRAIN_API : null, params], fetcher);
   const lineColor = stations.find(l => l.line.code === line)?.line?.color;
 
   if(!line || !sta) return null;
