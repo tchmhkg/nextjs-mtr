@@ -16,6 +16,7 @@ const strings = {
     "LHP": "LOHAS Park",
     "TSY": "Tsing Yi",
     "AIR": "Airport",
+    "TIK": "Tiu Keng Leng",
     "TUC_UP": "Tsing Yi / Tung Chung",
     "TSY_UP": "Tsing Yi / Tung Chung",
     "AWE_UP": "Airport / AWE",
@@ -25,6 +26,7 @@ const strings = {
     "HOK_DOWN": "Hong Kong",
     "HUH_DOWN": "Hung Hom",
     "NOP_DOWN": "North Point",
+    "TIK_DOWN": "Tiu Keng Leng",
     "Platform": "Platform",
   },
   zh: {
@@ -44,6 +46,7 @@ const strings = {
     "LHP": "康城",
     "TSY": "青衣",
     "AIR": "機場",
+    "TIK": "調景嶺",
     "TUC_UP": "青衣/東涌",
     "TSY_UP": "青衣/東涌",
     "AWE_UP": "機場/博覽館",
@@ -53,6 +56,7 @@ const strings = {
     "HOK_DOWN": "香港",
     "HUH_DOWN": "紅磡",
     "NOP_DOWN": "北角",
+    "TIK_DOWN": "調景嶺",
     "Platform": "月台",
   },
 };

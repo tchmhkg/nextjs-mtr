@@ -1,10 +1,8 @@
 import useTranslation from '~/hooks/useTranslation';
 import styled from 'styled-components';
 import { stations } from '~/utils/next-train-data';
-import { useEffect, useState } from 'react';
-import Axios from 'axios';
-import Refresh from './refresh';
-import { format, formatDuration, intervalToDuration } from 'date-fns';
+import { useState } from 'react';
+import Result from './train/result';
 
 const Heading = styled.h2`
   color: ${(props) => props.theme.text};
@@ -17,46 +15,15 @@ const Header = styled.div`
   align-items: center;
 `;
 
-const Wrapper = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
-  font-size: 16px;
+  font-size: 18px;
 `;
+
 const SelectorWrapper = styled.div`
   display: flex;
   flex-direction: row;
-`;
-const ResultWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  @media (min-width: 769px) {
-    flex-direction: row;
-  }
-`;
-
-const ListWrapper = styled.div`
-  height: 160px;
-  overflow: auto;
-  padding: 5px 0;
-
-  .list-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 3px 0;
-    &:not(:last-child) {
-      border-bottom: 1px solid ${({ theme }) => theme.border};
-      padding: 3px 0;
-    }
-    &:hover {
-      font-weight: bold;
-    }
-    .item-dest {
-      flex: 0.7;
-    }
-    .item-time {
-      flex: 1;
-    }
-  }
 `;
 
 const Left = styled.div`
@@ -64,69 +31,45 @@ const Left = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 165px;
-  overflow: auto;
-  margin-right: 3px;
+  height: 170px;
+  overflow-y: auto;
 `;
-const Right = styled.div`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  height: 165px;
-  overflow: auto;
-  margin-left: 3px;
-`;
-
-const ResultLeft = styled.div`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  margin-bottom: 5px;
-  margin-right: 3px;
-  position: relative;
-`;
-const ResultRight = styled.div`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  margin-bottom: 5px;
-  margin-left: 3px;
-`;
+const Right = styled(Left)``;
 
 const Option = styled.div`
   cursor: pointer;
   display: flex;
   align-items: center;
   .option-name {
-    background: ${({ selected, theme }) =>
-      selected
-        ? `linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
-        : 'transparent'};
+    background: ${({ color, selected, theme }) =>
+      selected ? `${color}` : 'transparent'};
     color: ${({ selected, theme }) => (selected ? '#fff' : theme.text)};
     width: 100%;
     padding: 3px;
   }
 `;
-const PlatFormWrapper = styled.div`
-  color: ${({ theme }) => theme.text};
-  align-items: center;
-  flex: 0.4;
+
+const LineOption = styled(Option)`
+  .option-name {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
 `;
 
-const PlatForm = styled.span`
-  border-radius: 50%;
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  font-size: 14px;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.platformText};
-  background-color: ${({ theme }) => theme.platformBackground};
-  margin-left: 5px;
+const StationOption = styled(Option)`
+  background: ${({ color }) => color};
+  &:first-child {
+    border-top-right-radius: 8px;
+  }
+  &:last-child {
+    border-bottom-right-radius: 8px;
+  }
+  .option-name {
+    background: ${({ selected }) =>
+      selected ? '#fff' : 'transparent'} !important;
+    color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
+    border-radius: ${({ selected }) => (selected ? '8px' : 0)};
+  }
 `;
 
 const LineColor = styled.div`
@@ -141,152 +84,57 @@ const Home = () => {
   const { locale, t } = useTranslation();
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null);
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const humanDuration = (time = 0, locale = 'en') => {
-    if (time === '0') return t('arriving');
-    const duration = formatDuration(
-      intervalToDuration({ start: 0, end: parseInt(time) * 1000 * 60 })
-    );
-    if (locale === 'zh') {
-      return duration
-        .replace(/\shours|\shour/g, '小時')
-        .replace(/\sminutes|\sminute/g, '分鐘');
-    }
-    return duration
-    .replace(/hours/g, 'hrs')
-    .replace(/hour/g, 'hr')
-    .replace(/minutes/g, 'mins')
-    .replace(/minute/g, 'min');
-  };
-
-  const humanTime = (time = new Date()) => {
-    return format(new Date(time.replace(' ', 'T')), 'HH:mm');
-  };
 
   const getLangCodeFromLocale = () => (locale === 'zh' ? 'tc' : 'en');
 
   const onChangeLine = (line) => {
+    if (line === selectedLine) return;
     setSelectedLine(line);
     setSelectedStation(null);
-    setData(null);
   };
   const filterStations = () => {
     if (!selectedLine) return [];
     return stations.find((s) => s.line.code === selectedLine);
   };
 
-  const onClickRefresh = () => {
-    getData();
-  };
-
-  const getData = async () => {
-    if (!selectedStation) return;
-    try {
-      setLoading(true);
-      const res = await Axios.get('/api/mtr/next-train', {
-        params: {
-          line: selectedLine,
-          sta: selectedStation,
-          lang: locale === 'zh' ? 'TC' : 'EN',
-        },
-      });
-      if (res?.data?.data?.data) {
-        setData(res?.data?.data?.data[`${selectedLine}-${selectedStation}`]);
-      }
-      setLoading(false);
-    } catch (err) {
-      console.log(err);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getData();
-  }, [selectedStation]);
-
   return (
-    <Wrapper>
+    <Container>
       <Header>
         <Heading>MTR Next Train</Heading>
-        <Refresh onClick={onClickRefresh} />
       </Header>
       <SelectorWrapper>
         <Left>
           {stations.map((l) => (
-            <Option
+            <LineOption
               key={l.line.code}
               onClick={() => onChangeLine(l.line.code)}
               selected={l.line.code === selectedLine}
+              color={l.line.color}
             >
               <LineColor color={l.line.color} />
               <div className="option-name">
                 {l.line.label[getLangCodeFromLocale()]}
               </div>
-            </Option>
+            </LineOption>
           ))}
         </Left>
         <Right>
           {filterStations()?.stations?.map((s) => (
-            <Option
+            <StationOption
+              color={filterStations()?.line?.color}
               key={s.code}
               onClick={() => setSelectedStation(s.code)}
               selected={s.code === selectedStation}
             >
-              <div className="option-name">
+              <div className="option-name station">
                 {s.label[getLangCodeFromLocale()]}
               </div>
-            </Option>
+            </StationOption>
           ))}
         </Right>
       </SelectorWrapper>
-      <Wrapper>
-        {(!loading && data) && (
-          <>
-            <p>
-              {t('last update')}: {data?.curr_time}
-            </p>
-            <ResultWrapper>
-              <ResultLeft>
-                {t('To')}: {data?.DOWN?.[0]?.dest && t(`${data?.DOWN?.[0]?.dest}_DOWN`)}
-                <ListWrapper>
-                  {data?.DOWN?.map((times) => (
-                    <div className="list-item" key={times.seq}>
-                      <div className="item-dest">{t(times?.dest)}</div>
-                      <PlatFormWrapper>
-                        <PlatForm>{times?.plat}</PlatForm>
-                      </PlatFormWrapper>
-                      <div className="item-time">
-                        {humanTime(times?.time)} (
-                        {humanDuration(times?.ttnt, locale)})
-                      </div>
-                    </div>
-                  ))}
-                </ListWrapper>
-              </ResultLeft>
-              <ResultRight>
-                {t('To')}: {data?.UP?.[0]?.dest && t(`${data?.UP?.[0]?.dest}_UP`)}
-                <ListWrapper>
-                  {data?.UP?.map((times) => (
-                    <div className="list-item" key={times.seq}>
-                      <div className="item-dest">{t(times?.dest)}</div>
-                      <PlatFormWrapper>
-                        <PlatForm>{times?.plat}</PlatForm>
-                      </PlatFormWrapper>
-                      <div className="item-time">
-                        {humanTime(times?.time)} (
-                        {humanDuration(times?.ttnt, locale)})
-                      </div>
-                    </div>
-                  ))}
-                </ListWrapper>
-              </ResultRight>
-            </ResultWrapper>
-          </>
-        )}
-      </Wrapper>
-    </Wrapper>
+      <Result line={selectedLine} sta={selectedStation} />
+    </Container>
   );
 };
 export default React.memo(Home);

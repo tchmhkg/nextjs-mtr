@@ -17,7 +17,7 @@ const LocaleButton = styled.div`
   margin: 0 5px;
   border-radius: 20px;
   padding: 5px 10px;
-  font-size: 16px;
+  font-size: 18px;
   background: ${({selected, theme}) =>
     selected ? theme.primary1 : 'transparent'};
   background: ${({selected, theme}) =>
