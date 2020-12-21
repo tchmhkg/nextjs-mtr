@@ -14,7 +14,7 @@ const Head = ({ children }) => {
         name="apple-mobile-web-app-status-bar-style"
         content={mode === 'dark' ? 'black-translucent' : 'default'}
       />
-      <title>Next MTR</title>
+      <title>Next MTR Train</title>
       {children}
     </NextHead>
   );

@@ -19,11 +19,12 @@ const ResultWrapper = styled(Wrapper)`
   }
 `;
 
-const Header = styled.p`
+const Header = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    margin: 10px 0;
 `;
 
 const fetcher = (url, params) => Axios.get(url, {params}).then(res => res?.data?.data?.data[`${params?.line}-${params?.sta}`]);
