@@ -64,6 +64,7 @@ const StationOption = styled(Option)`
   &:last-child {
     border-bottom-right-radius: 8px;
   }
+  padding: 3px;
   .option-name {
     background: ${({ selected }) =>
       selected ? '#fff' : 'transparent'} !important;

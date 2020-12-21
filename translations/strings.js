@@ -28,6 +28,7 @@ const strings = {
     "NOP_DOWN": "North Point",
     "TIK_DOWN": "Tiu Keng Leng",
     "Platform": "Platform",
+    "Loading...": "Loading...",
   },
   zh: {
     "Back to home": "回到首頁",
@@ -58,6 +59,7 @@ const strings = {
     "NOP_DOWN": "北角",
     "TIK_DOWN": "調景嶺",
     "Platform": "月台",
+    "Loading...": "載入中...",
   },
 };
 

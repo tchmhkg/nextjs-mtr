@@ -35,7 +35,7 @@ const Result = ({ line, sta }) => {
   const lineColor = stations.find(l => l.line.code === line)?.line?.color;
 
   if(!line || !sta) return null;
-  if(line && sta && !data) return 'Loading...';
+  if(line && sta && !data) return t('Loading...');
   return (
     <Wrapper>
       <Header>
