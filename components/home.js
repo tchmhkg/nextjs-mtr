@@ -150,7 +150,6 @@ const Home = () => {
         lang: locale === 'zh' ? 'TC' : 'EN',
       },
     });
-    console.log('data', res?.data?.data?.data);
     if (res?.data?.data?.data) {
       setData(res?.data?.data?.data[`${selectedLine}-${selectedStation}`]);
     }
@@ -207,7 +206,7 @@ const Home = () => {
               </p>
               <ResultWrapper>
                 <ResultLeft>
-                  {t('To')}: {t(data?.DOWN?.[0]?.dest)}
+                  {t('To')}: {data?.DOWN?.[0]?.dest && t(data?.DOWN?.[0]?.dest)}
                   <ListWrapper>
                     <ul>
                       {data?.DOWN?.map((times) => (
@@ -221,7 +220,7 @@ const Home = () => {
                   </ListWrapper>
                 </ResultLeft>
                 <ResultRight>
-                  {t('To')}: {t(data?.UP?.[0]?.dest)}
+                  {t('To')}: {data?.UP?.[0]?.dest && t(data?.UP?.[0]?.dest)}
                   <ListWrapper>
                     <ul>
                       {data?.UP?.map((times) => (
