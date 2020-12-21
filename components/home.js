@@ -1,9 +1,7 @@
-import Link from 'next/link';
 import useTranslation from '~/hooks/useTranslation';
 import styled from 'styled-components';
 import { stations } from '~/utils/next-train-data';
-import { useEffect, useMemo, useState } from 'react';
-import useSWR from 'swr';
+import { useEffect, useState } from 'react';
 import Axios from 'axios';
 import Refresh from './refresh';
 import { format, formatDuration, intervalToDuration } from 'date-fns';
@@ -35,14 +33,20 @@ const ResultWrapper = styled.div`
 `;
 
 const ListWrapper = styled.div`
-  height: 130px;
+  height: 160px;
   overflow: auto;
-  ul {
-    margin: 0;
-    li {
-      display: flex;
-      justify-content: space-between;
-      margin: 3px 0;
+  padding: 5px 0;
+
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 3px 0;
+    &:not(:last-child) {
+      border-bottom: 1px solid ${({theme})=>theme.border};
+      padding: 3px 0;
+    }
+    &:hover {
+      font-weight: bold;
     }
   }
 `
@@ -52,22 +56,18 @@ const Left = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 160px;
+  height: 165px;
   overflow: auto;
-  ul {
-    margin: 0;
-  }
+  margin-right: 3px;
 `;
 const Right = styled.div`
   flex: 1;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 160px;
+  height: 165px;
   overflow: auto;
-  ul {
-    margin: 0;
-  }
+  margin-left: 3px;
 `;
 
 const ResultLeft = styled.div`
@@ -75,23 +75,31 @@ const ResultLeft = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 160px;
+  margin-bottom: 5px;
+  margin-right: 3px;
 `;
 const ResultRight = styled.div`
   flex: 1;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 160px;
+  margin-bottom: 5px;
+  margin-left: 3px;
 `;
 
-const Option = styled.li`
-  background: ${({ selected, theme }) =>
-    selected
-      ? `linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
-      : 'transparent'};
-  color: ${({ selected, theme }) => selected ? '#fff' : theme.text};
+const Option = styled.div`
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  .option-name {
+    background: ${({ selected, theme }) =>
+      selected
+        ? `linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
+        : 'transparent'};
+    color: ${({ selected, theme }) => selected ? '#fff' : theme.text};
+    width: 100%;
+    padding: 3px;
+  }
 `;
 const PlatFormWrapper = styled.div`
   color: ${({ theme }) => theme.text};
@@ -108,6 +116,14 @@ const PlatForm = styled.span`
   color: ${({ theme }) => theme.platformText};
   background-color: ${({ theme }) => theme.platformBackground};
   margin-left: 5px;
+`;
+
+const LineColor = styled.div`
+  width: 18px;
+  height: 5px;
+  background-color: ${({color}) => color};
+  border-radius: 5px;
+  margin: 0 5px;
 `;
 
 const Home = () => {
@@ -165,11 +181,6 @@ const Home = () => {
   }, [selectedStation]);
 
   return (
-    <div>
-      {/* <Link href="https://truman.vercel.app">
-        {t('Click here to stock app')}
-      </Link> */}
-      {/* <br /> */}
       <Wrapper>
         <Header>
           <Heading>MTR Next Train</Heading>
@@ -177,30 +188,26 @@ const Home = () => {
         </Header>
         <SelectorWrapper>
           <Left>
-            <ul>
               {stations.map((l) => (
                 <Option
                   key={l.line.code}
                   onClick={() => onChangeLine(l.line.code)}
                   selected={l.line.code === selectedLine}
                 >
-                  {l.line.label[getLangCodeFromLocale()]}
+                  <LineColor color={l.line.color}/><div className="option-name">{l.line.label[getLangCodeFromLocale()]}</div>
                 </Option>
               ))}
-            </ul>
           </Left>
           <Right>
-            <ul>
               {filterStations()?.stations?.map((s) => (
                 <Option
                   key={s.code}
                   onClick={() => setSelectedStation(s.code)}
                   selected={s.code === selectedStation}
                 >
-                  {s.label[getLangCodeFromLocale()]}
+                  <div className="option-name">{s.label[getLangCodeFromLocale()]}</div>
                 </Option>
               ))}
-            </ul>
           </Right>
         </SelectorWrapper>
         <Wrapper>
@@ -213,35 +220,31 @@ const Home = () => {
                 <ResultLeft>
                   {t('To')}: {data?.DOWN?.[0]?.dest && t(data?.DOWN?.[0]?.dest)}
                   <ListWrapper>
-                    <ul>
                       {data?.DOWN?.map((times) => (
-                        <li key={times.seq}>
+                        <div className="list-item" key={times.seq}>
                           {humanTime(times?.time)} (
                           {humanDuration(times?.ttnt, locale)}){' '}
                           <PlatFormWrapper>
                             {t('Platform')}
                             <PlatForm>{times?.plat}</PlatForm>
                           </PlatFormWrapper>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
                   </ListWrapper>
                 </ResultLeft>
                 <ResultRight>
                   {t('To')}: {data?.UP?.[0]?.dest && t(data?.UP?.[0]?.dest)}
                   <ListWrapper>
-                    <ul>
                       {data?.UP?.map((times) => (
-                        <li key={times.seq}>
+                        <div className="list-item" key={times.seq}>
                           {humanTime(times?.time)} (
                           {humanDuration(times?.ttnt, locale)}){' '}
                           <PlatFormWrapper>
                             {t('Platform')}
                             <PlatForm>{times?.plat}</PlatForm>
                           </PlatFormWrapper>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
                   </ListWrapper>
                 </ResultRight>
               </ResultWrapper>
@@ -249,7 +252,6 @@ const Home = () => {
           )}
         </Wrapper>
       </Wrapper>
-    </div>
   );
 };
 export default React.memo(Home);

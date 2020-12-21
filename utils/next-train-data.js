@@ -1,6 +1,6 @@
 export const stations = [
     {
-        line: {code:'AEL',label: {en: 'Airport Express', tc: '機場快綫'}},
+        line: {code:'AEL',label: {en: 'Airport Express', tc: '機場快綫'}, color: '#1c7670'},
         stations: [
             {code:'HOK',label:{en: 'Hong Kong', tc: '香港'}},
             {code:'KOW',label:{en: 'Kowloon', tc: '九龍'}},
@@ -10,7 +10,7 @@ export const stations = [
         ],
     },
     {
-        line: {code:'TCL',label: {en: 'Tung Chung Line', tc: '東涌綫'}},
+        line: {code:'TCL',label: {en: 'Tung Chung Line', tc: '東涌綫'}, color: '#fe7f1d'},
         stations: [
             {code:'HOK',label:{en: 'Hong Kong', tc: '香港'}},
             {code:'KOW',label:{en: 'Kowloon', tc: '九龍'}},
@@ -23,7 +23,7 @@ export const stations = [
         ],
     },
     {
-        line: {code:'WRL',label: {en: 'West Rail Line', tc: '西鐵綫'}},
+        line: {code:'WRL',label: {en: 'West Rail Line', tc: '西鐵綫'}, color: '#a40084'},
         stations: [
             {code:'HUH',label:{en: 'Hung Hom', tc: '紅磡'}},
             {code:'ETS',label:{en: 'East Tsim Sha Tsui', tc: '尖東'}},
@@ -40,7 +40,7 @@ export const stations = [
         ],
     },
     {
-        line: {code:'TKL',label: {en: 'Tseung Kwan O Line', tc: '將軍澳綫'}},
+        line: {code:'TKL',label: {en: 'Tseung Kwan O Line', tc: '將軍澳綫'}, color: '#6b208b'},
         stations: [
             {code:'NOP',label:{en: 'North Point', tc: '北角'}},
             {code:'QUB',label:{en: 'Quarry Bay', tc: '鰂魚涌'}},
