@@ -93,6 +93,10 @@ const Option = styled.li`
   color: ${({ selected, theme }) => selected ? '#fff' : theme.text};
   cursor: pointer;
 `;
+const PlatFormWrapper = styled.div`
+  color: ${({ theme }) => theme.text};
+  align-items: center;
+`;
 
 const PlatForm = styled.span`
   border-radius: 50%;
@@ -103,6 +107,7 @@ const PlatForm = styled.span`
   justify-content: center;
   color: ${({ theme }) => theme.platformText};
   background-color: ${({ theme }) => theme.platformBackground};
+  margin-left: 5px;
 `;
 
 const Home = () => {
@@ -117,7 +122,7 @@ const Home = () => {
       intervalToDuration({ start: 0, end: parseInt(time) * 1000 * 60 })
     );
     if(locale === 'zh') {
-      return duration.replace(' hour', '小時').replace(' minutes', '分鐘')
+      return duration.replace(/\shours|\shour/g, '小時').replace(/\sminutes|\sminute/g, '分鐘')
     }
     return duration;
   };
@@ -213,7 +218,10 @@ const Home = () => {
                         <li key={times.seq}>
                           {humanTime(times?.time)} (
                           {humanDuration(times?.ttnt, locale)}){' '}
-                          <PlatForm>{times?.plat}</PlatForm>
+                          <PlatFormWrapper>
+                            {t('Platform')}
+                            <PlatForm>{times?.plat}</PlatForm>
+                          </PlatFormWrapper>
                         </li>
                       ))}
                     </ul>
@@ -227,7 +235,10 @@ const Home = () => {
                         <li key={times.seq}>
                           {humanTime(times?.time)} (
                           {humanDuration(times?.ttnt, locale)}){' '}
-                          <PlatForm>{times?.plat}</PlatForm>
+                          <PlatFormWrapper>
+                            {t('Platform')}
+                            <PlatForm>{times?.plat}</PlatForm>
+                          </PlatFormWrapper>
                         </li>
                       ))}
                     </ul>
