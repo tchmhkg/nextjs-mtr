@@ -15,16 +15,16 @@ $white: #fff;
   margin: 0 10px 0 5px;
   align-items: center;
 
-  &[data-innavbar='true'] {
-    @media (max-width: 374px) {
-      display: none;
-    }
-  }
-  &[data-innavbar='false'] {
-    @media (min-width: 375px) {
-      display: none;
-    }
-  }
+  // &[data-innavbar='true'] {
+  //   @media (max-width: 374px) {
+  //     display: none;
+  //   }
+  // }
+  // &[data-innavbar='false'] {
+  //   @media (min-width: 375px) {
+  //     display: none;
+  //   }
+  // }
 
   &[data-enabled='true'] {
     justify-content: flex-end;

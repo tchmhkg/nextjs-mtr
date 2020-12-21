@@ -5,7 +5,6 @@ import styled from 'styled-components';
 const LanguageSwitcher = dynamic(import('~/components/language-switcher'));
 const ThemeSwitcher = dynamic(import('~/components/theme-switcher'));
 const Image = dynamic(import('next/image'));
-const Menu = dynamic(import('~/components/common/menu-container').then((mod) => mod.Menu));
 
 const Container = styled.div`
   position: fixed;
@@ -43,7 +42,7 @@ const GitHubIconWrapper = styled.div`
 
 const GitHubButton = memo(() => (
   <GitHubIconWrapper>
-    <a href="https://github.com/tchmhkg/nextjs-app" rel="noopener" target="_blank">
+    <a href="https://github.com/tchmhkg/nextjs-mtr" rel="noopener" target="_blank">
       <Image 
         src="/images/github.png"
         width={30}
@@ -55,11 +54,9 @@ const GitHubButton = memo(() => (
 ))
 
 const Header = () => {
-  const [shouldUpdateZIndex, setShouldUpdateZIndex] = useState(false);
 
   return (
-    <Container shouldUpdateZIndex={shouldUpdateZIndex}>
-      <Menu setShouldUpdateZIndex={setShouldUpdateZIndex} />
+    <Container>
       <RightWrapper>
         <GitHubButton />
         <LanguageSwitcher inNavbar/>

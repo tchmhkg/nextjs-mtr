@@ -6,12 +6,6 @@ import { LanguageContext } from "~/context/LanguageContext";
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  @media (max-width: 374px) {
-    display: ${({inNavbar}) => inNavbar ? 'none' : 'flex'};
-  }
-  @media (min-width: 375px) {
-    display: ${({inNavbar}) => inNavbar ? 'flex' : 'none'};
-  }
 `;
 
 const LocaleButton = styled.div`
@@ -23,6 +17,7 @@ const LocaleButton = styled.div`
   margin: 0 5px;
   border-radius: 20px;
   padding: 5px 10px;
+  font-size: 16px;
   background: ${({selected, theme}) =>
     selected ? theme.primary1 : 'transparent'};
   background: ${({selected, theme}) =>

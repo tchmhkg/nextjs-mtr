@@ -6,7 +6,7 @@ export const stations = [
             {code:'KOW',label:{en: 'Kowloon', tc: '九龍'}},
             {code:'TSY',label:{en: 'Tsing Yi', tc: '青衣'}},
             {code:'AIR',label:{en: 'Airport', tc: '機場'}},
-            {code:'AWE',label:{en: 'AsiaWorld Expo', tc: '博覽館'}},
+            {code:'AWE',label:{en: 'AsiaWorld-Expo', tc: '博覽館'}},
         ],
     },
     {

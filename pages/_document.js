@@ -37,8 +37,8 @@ export default class MyDocument extends Document {
           <meta charSet="UTF-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
 
-          <meta name='application-name' content="NextStock" />
-          <meta name="description" content="Get market stock quote" />
+          <meta name='application-name' content="NextMTRTrain" />
+          <meta name="description" content="Get MTR Schedule" />
 
           <link rel="manifest" href="/manifest.json" />
           <link rel="icon" href="/favicon.ico" />
@@ -65,7 +65,7 @@ export default class MyDocument extends Document {
           />
           <meta name="twitter:card" content="summary" />
           <meta name="twitter:url" content="https://truman.vercel.app" />
-          <meta name="twitter:title" content="NextStock" />
+          <meta name="twitter:title" content="NextMTRTrain" />
           <meta
             name="twitter:description"
             content="Get market stock quote"
@@ -76,9 +76,9 @@ export default class MyDocument extends Document {
           />
           <meta name="twitter:creator" content="@trumancheung" />
           <meta property="og:type" content="website" />
-          <meta property="og:title" content="NextStock" />
-          <meta property="og:description" content="Get market stock quote" />
-          <meta property="og:site_name" content="NextStock" />
+          <meta property="og:title" content="NextMTRTrain" />
+          <meta property="og:description" content="Get MTR Schedule" />
+          <meta property="og:site_name" content="NextMTRTrain" />
           <meta
             property="og:url"
             content="https://truman.vercel.app/assets/apple-icon-180.png"

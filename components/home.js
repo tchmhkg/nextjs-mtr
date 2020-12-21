@@ -20,6 +20,7 @@ const Header = styled.div`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+  font-size: 16px;
 `;
 const SelectorWrapper = styled.div`
   display: flex;
@@ -118,8 +119,9 @@ const PlatFormWrapper = styled.div`
 const PlatForm = styled.span`
   border-radius: 50%;
   display: inline-flex;
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.platformText};
@@ -152,7 +154,11 @@ const Home = () => {
         .replace(/\shours|\shour/g, '小時')
         .replace(/\sminutes|\sminute/g, '分鐘');
     }
-    return duration;
+    return duration
+    .replace(/hours/g, 'hrs')
+    .replace(/hour/g, 'hr')
+    .replace(/minutes/g, 'mins')
+    .replace(/minute/g, 'min');
   };
 
   const humanTime = (time = new Date()) => {
