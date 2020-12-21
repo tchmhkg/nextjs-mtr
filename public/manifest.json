@@ -4,9 +4,9 @@
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
-  "app_name": "NextStock",
-  "name": "NextStock",
-  "short_name": "NextStock",
+  "app_name": "NextMtrTrain",
+  "name": "NextMtrTrain",
+  "short_name": "NextMtrTrain",
   "icons": [
     {
       "src": "assets/manifest-icon-192.png",

@@ -17,6 +17,8 @@ const dark = {
     primary2: '#E100FF',
     activeMenu: '#FFFFFF',
     inactiveMenu: '#FFFFFF',
+    platformBackground: '#FFFFFF',
+    platformText: '#000000',
   },
 };
 

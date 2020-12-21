@@ -6,7 +6,6 @@ import useTranslation from '~/hooks/useTranslation'
 const Head = dynamic(import('~/components/head'));
 const Navbar = dynamic(import('~/components/navbar'));
 const BackButton = dynamic(import('~/components/back'));
-const Image = dynamic(import('next/image'));
 const Link = dynamic(import('next/link'));
 
 export const name = "Truman";
@@ -30,41 +29,6 @@ const Layout = ({ children, home, showAvatar = true, back = false, showBackToHom
     <Navbar />
     <Container>
       <Head />
-      {showAvatar && (
-      <header className={styles.header}>
-        {home ? (
-          <>
-            <Image
-              src="/images/profile.png"
-              width={100}
-              height={125}
-              className={`${styles.headerHomeImage} ${styles.borderCircle}`}
-              alt={name}
-            />
-            <h1 className={styles.headingXl}>{name}</h1>
-          </>
-        ) : (
-          <>
-          <Link href="/[lang]" as={`/${locale}`}>
-              <a>
-                <Image
-                  src="/images/profile.png"
-                  width={70}
-                  height={87.5}
-                  className={`${styles.headerImage} ${styles.borderCircle}`}
-                  alt={name}
-                />
-              </a>
-            </Link>
-            <h2 className={styles.headingLg}>
-              <Link href="/[lang]" as={`/${locale}`}>
-                <a className={styles.colorInherit}>{name}</a>
-              </Link>
-            </h2>
-          </>
-        )}
-      </header>
-      )}
       {back && <BackButton backUrl={props.backUrl}/>}
       <main>{children}</main>
       {(!home && showBackToHome) && (

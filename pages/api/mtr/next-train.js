@@ -1,24 +1,26 @@
 import axios from "axios";
-import { FINNHUB_STOCK_PROFILE_API } from "~/utils/apiUrls";
+import { MTR_NEXT_TRAIN_API } from "~/utils/apiUrls";
 
 export default async function handler(req, res) {
-  const {symbol} = req.query;
+  const {line, sta, lang = 'en'} = req.query;
 
   try {
-    const profileRes = await axios.get(FINNHUB_STOCK_PROFILE_API, {
+    const apiRes = await axios.get(MTR_NEXT_TRAIN_API, {
       params: {
-        symbol,
+        line,
+        sta,
+        lang
       }
     });
     res.json({
       success: true,
-      profile: profileRes?.data || [],
+      data: apiRes?.data || [],
     });
   } catch (error) {
     console.log(error);
     res.json({
       success: false,
-      profile: [],
+      data: [],
     });
   }
 }

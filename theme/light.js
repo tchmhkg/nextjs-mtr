@@ -17,6 +17,8 @@ const light = {
     primary2: '#E100FF',
     activeMenu: '#000000',
     inactiveMenu: '#FFFFFF',
+    platformBackground: '#000000',
+    platformText: '#FFFFFF',
   },
 };
 

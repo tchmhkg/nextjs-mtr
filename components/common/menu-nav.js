@@ -26,8 +26,7 @@ export const Nav = ({ toggle }) => {
       {menuItems.map((item, index) => (
         <Link
           key={`${item.label}-${item.link}`}
-          href={`/[lang]/${item.link}`}
-          as={`/${locale}/${item.link}`}
+          href={`https://truman.vercel.app/${locale}/${item.link}`}
         >
           <div onClick={toggle}>
             <MenuItem item={item} index={index} />
