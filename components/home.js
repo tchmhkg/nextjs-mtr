@@ -8,6 +8,7 @@ import { format, formatDuration, intervalToDuration } from 'date-fns';
 
 const Heading = styled.h2`
   color: ${(props) => props.theme.text};
+  margin: 0 0 5px 0;
 `;
 
 const Header = styled.div`
@@ -139,6 +140,7 @@ const Home = () => {
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null);
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const humanDuration = (time = 0, locale = 'en') => {
     if (time === '0') return t('arriving');
@@ -175,6 +177,7 @@ const Home = () => {
   const getData = async () => {
     if (!selectedStation) return;
     try {
+      setLoading(true);
       const res = await Axios.get('/api/mtr/next-train', {
         params: {
           line: selectedLine,
@@ -185,8 +188,10 @@ const Home = () => {
       if (res?.data?.data?.data) {
         setData(res?.data?.data?.data[`${selectedLine}-${selectedStation}`]);
       }
+      setLoading(false);
     } catch (err) {
       console.log(err);
+      setLoading(false);
     }
   };
 
@@ -230,14 +235,14 @@ const Home = () => {
         </Right>
       </SelectorWrapper>
       <Wrapper>
-        {data && (
+        {(!loading && data) && (
           <>
             <p>
               {t('last update')}: {data?.curr_time}
             </p>
             <ResultWrapper>
               <ResultLeft>
-                {t('To')}: {data?.DOWN?.[0]?.dest && t(data?.DOWN?.[0]?.dest)}
+                {t('To')}: {data?.DOWN?.[0]?.dest && t(`${data?.DOWN?.[0]?.dest}_DOWN`)}
                 <ListWrapper>
                   {data?.DOWN?.map((times) => (
                     <div className="list-item" key={times.seq}>
@@ -254,7 +259,7 @@ const Home = () => {
                 </ListWrapper>
               </ResultLeft>
               <ResultRight>
-                {t('To')}: {data?.UP?.[0]?.dest && t(data?.UP?.[0]?.dest)}
+                {t('To')}: {data?.UP?.[0]?.dest && t(`${data?.UP?.[0]?.dest}_UP`)}
                 <ListWrapper>
                   {data?.UP?.map((times) => (
                     <div className="list-item" key={times.seq}>
