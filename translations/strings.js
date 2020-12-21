@@ -15,6 +15,7 @@ const strings = {
     "HUH": "Hung Hom",
     "NOP": "North Point",
     "POA": "Po Lam",
+    "LHP": "LOHAS Park",
   },
   zh: {
     "Back to home": "回到首頁",
@@ -32,6 +33,7 @@ const strings = {
     "HUH": "紅磡",
     "NOP": "北角",
     "POA": "寶琳",
+    "LHP": "康城",
   },
 };
 

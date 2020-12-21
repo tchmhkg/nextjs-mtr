@@ -90,7 +90,7 @@ const Option = styled.li`
     selected
       ? `linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
       : 'transparent'};
-  color: ${({ theme }) => theme.text};
+  color: ${({ selected, theme }) => selected ? '#fff' : theme.text};
   cursor: pointer;
 `;
 
@@ -111,15 +111,19 @@ const Home = () => {
   const [selectedLine, setSelectedLine] = useState(null);
   const [data, setData] = useState(null);
 
-  const humanDuration = (time = 0) => {
+  const humanDuration = (time = 0, locale = 'en') => {
     if (time === '0') return t('arriving');
-    return formatDuration(
+    const duration = formatDuration(
       intervalToDuration({ start: 0, end: parseInt(time) * 1000 * 60 })
     );
+    if(locale === 'zh') {
+      return duration.replace(' hour', '小時').replace(' minutes', '分鐘')
+    }
+    return duration;
   };
 
   const humanTime = (time = new Date()) => {
-    return format(new Date(time), 'HH:mm')
+    return format(new Date(time.replace(' ', 'T')), 'HH:mm')
   }
 
   const getLangCodeFromLocale = () => (locale === 'zh' ? 'tc' : 'en');
@@ -209,7 +213,7 @@ const Home = () => {
                       {data?.DOWN?.map((times) => (
                         <li key={times.seq}>
                           {humanTime(times?.time)} (
-                          {humanDuration(times?.ttnt)}){' '}
+                          {humanDuration(times?.ttnt, locale)}){' '}
                           <PlatForm>{times?.plat}</PlatForm>
                         </li>
                       ))}
@@ -223,7 +227,7 @@ const Home = () => {
                       {data?.UP?.map((times) => (
                         <li key={times.seq}>
                           {humanTime(times?.time)} (
-                          {humanDuration(times?.ttnt)}){' '}
+                          {humanDuration(times?.ttnt, locale)}){' '}
                           <PlatForm>{times?.plat}</PlatForm>
                         </li>
                       ))}
