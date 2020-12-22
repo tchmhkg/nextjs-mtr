@@ -69,7 +69,7 @@ export default class MyDocument extends Document {
           <meta name="twitter:description" content="Get MTR Schedule" />
           <meta
             name="twitter:image"
-            content="https://next-mtr.vercel.app/assets/icon-192x192.png"
+            content="https://nextjs-mtr.vercel.app/assets/icon-192x192.png"
           />
           <meta name="twitter:creator" content="@trumancheung" />
           <meta property="og:type" content="website" />
@@ -78,11 +78,11 @@ export default class MyDocument extends Document {
           <meta property="og:site_name" content="NextMTRTrain" />
           <meta
             property="og:url"
-            content="https://next-mtr.vercel.app/assets/icon-192x192.png"
+            content="https://nextjs-mtr.vercel.app/assets/icon-192x192.png"
           />
           <meta
             property="og:image"
-            content="https://next-mtr.vercel.app/assets/icon-192x192.png"
+            content="https://nextjs-mtr.vercel.app/assets/icon-192x192.png"
           />
           <link
             href="/splashscreens/iphone5_splash.png"
