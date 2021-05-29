@@ -85,9 +85,15 @@ const Home = () => {
   const { locale, t } = useTranslation();
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null);
-  const [currLocation, setCurrLocation] = useState({lat: 0, lng: 0});
+  // const [currLocation, setCurrLocation] = useState({lat: 0, lng: 0});
   // const [closestStation, setClosestStation] = useState({});
   // let stationRef = [];
+  const refs = stations.reduce((stationRef, value) => {
+    for(const station of value.stations) {
+      stationRef[station.code] = React.createRef();
+    }
+    return stationRef;
+  }, {});
 
   const getLangCodeFromLocale = () => (locale === 'zh' ? 'tc' : 'en');
 
@@ -108,7 +114,7 @@ const Home = () => {
     // console.log(`Latitude : ${crd.latitude}`);
     // console.log(`Longitude: ${crd.longitude}`);
     // console.log(`More or less ${crd.accuracy} meters.`);
-    setCurrLocation({lat: crd.latitude, lng: crd.longitude});
+    // setCurrLocation({lat: crd.latitude, lng: crd.longitude});
     findNearestStation(crd.latitude, crd.longitude)
   }
 
@@ -151,10 +157,14 @@ const Home = () => {
     getCurrLocation();
   }, [])
 
-  // useEffect(() => {
-  //   console.log('scroll to ',stationRef.find())
-  //   stationRef.current?.scrollIntoView();
-  // }, [selectedStation])
+  useEffect(() => {
+    console.log('scroll')
+    if(!selectedStation) return;
+    refs[selectedStation].current.scrollIntoView({
+      // behavior: "smooth",
+      block: "start"
+    });
+  }, [selectedStation])
 
   const calcDistance = (lat1, lon1, lat2, lon2, unit) => {
     var radlat1 = Math.PI * lat1/180
@@ -200,7 +210,7 @@ const Home = () => {
             stationRef.push({[s.code]: ref}) */}
             return (
               <StationOption
-                // ref={ref}
+                ref={refs[s.code]}
                 key={s.code}
                 onClick={() => setSelectedStation(s.code)}
                 selected={s.code === selectedStation}
