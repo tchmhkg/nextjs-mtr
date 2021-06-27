@@ -52,9 +52,9 @@ const ResultList = ({ left = false, right = false, label = '', data = [], lineCo
     <Wrapper left={left} right={right}>
       {label && `${t('To')}: ${label}`}
       <ListWrapper>
-        {data.map((times) => (
+        {data?.length ? data.map((times) => (
           <ResultItem key={times.seq} times={times} lineColor={lineColor}/>
-        ))}
+        )) : t('End Service')}
       </ListWrapper>
     </Wrapper>
   );
