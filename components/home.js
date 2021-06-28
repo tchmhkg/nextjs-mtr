@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { stations } from '~/utils/next-train-data';
 import { useState, useEffect, useCallback, /*createRef*/ } from 'react';
 import Result from './train/result';
+import CurrLocation from './curr-location';
 
 const Heading = styled.h2`
   color: ${(props) => props.theme.text};
-  margin: 0 0 5px 0;
+  margin: 0;
 `;
 
 const Header = styled.div`
@@ -85,6 +86,7 @@ const Home = () => {
   const { locale, t } = useTranslation();
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null);
+  const [gettingLocation, setGettingLocation] = useState(false);
   // const [currLocation, setCurrLocation] = useState({lat: 0, lng: 0});
   // const [closestStation, setClosestStation] = useState({});
   // let stationRef = [];
@@ -151,6 +153,7 @@ const Home = () => {
     // setClosestStation(closest);
     setSelectedLine(closestLine);
     setSelectedStation(closest);
+    setGettingLocation(true);
   }, [])
 
   useEffect(() => {
@@ -158,13 +161,19 @@ const Home = () => {
   }, [])
 
   useEffect(() => {
-    console.log('scroll')
+    if(gettingLocation) {
+      scrollToStation();
+      setGettingLocation(false);
+    }
+  }, [selectedStation, gettingLocation])
+
+  const scrollToStation = () => {
     if(!selectedStation) return;
-    refs[selectedStation].current.scrollIntoView({
+    refs[selectedStation]?.current?.scrollIntoView({
       // behavior: "smooth",
       block: "start"
     });
-  }, [selectedStation])
+  }
 
   const calcDistance = (lat1, lon1, lat2, lon2, unit) => {
     var radlat1 = Math.PI * lat1/180
@@ -187,6 +196,7 @@ const Home = () => {
     <Container>
       <Header>
         <Heading>MTR Next Train</Heading>
+        <CurrLocation onClick={getCurrLocation}/>
       </Header>
       <SelectorWrapper>
         <Left>

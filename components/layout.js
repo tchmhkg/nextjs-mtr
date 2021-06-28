@@ -11,7 +11,8 @@ const Link = dynamic(import('next/link'));
 export const name = "Truman";
 
 const Container = styled.div`
-  min-height: calc(100vh - 70px);
+  overflow-y: auto;
+  height: calc(100% - 70px);
   top: 70px;
   padding: 15px;
   position: relative;

@@ -51,13 +51,13 @@ const ResultList = ({ left = false, right = false, label = '', data = [], lineCo
   return (
     <Wrapper left={left} right={right}>
       {label && `${t('To')}: ${label}`}
-      {!delay ? 
       <ListWrapper>
-        {data?.length ? data.map((times) => (
+      {!delay ? 
+        (data?.length ? data.map((times) => (
           <ResultItem key={times.seq} times={times} lineColor={lineColor}/>
-        )) : t('End Service')}
-      </ListWrapper>
+        )) : t('End Service'))
       : <div>{t('Service not available')}</div>}
+      </ListWrapper>
     </Wrapper>
   );
 };

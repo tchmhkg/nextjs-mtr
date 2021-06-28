@@ -1,10 +1,10 @@
 {
   "name": "NextMtrTrain",
   "short_name": "NextMtrTrain",
-  "theme_color": "#7F00FF",
+  "theme_color": "#2A9DF4",
   "background_color": "#FFFFFF",
   "display": "standalone",
-  "orientation": "",
+  "orientation": "portrait",
   "scope": "/",
   "start_url": "/",
   "icons": [
