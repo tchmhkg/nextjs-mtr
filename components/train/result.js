@@ -28,7 +28,11 @@ const Header = styled.div`
     margin: 10px 0;
 `;
 
-const fetcher = (url, params) => Axios.get(url, {params}).then(res => res?.data?.data[`${params?.line}-${params?.sta}`]);
+const fetcher = (url, params) => Axios.get(url, {params}).then(res => ({
+  data: res?.data?.data[`${params?.line}-${params?.sta}`],
+  isdelay: res?.data.isdelay === 'Y',
+  curr_time: res?.data?.curr_time,
+}));
 
 const Result = ({ line, sta }) => {
   const { t, locale } = useTranslation();
@@ -47,15 +51,17 @@ const Result = ({ line, sta }) => {
       <ResultWrapper>
         <ResultList
           left
-          label={data?.DOWN?.[0]?.dest && t(`${data?.DOWN?.[0]?.dest}_DOWN`)}
-          data={data?.DOWN}
+          label={data?.data?.DOWN?.[0]?.dest && t(`${data?.data?.DOWN?.[0]?.dest}_DOWN`)}
+          data={data?.data?.DOWN}
           lineColor={lineColor}
+          delay={data?.isdelay}
         />
         <ResultList
           right
-          label={data?.UP?.[0]?.dest && t(`${data?.UP?.[0]?.dest}_UP`)}
-          data={data?.UP}
+          label={data?.data?.UP?.[0]?.dest && t(`${data?.data?.UP?.[0]?.dest}_UP`)}
+          data={data?.data?.UP}
           lineColor={lineColor}
+          delay={data?.isdelay}
         />
       </ResultWrapper>
     </Wrapper>

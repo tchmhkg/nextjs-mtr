@@ -34,8 +34,8 @@ const strings = {
     "TIK_DOWN": "Tiu Keng Leng",
     "Platform": "Platform",
     "Loading...": "Loading...",
-    "End Service": "Service for today has ended.",
-    "Service not available": "Status temporarily not available.",
+    "End Service": "Service for today has ended",
+    "Service not available": "Status temporarily not available",
   },
   zh: {
     "Back to home": "回到首頁",
@@ -72,8 +72,8 @@ const strings = {
     "TIK_DOWN": "調景嶺",
     "Platform": "月台",
     "Loading...": "載入中...",
-    "End Service": "今日服務已經終止。",
-    "Service not available": "暫時不可用。",
+    "End Service": "今日服務已經終止",
+    "Service not available": "系統暫時未能提供資料",
   },
 };
 
