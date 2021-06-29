@@ -45,7 +45,7 @@ const Wrapper = styled.div`
   margin-right: ${({ left }) => (left ? '3px' : 0)};
 `;
 
-const ResultList = ({ left = false, right = false, label = '', data = [], lineColor, delay = false }) => {
+const ResultList = ({ left = false, right = false, label = '', data = [], lineColor, delay = false, currTime = null }) => {
   const { t } = useTranslation();
 
   return (
@@ -54,7 +54,7 @@ const ResultList = ({ left = false, right = false, label = '', data = [], lineCo
       <ListWrapper>
       {!delay ? 
         (data?.length ? data.map((times) => (
-          <ResultItem key={times.seq} times={times} lineColor={lineColor}/>
+          <ResultItem key={times.seq} times={times} lineColor={lineColor} currTime={currTime}/>
         )) : t('End Service'))
       : <div>{t('Service not available')}</div>}
       </ListWrapper>

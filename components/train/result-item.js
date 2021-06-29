@@ -23,13 +23,20 @@ const PlatForm = styled.span`
   margin-left: 5px;
 `;
 
-const ResultItem = ({ times, lineColor }) => {
+const ResultItem = ({ times, lineColor, currTime }) => {
   const { locale, t } = useTranslation();
-  const humanDuration = (time = 0, locale = 'en') => {
-    if (time === '1') return t('arriving');
-    if (time === '0') return t('leaving');
+  const humanDuration = (time = null, locale = 'en') => {
+    const start = new Date(time);
+    const end = new Date(currTime);
+    // const isPast = end > start;
+    const diffMSeconds = start.getTime() - end.getTime();
+    const diffSeconds = diffMSeconds / 1000;
+    // console.log(diffSeconds)
+    // const minutesToArrive = intervalToDuration({start, end})?.minutes;
+    if (diffSeconds <= 0) return t('leaving');
+    if (diffSeconds <= 60) return t('arriving');
     const duration = formatDuration(
-      intervalToDuration({ start: 0, end: parseInt(time) * 1000 * 60 })
+      intervalToDuration({ start: 0, end: diffMSeconds})//parseInt(minutesToArrive) * 1000 * 60 })
     );
     if (locale === 'zh') {
       return duration
@@ -54,7 +61,7 @@ const ResultItem = ({ times, lineColor }) => {
         <PlatForm lineColor={lineColor}>{times?.plat}</PlatForm>
       </PlatFormWrapper>
       <div className="item-time">
-        {humanTime(times?.time)} ({humanDuration(times?.ttnt, locale)})
+        {humanTime(times?.time)} ({humanDuration(times?.time, locale)})
       </div>
     </div>
   );

@@ -43,7 +43,6 @@ const Result = ({ line, sta }) => {
   const getRouteDestLabel = (routes = []) => {
     if(!routes || !routes.length) return '-';
     const dests = Array.from(new Set([...routes.map(r => t(r.dest))]));
-    console.log(dests);
     return dests.join(t('/'));
   }
 
@@ -55,14 +54,14 @@ const Result = ({ line, sta }) => {
         {t('last update')}: {data?.curr_time}
         <Refresh onClick={mutate} />
       </Header>
-      {(data?.data?.UP?.length === 0 && data?.data?.DOWN?.length === 0) ? (
+      {/* {(data?.data?.UP?.length === 0 && data?.data?.DOWN?.length === 0) ? (
       <ResultWrapper>
         <ResultList
           label="-"
           data={[]}
           lineColor={lineColor}
         />
-      </ResultWrapper>) : (
+      </ResultWrapper>) : ( */}
       <ResultWrapper>
         {data?.data?.UP ? <ResultList
           left
@@ -70,6 +69,7 @@ const Result = ({ line, sta }) => {
           data={data?.data?.UP}
           lineColor={lineColor}
           delay={data?.isdelay}
+          currTime={data?.curr_time}
         /> : null}
         {data?.data?.DOWN ? <ResultList
           right
@@ -77,8 +77,10 @@ const Result = ({ line, sta }) => {
           data={data?.data?.DOWN}
           lineColor={lineColor}
           delay={data?.isdelay}
+          currTime={data?.curr_time}
         /> : null}
-      </ResultWrapper>)}
+      </ResultWrapper>
+      {/* )} */}
     </Wrapper>
   );
 };
