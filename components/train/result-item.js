@@ -26,7 +26,8 @@ const PlatForm = styled.span`
 const ResultItem = ({ times, lineColor }) => {
   const { locale, t } = useTranslation();
   const humanDuration = (time = 0, locale = 'en') => {
-    if (time === '0') return t('arriving');
+    if (time === '1') return t('arriving');
+    if (time === '0') return t('leaving');
     const duration = formatDuration(
       intervalToDuration({ start: 0, end: parseInt(time) * 1000 * 60 })
     );

@@ -40,6 +40,13 @@ const Result = ({ line, sta }) => {
   const { data, error, mutate } = useSWR([(line && sta) ? MTR_NEXT_TRAIN_API : null, params], fetcher);
   const lineColor = stations.find(l => l.line.code === line)?.line?.color;
 
+  const getRouteDestLabel = (routes = []) => {
+    if(!routes || !routes.length) return '-';
+    const dests = Array.from(new Set([...routes.map(r => t(r.dest))]));
+    console.log(dests);
+    return dests.join(t('/'));
+  }
+
   if(!line || !sta) return null;
   if(line && sta && !data) return t('Loading...');
   return (
@@ -48,22 +55,30 @@ const Result = ({ line, sta }) => {
         {t('last update')}: {data?.curr_time}
         <Refresh onClick={mutate} />
       </Header>
+      {(data?.data?.UP?.length === 0 && data?.data?.DOWN?.length === 0) ? (
       <ResultWrapper>
         <ResultList
-          left
-          label={data?.data?.DOWN?.[0]?.dest && t(`${data?.data?.DOWN?.[0]?.dest}_DOWN`)}
-          data={data?.data?.DOWN}
+          label="-"
+          data={[]}
           lineColor={lineColor}
-          delay={data?.isdelay}
         />
-        <ResultList
-          right
-          label={data?.data?.UP?.[0]?.dest && t(`${data?.data?.UP?.[0]?.dest}_UP`)}
+      </ResultWrapper>) : (
+      <ResultWrapper>
+        {data?.data?.UP ? <ResultList
+          left
+          label={getRouteDestLabel(data?.data?.UP)}
           data={data?.data?.UP}
           lineColor={lineColor}
           delay={data?.isdelay}
-        />
-      </ResultWrapper>
+        /> : null}
+        {data?.data?.DOWN ? <ResultList
+          right
+          label={getRouteDestLabel(data?.data?.DOWN)}
+          data={data?.data?.DOWN}
+          lineColor={lineColor}
+          delay={data?.isdelay}
+        /> : null}
+      </ResultWrapper>)}
     </Wrapper>
   );
 };

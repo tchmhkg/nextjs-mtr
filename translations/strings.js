@@ -4,6 +4,7 @@ const strings = {
     "Back": "Back",
     "Home": "Home",
     "arriving": "Arriving",
+    "leaving": "Leaving",
     "last update": "Last update",
     "To": "To",
     "HOK": "Hong Kong",
@@ -36,12 +37,14 @@ const strings = {
     "Loading...": "Loading...",
     "End Service": "Service for today has ended",
     "Service not available": "Status temporarily not available",
+    "/": " / ",
   },
   zh: {
     "Back to home": "回到首頁",
     "Back": "返回",
     "Home": "首頁",
     "arriving": "即將抵達",
+    "leaving": "正在離開",
     "last update": "最後更新",
     "To": "往",
     "HOK": "香港",
@@ -74,6 +77,7 @@ const strings = {
     "Loading...": "載入中...",
     "End Service": "今日服務已經終止",
     "Service not available": "系統暫時未能提供資料",
+    "/": "/",
   },
 };
 
