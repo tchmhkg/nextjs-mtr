@@ -1,7 +1,7 @@
 import useTranslation from '~/hooks/useTranslation';
 import styled from 'styled-components';
 import { stations } from '~/utils/next-train-data';
-import { useState, useEffect, useCallback, /*createRef*/ } from 'react';
+import { useState, useEffect, useCallback, useRef, /*createRef*/ } from 'react';
 import Result from './train/result';
 import CurrLocation from './curr-location';
 
@@ -88,6 +88,7 @@ const LineColor = styled.div`
 
 const Home = () => {
   const { locale, t } = useTranslation();
+  const rightListRef = useRef(null);
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null);
   const [gettingLocation, setGettingLocation] = useState(false);
@@ -107,6 +108,7 @@ const Home = () => {
     if (line === selectedLine) return;
     setSelectedLine(line);
     setSelectedStation(null);
+    rightListRef?.current?.scrollTo({top: 0});
   };
   const filterStations = () => {
     if (!selectedLine) return [];
@@ -218,7 +220,7 @@ const Home = () => {
             </LineOption>
           ))}
         </Left>
-        <Right bgColor={filterStations()?.line?.color}>
+        <Right ref={rightListRef} bgColor={filterStations()?.line?.color}>
           {filterStations()?.stations?.map((s) => {
             {/* const ref = createRef();
             stationRef.push({[s.code]: ref}) */}

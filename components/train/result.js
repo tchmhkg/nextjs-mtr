@@ -38,7 +38,6 @@ const Result = ({ line, sta }) => {
   const { t, locale } = useTranslation();
   const params = useMemo(() => ({line, sta, lang: locale === 'zh' ? 'tc' : 'en'}), [line, sta, locale]);
   const { data, error, mutate } = useSWR([(line && sta) ? MTR_NEXT_TRAIN_API : null, params], fetcher);
-  console.log('data',data)
   const lineColor = stations.find(l => l.line.code === line)?.line?.color;
 
   const getRouteDestLabel = (routes = []) => {
