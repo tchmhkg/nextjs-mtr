@@ -41,18 +41,21 @@ const ResultItem = ({ times, lineColor, currTime }) => {
     if (diffSeconds <= 0) return t('leaving');
     if (diffSeconds <= 60) return t('arriving');
     const duration = formatDuration(
-      intervalToDuration({ start: 0, end: diffMSeconds})//parseInt(minutesToArrive) * 1000 * 60 })
+      intervalToDuration({ start: 0, end: diffMSeconds}),//parseInt(minutesToArrive) * 1000 * 60 })
+      { format: ['hours', 'minutes'] }
     );
     if (locale === 'zh') {
       return duration
         .replace(/\shours|\shour/g, '小時')
-        .replace(/\sminutes|\sminute/g, '分鐘');
+        .replace(/\sminutes|\sminute/g, '分鐘')
+        .replace(/\sseconds|\ssecond/g, '秒');
     }
     return duration
       .replace(/hours/g, 'hrs')
       .replace(/hour/g, 'hr')
       .replace(/minutes/g, 'mins')
-      .replace(/minute/g, 'min');
+      .replace(/minute/g, 'min')
+      .replace(/seconds/g, 'secs');
   };
 
   const humanTime = (time = new Date()) => {

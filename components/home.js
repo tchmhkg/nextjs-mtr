@@ -39,9 +39,13 @@ const Left = styled.div`
   flex-direction: column;
   height: 170px;
   overflow-y: auto;
+  margin-right: 3px;
 `;
 const Right = styled(Left)`
   background: ${({bgColor}) => bgColor || 'transparent'};
+  border-radius: 8px;
+  margin-left: 3px;
+  margin-right: 0;
 `;
 
 const Option = styled.div`
@@ -59,8 +63,7 @@ const Option = styled.div`
 
 const LineOption = styled(Option)`
   .option-name {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
+    border-radius: 8px;
   }
 `;
 
@@ -71,6 +74,7 @@ const StationOption = styled(Option)`
     background: ${({ selected }) =>
       selected ? '#fff' : 'transparent'} !important;
     color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
+    border-radius: 8px;
   }
 `;
 
