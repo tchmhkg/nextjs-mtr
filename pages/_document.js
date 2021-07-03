@@ -55,7 +55,7 @@ export default class MyDocument extends Document {
             sizes="32x32"
           />
           <link rel="apple-touch-icon" href="/assets/icon-192x192.png" />
-          <meta name="theme-color" content="#7F00FF" />
+          <meta name="theme-color" content="#126AE7" />
           <meta name="format-detection" content="telephone=no" />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -64,7 +64,7 @@ export default class MyDocument extends Document {
             content="black-translucent"
           />
           <meta name="twitter:card" content="summary" />
-          <meta name="twitter:url" content="https://truman.vercel.app" />
+          <meta name="twitter:url" content="https://nextjs-mtr.vercel.app" />
           <meta name="twitter:title" content="NextMTRTrain" />
           <meta name="twitter:description" content="Get MTR Schedule" />
           <meta
