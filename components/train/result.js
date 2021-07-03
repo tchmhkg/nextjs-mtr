@@ -64,7 +64,7 @@ const Result = ({ line, sta }) => {
         />
       </ResultWrapper>) : ( */}
       <ResultWrapper>
-        {!(data?.data?.UP && data?.data?.DOWN) ? <div>{t('Service not available')}</div> : null}
+        {!data?.data?.UP && !data?.data?.DOWN ? <div>{t('Service not available')}</div> : null}
         {data?.data?.UP ? <ResultList
           left
           label={getRouteDestLabel(data?.data?.UP)}
