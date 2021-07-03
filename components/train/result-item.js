@@ -23,11 +23,16 @@ const PlatForm = styled.span`
   margin-left: 5px;
 `;
 
+const isValidDate = d => (d instanceof Date && !isNaN(d));
+
 const ResultItem = ({ times, lineColor, currTime }) => {
   const { locale, t } = useTranslation();
   const humanDuration = (time = null, locale = 'en') => {
-    const start = new Date(time);
-    const end = new Date(currTime);
+    const start = new Date(Date.parse(time?.replace(/-/g, '/')));
+    const end = new Date(Date.parse(currTime?.replace(/-/g, '/')));
+    if(!isValidDate(start) || !isValidDate(end)) {
+      return '-';
+    }
     // const isPast = end > start;
     const diffMSeconds = start.getTime() - end.getTime();
     const diffSeconds = diffMSeconds / 1000;
