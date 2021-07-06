@@ -54,8 +54,8 @@ export const stations = [
             {code:'HIK',label:{en: 'Hin Keng', tc: '顯徑'}, location: {lat: 22.3641138, lng: 114.1686049}},
             {code:'DIH',label:{en: 'Diamond Hill', tc: '鑽石山'}, location: {lat: 22.3401383, lng: 114.199243}},
             {code:'KAT',label:{en: 'Kai Tak', tc: '啟德'}, location: {lat: 22.3303804, lng: 114.197925}},
-            {code:'SUW',label:{en: 'Sung Wong Toi', tc: '宋皇臺'}, location: {lat: 22.3250311, lng: 114.1896658}}, //Temp
-            {code:'TKW',label:{en: 'To Kwa Wan', tc: '土瓜灣'}, location: {lat: 22.3181218, lng: 114.1856607}}, //temp
+            {code:'SUW',label:{en: 'Sung Wong Toi', tc: '宋皇臺'}, location: {lat: 22.3257785, lng: 114.1902539}},
+            {code:'TKW',label:{en: 'To Kwa Wan', tc: '土瓜灣'}, location: {lat: 22.3175795, lng: 114.1870094}},
             {code:'HOM',label:{en: 'Ho Man Tin', tc: '何文田'}, location: {lat: 22.309364, lng: 114.1805407}},
             {code:'HUH',label:{en: 'Hung Hom', tc: '紅磡'}, location: {lat: 22.3025399, lng: 114.1805684}},
             {code:'ETS',label:{en: 'East Tsim Sha Tsui', tc: '尖東'}, location: {lat: 22.2955557, lng: 114.1718364}},
