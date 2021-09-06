@@ -21,14 +21,6 @@ module.exports = withPlugins(
     ],
     {
         webpack: (config, options) => {
-          // Fixes npm packages that depend on `fs` module
-          config.node = {
-            fs: 'empty',
-          }
-          config.module.rules.push({
-            test: /\.mdx?$/,
-            use: 'raw-loader',
-          })
           /* config.module.rules.push({
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
             use: [

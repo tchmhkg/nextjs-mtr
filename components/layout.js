@@ -8,8 +8,6 @@ const Navbar = dynamic(import('~/components/navbar'));
 const BackButton = dynamic(import('~/components/back'));
 const Link = dynamic(import('next/link'));
 
-export const name = "Truman";
-
 const Container = styled.div`
   overflow-y: auto;
   height: calc(100% - 70px);

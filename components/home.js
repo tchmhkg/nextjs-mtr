@@ -1,7 +1,7 @@
 import useTranslation from '~/hooks/useTranslation';
 import styled from 'styled-components';
 import { stations } from '~/utils/next-train-data';
-import { useState, useEffect, useCallback, useRef, /*createRef*/ } from 'react';
+import React, { useState, useEffect, useCallback, useRef, /*createRef*/ } from 'react';
 import Result from './train/result';
 import CurrLocation from './curr-location';
 
