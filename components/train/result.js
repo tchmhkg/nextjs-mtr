@@ -115,7 +115,7 @@ const Result = ({ line, sta }) => {
   return (
     <Wrapper>
       <Header>
-        <LastUpdate>{data?.curr_time ? <div class="last-update-time">{t('last update')}: {data?.curr_time}</div> : null}{data?.alert ? <Bell onClick={onClickShowAlert}/> : null}</LastUpdate>
+        <LastUpdate>{data?.curr_time ? <div className="last-update-time">{t('last update')}: {data?.curr_time}</div> : null}{data?.alert ? <Bell onClick={onClickShowAlert}/> : null}</LastUpdate>
         <Refresh onClick={mutate} />
       </Header>
       {showAlert ? <AlertContainer onClick={onClickCloseAlert}><Alert>
