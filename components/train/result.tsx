@@ -6,7 +6,7 @@ import Alert from '@components/alert'
 import Bell from '@components/bell'
 import Refresh from '@components/refresh'
 import useTranslation from '@hooks/useTranslation'
-import { MTR_NEXT_TRAIN_API } from '@utils/apiUrls'
+import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
 import { stations } from '@utils/next-train-data'
 import ResultList from './result-list'
 import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
@@ -19,9 +19,9 @@ const fetcher = (url, params) =>
     alert:
       res?.data?.status === 0 && res?.data?.message
         ? {
-            message: res?.data?.message, //"Special train service arrangements are now in place on this line. Please click here for more information.",
-            url: res?.data?.url ? decodeURI(res?.data?.url) : null, //decodeURI("https:\/\/www.mtr.com.hk\/alert\/alert_title_wap.html")
-          }
+          message: res?.data?.message, //"Special train service arrangements are now in place on this line. Please click here for more information.",
+          url: res?.data?.url ? decodeURI(res?.data?.url) : null, //decodeURI("https:\/\/www.mtr.com.hk\/alert\/alert_title_wap.html")
+        }
         : null,
   }))
 
@@ -44,7 +44,7 @@ const Result = ({ line, sta }) => {
   const getRouteDestLabel = useCallback(
     (routes = []) => {
       if (!routes || !routes.length) return '-'
-      ;``
+        ; ``
       const dests = Array.from(new Set([...routes.map((r) => t(r.dest))]))
       return dests.join(t('/'))
     },
@@ -70,7 +70,7 @@ const Result = ({ line, sta }) => {
         <Refresh onClick={mutate} />
       </Header>
       {showAlert ? (
-        <Alert onPress={onClickCloseAlert}>
+        <Alert onPressClose={onClickCloseAlert}>
           {data?.alert?.message}
           {data?.alert?.url ? (
             <a href={data?.alert?.url} target="_blank" rel="noreferrer">

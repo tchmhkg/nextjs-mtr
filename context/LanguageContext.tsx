@@ -4,11 +4,11 @@ import { createContext, useEffect, useState } from 'react'
 
 export const LanguageContext = createContext({
   locale: 'en',
-  setLocale: () => null,
+  setLocale: (lang: string) => null,
 })
 
 export const LanguageProvider = ({ lang = 'en', children }) => {
-  const [locale, setLocale] = useState(lang)
+  const [locale, setLocale] = useState<string>(lang)
   const { query } = useRouter()
 
   useEffect(() => {

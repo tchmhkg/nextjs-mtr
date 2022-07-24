@@ -2,7 +2,7 @@ import { useTheme } from '@theme/theme'
 import NextHead from 'next/head'
 import { memo } from 'react'
 
-const Head = ({ children }) => {
+const Head = ({ children }: { children?: any }) => {
   const { mode } = useTheme()
   return (
     <NextHead>

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { MTR_NEXT_TRAIN_API } from '@utils/apiUrls'
+import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
 
 export default async function handler(
   req: NextApiRequest,

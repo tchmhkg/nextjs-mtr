@@ -1,12 +1,12 @@
 import { format, formatDuration, intervalToDuration } from 'date-fns'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 
 import useTranslation from '@hooks/useTranslation'
 import { PlatForm, PlatFormWrapper } from './result-item.style'
 const isValidDate = (d) => d instanceof Date && !isNaN(d)
 
 const humanTime = (time = new Date()) => {
-  return format(new Date(time.replace(' ', 'T')), 'HH:mm')
+  return format(new Date(String(time).replace(' ', 'T')), 'HH:mm')
 }
 
 const ResultItem = ({ times, lineColor, currTime }) => {

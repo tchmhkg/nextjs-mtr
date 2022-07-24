@@ -17,7 +17,7 @@ import {
   RelatedLineWrapper,
   Right,
   SelectorWrapper,
-  StationOption,
+  StationOption
 } from './home.style'
 
 import Result from './train/result'
@@ -54,7 +54,7 @@ const Home = () => {
     },
     [selectedLine, dispatch]
   )
-  const filterStations = useCallback(() => {
+  const filterStations: any = useCallback(() => {
     if (!selectedLine?.code) return []
     return stations.find((s) => s.line.code === selectedLine.code)
   }, [selectedLine])
@@ -95,7 +95,8 @@ const Home = () => {
             lat,
             lng,
             station.location.lat,
-            station.location.lng
+            station.location.lng,
+            undefined
           )
           if (!closestStation || distance < closestDistance) {
             closestDistance = distance
@@ -155,7 +156,7 @@ const Home = () => {
   }, [getCurrLocation])
 
   useEffect(() => {
-    if (gettingLocation?.code) {
+    if (gettingLocation) {
       scrollToStation()
       setGettingLocation(false)
     }
@@ -226,7 +227,7 @@ const Home = () => {
                   {!_.isEmpty(s.related) && (
                     <div
                       className="more-option"
-                      onClick={() => showMoreOptions(s.related)}
+                      onClick={showMoreOptions}
                     >
                       {'>'}
                     </div>
