@@ -1,9 +1,9 @@
-import { memo } from 'react';
-import NextHead from 'next/head';
-import { useTheme } from '~/theme';
+import { useTheme } from '@theme/theme'
+import NextHead from 'next/head'
+import { memo } from 'react'
 
 const Head = ({ children }) => {
-  const { mode } = useTheme();
+  const { mode } = useTheme()
   return (
     <NextHead>
       <meta
@@ -17,7 +17,7 @@ const Head = ({ children }) => {
       <title>Next MTR Train</title>
       {children}
     </NextHead>
-  );
-};
+  )
+}
 
-export default memo(Head);
+export default memo(Head)

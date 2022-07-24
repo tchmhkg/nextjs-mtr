@@ -1,7 +1,7 @@
-import { useEffect, memo } from 'react';
-import styled from 'styled-components';
-import { useTheme } from '~/theme';
-import styles from './spinner.module.scss';
+import { useTheme } from '@theme/theme'
+import { memo, useEffect } from 'react'
+import styled from 'styled-components'
+import styles from './spinner.module.scss'
 
 const Wrapper = styled.div`
   background-color: ${(props) => props.theme.backgroundAlt};
@@ -15,21 +15,21 @@ const Wrapper = styled.div`
   z-index: 10;
   top: calc(100vh / 2 - 35px);
   left: calc(100vw / 2 - 35px);
-`;
+`
 
 const Circle = styled.circle`
   stroke: url(#spinnerLinearColors);
-`;
+`
 
 const Spinner = () => {
-  const { colors } = useTheme();
+  const { colors } = useTheme()
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden'
     return () => {
-      document.body.style.removeProperty('overflow');
-    };
-  }, []);
+      document.body.style.removeProperty('overflow')
+    }
+  }, [])
 
   return (
     <Wrapper>
@@ -40,10 +40,17 @@ const Spinner = () => {
             <stop offset="90%" stopColor={colors.primary2} />
           </linearGradient>
         </defs>
-        <Circle className={styles.path} cx="25" cy="25" r="20" fill="none" strokeWidth="4" />
+        <Circle
+          className={styles.path}
+          cx="25"
+          cy="25"
+          r="20"
+          fill="none"
+          strokeWidth="4"
+        />
       </svg>
     </Wrapper>
-  );
-};
+  )
+}
 
-export default memo(Spinner);
+export default memo(Spinner)
