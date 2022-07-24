@@ -1,43 +1,15 @@
 import Axios from 'axios'
 import { useCallback, useMemo, useState } from 'react'
-import styled from 'styled-components'
 import useSWR from 'swr'
 
 import Alert from '@components/alert'
-import Bell from '@components/Bell'
+import Bell from '@components/bell'
 import Refresh from '@components/refresh'
 import useTranslation from '@hooks/useTranslation'
 import { MTR_NEXT_TRAIN_API } from '@utils/apiUrls'
 import { stations } from '@utils/next-train-data'
 import ResultList from './result-list'
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const ResultWrapper = styled(Wrapper)`
-  @media (min-width: 769px) {
-    flex-direction: row;
-  }
-`
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin: 10px 0;
-`
-
-const LastUpdate = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  .last-update-time {
-    margin-right: 10px;
-  }
-`
+import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 
 const fetcher = (url, params) =>
   Axios.get(url, { params }).then((res) => ({
@@ -59,7 +31,7 @@ const Result = ({ line, sta }) => {
     () => ({ line, sta, lang: locale === 'zh' ? 'TC' : 'EN' }),
     [line, sta, locale]
   )
-  const { data, error, mutate } = useSWR(
+  const { data, mutate } = useSWR(
     [line && sta ? MTR_NEXT_TRAIN_API : null, params],
     fetcher
   )

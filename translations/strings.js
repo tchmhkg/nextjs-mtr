@@ -65,6 +65,8 @@ const strings = {
     TML: 'Tuen Ma Line',
     TKL: 'Tseung Kwan O Line',
     EAL: 'East Rail Line',
+
+    close: 'Close',
   },
   zh: {
     'Back to home': '回到首頁',
@@ -133,6 +135,8 @@ const strings = {
     TML: '屯馬綫',
     TKL: '將軍澳綫',
     EAL: '東鐵綫',
+
+    close: '關閉',
   },
 }
 

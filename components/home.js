@@ -1,128 +1,31 @@
 import Alert from '@components/alert'
 import useTranslation from '@hooks/useTranslation'
-import {
-  getTrainState,
-  setLine,
-  setRelatedLines,
-  setStation,
-} from '@store/slices/trainSlice'
+import { getTrainState, setLine, setStation } from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
 import { stations } from '@utils/next-train-data'
 import _ from 'lodash'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import styled from 'styled-components'
 import CurrLocation from './curr-location'
+import {
+  Container,
+  Header,
+  Heading,
+  Left,
+  LineColor,
+  LineOption,
+  RelatedLine,
+  RelatedLineWrapper,
+  Right,
+  SelectorWrapper,
+  StationOption,
+} from './home.style'
 
 import Result from './train/result'
 
-const Heading = styled.h2`
-  color: ${(props) => props.theme.text};
-  margin: 0;
-`
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  font-size: 18px;
-  @media (max-width: 374px) {
-    font-size: 16px;
-  }
-`
-
-const SelectorWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  border-radius: 8px;
-  overflow: hidden;
-`
-
-const Left = styled.div`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  height: 170px;
-  overflow-y: auto;
-  margin-right: 3px;
-`
-const Right = styled(Left)`
-  background: ${({ bgColor }) => bgColor || 'transparent'};
-  border-radius: 8px;
-  margin-left: 3px;
-  margin-right: 0;
-`
-
-const Option = styled.div`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  .option-name {
-    background: ${({ color, selected }) =>
-      selected ? `${color}` : 'transparent'};
-    color: ${({ selected, theme }) => (selected ? '#fff' : theme.text)};
-    width: 100%;
-    padding: 3px;
-  }
-`
-
-const LineOption = styled(Option)`
-  .option-name {
-    border-radius: 8px;
-  }
-`
-
-const StationOption = styled(Option)`
-  background: ${({ color }) => color};
-  padding: 3px;
-  .option-name {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    background: ${({ selected }) =>
-      selected ? '#fff' : 'transparent'} !important;
-    color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
-    border-radius: 8px;
-    .more-option {
-      font-size: 18px;
-      cursor: pointer;
-      padding: 0 8px;
-    }
-  }
-`
-
-const LineColor = styled.div`
-  width: 18px;
-  height: 5px;
-  background-color: ${({ color }) => color};
-  border-radius: 5px;
-  margin: 0 5px;
-`
-
-const RelatedLineWrapper = styled.div``
-
-const RelatedLine = styled.div`
-  cursor: pointer;
-  border-radius: 8px;
-  background-color: ${({ lineColor }) => lineColor};
-  color: #ffffff;
-  padding: 3px;
-`
-
 const Home = () => {
   const dispatch = useDispatch()
-  const {
-    line: selectedLine,
-    station: selectedStation,
-    relatedLines,
-  } = useSelector(getTrainState)
+  const { line: selectedLine, station: selectedStation } =
+    useSelector(getTrainState)
   const { locale, t } = useTranslation()
   const rightListRef = useRef(null)
   const [gettingLocation, setGettingLocation] = useState(false)
@@ -144,26 +47,26 @@ const Home = () => {
 
   const onChangeLine = useCallback(
     (line) => {
-      if (line === selectedLine) return
+      if (line.code === selectedLine?.code) return
       dispatch(setLine(line))
-      dispatch(setStation(''))
+      dispatch(setStation(null))
       rightListRef?.current?.scrollTo({ top: 0 })
     },
     [selectedLine, dispatch]
   )
   const filterStations = useCallback(() => {
-    if (!selectedLine) return []
-    return stations.find((s) => s.line.code === selectedLine)
+    if (!selectedLine?.code) return []
+    return stations.find((s) => s.line.code === selectedLine.code)
   }, [selectedLine])
 
   const calcDistance = useCallback((lat1, lon1, lat2, lon2, unit) => {
-    var radlat1 = (Math.PI * lat1) / 180
-    var radlat2 = (Math.PI * lat2) / 180
+    var radLat1 = (Math.PI * lat1) / 180
+    var radLat2 = (Math.PI * lat2) / 180
     var theta = lon1 - lon2
-    var radtheta = (Math.PI * theta) / 180
+    var radTheta = (Math.PI * theta) / 180
     var dist =
-      Math.sin(radlat1) * Math.sin(radlat2) +
-      Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta)
+      Math.sin(radLat1) * Math.sin(radLat2) +
+      Math.cos(radLat1) * Math.cos(radLat2) * Math.cos(radTheta)
     if (dist > 1) {
       dist = 1
     }
@@ -182,12 +85,11 @@ const Home = () => {
   const findNearestStation = useCallback(
     (lat, lng) => {
       if (!lat || !lng) return
-      let closest = null
+      let closestStation = null
       let closestLine = null
       let closestDistance = null
 
       for (const lineStation of stations) {
-        // console.log('LINE =>',lineStation.line.label.tc)
         for (const station of lineStation.stations) {
           const distance = calcDistance(
             lat,
@@ -195,17 +97,16 @@ const Home = () => {
             station.location.lat,
             station.location.lng
           )
-          if (!closest || distance < closestDistance) {
+          if (!closestStation || distance < closestDistance) {
             closestDistance = distance
-            closestLine = lineStation.line?.code
-            closest = station?.code
+            closestLine = lineStation.line
+            closestStation = station
           }
         }
       }
       // console.log('CLOSEST =>',closest);
-      // setClosestStation(closest);
       dispatch(setLine(closestLine))
-      dispatch(setStation(closest))
+      dispatch(setStation(closestStation))
       setGettingLocation(true)
     },
     [calcDistance, dispatch]
@@ -242,8 +143,8 @@ const Home = () => {
   }, [getPositionError, getPositionSuccess])
 
   const scrollToStation = useCallback(() => {
-    if (!selectedStation) return
-    refs[selectedStation]?.current?.scrollIntoView({
+    if (!selectedStation?.code) return
+    refs[selectedStation.code]?.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'center',
     })
@@ -254,39 +155,36 @@ const Home = () => {
   }, [getCurrLocation])
 
   useEffect(() => {
-    if (gettingLocation) {
+    if (gettingLocation?.code) {
       scrollToStation()
       setGettingLocation(false)
     }
   }, [selectedStation, gettingLocation, scrollToStation])
 
   useEffect(() => {
-    if (selectedStation) {
+    if (selectedStation?.code) {
       scrollToStation()
     }
   }, [selectedLine, selectedStation, scrollToStation])
 
-  const showMoreOptions = useCallback(
-    (related) => {
-      setShowRelated(true)
-      dispatch(setRelatedLines(related))
-    },
-    [dispatch]
-  )
+  const showMoreOptions = useCallback(() => {
+    setShowRelated(true)
+  }, [])
 
   const switchLine = useCallback(
     (lineCode) => {
-      dispatch(setLine(lineCode))
+      const line = stations.find((s) => s.line.code === lineCode)?.line
+      if (line) {
+        dispatch(setLine(line))
+      }
       setShowRelated(false)
-      // dispatch(setStation(closest))
     },
     [dispatch]
   )
 
   const onCloseAlert = useCallback(() => {
     setShowRelated(false)
-    dispatch(setRelatedLines(null))
-  }, [dispatch])
+  }, [])
 
   return (
     <Container>
@@ -299,8 +197,8 @@ const Home = () => {
           {stations.map((l) => (
             <LineOption
               key={l.line.code}
-              onClick={() => onChangeLine(l.line.code)}
-              selected={l.line.code === selectedLine}
+              onClick={() => onChangeLine(l.line)}
+              selected={l.line.code === selectedLine?.code}
               color={l.line.color}
             >
               <LineColor color={l.line.color} />
@@ -320,8 +218,8 @@ const Home = () => {
               <StationOption
                 ref={refs[s.code]}
                 key={s.code}
-                onClick={() => dispatch(setStation(s.code))}
-                selected={s.code === selectedStation}
+                onClick={() => dispatch(setStation(s))}
+                selected={s.code === selectedStation?.code}
               >
                 <div className="option-name station">
                   {s.label[langCodeFromLocale]}
@@ -339,11 +237,11 @@ const Home = () => {
           })}
         </Right>
       </SelectorWrapper>
-      <Result line={selectedLine} sta={selectedStation} />
-      {showRelated && (
+      <Result line={selectedLine?.code} sta={selectedStation?.code} />
+      {showRelated && selectedStation && (
         <Alert onPressClose={onCloseAlert}>
           <RelatedLineWrapper>
-            {relatedLines?.map((rStation) => (
+            {selectedStation.related?.map((rStation) => (
               <RelatedLine
                 key={rStation.lineCode}
                 lineColor={rStation.color}

@@ -4,19 +4,30 @@ interface IRelatedLine {
   lineCode: string
   color: string
 }
+
+interface ILine {
+  code: string
+  label: { en: string; tc: string }
+  color: string
+}
+
+interface IStation {
+  code: string
+  label: { en: string; tc: string }
+  location: { lat: number; lng: number }
+  related: IRelatedLine[]
+}
 export interface TrainState {
-  line: string
-  station: string
-  relatedLines: IRelatedLine[]
+  line: ILine
+  station: IStation
 }
 
 /**
  * Default state object with initial values.
  */
 const initialState: TrainState = {
-  line: '',
-  station: '',
-  relatedLines: null,
+  line: null,
+  station: null,
 } as const
 
 /**
@@ -41,12 +52,6 @@ export const trainSlice = createSlice({
     ) => {
       state.station = action.payload
     },
-    setRelatedLines: (
-      state: Draft<typeof initialState>,
-      action: PayloadAction<typeof initialState.relatedLines>
-    ) => {
-      state.relatedLines = action.payload
-    },
   },
 })
 
@@ -54,6 +59,6 @@ export const trainSlice = createSlice({
 export const getTrainState = (state: { train: TrainState }) => state.train
 
 // Exports all actions
-export const { setLine, setStation, setRelatedLines } = trainSlice.actions
+export const { setLine, setStation } = trainSlice.actions
 
 export default trainSlice.reducer

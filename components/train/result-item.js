@@ -1,29 +1,8 @@
 import { format, formatDuration, intervalToDuration } from 'date-fns'
 import React, { useCallback } from 'react'
-import styled from 'styled-components'
 
 import useTranslation from '@hooks/useTranslation'
-
-const PlatFormWrapper = styled.div`
-  color: ${({ theme }) => theme.text};
-  align-items: center;
-  flex: 0.4;
-`
-
-const PlatForm = styled.span`
-  border-radius: 50%;
-  display: inline-flex;
-  width: 23px;
-  height: 23px;
-  font-size: 16px;
-  align-items: center;
-  justify-content: center;
-  color: ${({ lineColor, theme }) => (lineColor ? '#fff' : theme.platformText)};
-  background-color: ${({ lineColor, theme }) =>
-    lineColor ? lineColor : theme.platformBackground};
-  margin-left: 5px;
-`
-
+import { PlatForm, PlatFormWrapper } from './result-item.style'
 const isValidDate = (d) => d instanceof Date && !isNaN(d)
 
 const humanTime = (time = new Date()) => {
