@@ -86,7 +86,7 @@ const AlertContainer = styled.div`
 
 const fetcher = (url, params) =>
   Axios.get(url, { params }).then((res) => ({
-    data: res?.data?.data[`${params?.line}-${params?.sta}`],
+    data: res?.data?.data?.[`${params?.line}-${params?.sta}`],
     isdelay: res?.data.isdelay === 'Y',
     curr_time: res?.data?.curr_time,
     alert:
@@ -133,9 +133,11 @@ const Result = ({ line, sta }) => {
     <Wrapper>
       <Header>
         <LastUpdate>
-          <div className="last-update-time">
-            {t('last update')}: {data?.curr_time}
-          </div>{' '}
+          {data?.curr_time ? (
+            <div className="last-update-time">
+              {t('last update')}: {data?.curr_time}
+            </div>
+          ) : null}
           {data?.alert ? <Bell onClick={onClickShowAlert} /> : null}
         </LastUpdate>
         <Refresh onClick={mutate} />
