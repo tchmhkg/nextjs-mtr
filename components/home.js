@@ -212,8 +212,8 @@ const Home = () => {
   const scrollToStation = useCallback(() => {
     if (!selectedStation) return
     refs[selectedStation]?.current?.scrollIntoView({
-      // behavior: "smooth",
-      block: 'start',
+      behavior: 'smooth',
+      block: 'center',
     })
   }, [selectedStation, refs])
 
