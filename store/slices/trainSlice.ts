@@ -1,8 +1,13 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 
+interface IRelatedLine {
+  lineCode: string
+  color: string
+}
 export interface TrainState {
   line: string
   station: string
+  relatedLines: IRelatedLine[]
 }
 
 /**
@@ -11,6 +16,7 @@ export interface TrainState {
 const initialState: TrainState = {
   line: '',
   station: '',
+  relatedLines: null,
 } as const
 
 /**
@@ -35,6 +41,12 @@ export const trainSlice = createSlice({
     ) => {
       state.station = action.payload
     },
+    setRelatedLines: (
+      state: Draft<typeof initialState>,
+      action: PayloadAction<typeof initialState.relatedLines>
+    ) => {
+      state.relatedLines = action.payload
+    },
   },
 })
 
@@ -42,6 +54,6 @@ export const trainSlice = createSlice({
 export const getTrainState = (state: { train: TrainState }) => state.train
 
 // Exports all actions
-export const { setLine, setStation } = trainSlice.actions
+export const { setLine, setStation, setRelatedLines } = trainSlice.actions
 
 export default trainSlice.reducer

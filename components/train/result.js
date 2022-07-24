@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import useSWR from 'swr'
 
+import Alert from '@components/alert'
 import Bell from '@components/Bell'
 import Refresh from '@components/refresh'
 import useTranslation from '@hooks/useTranslation'
@@ -36,52 +37,6 @@ const LastUpdate = styled.div`
   .last-update-time {
     margin-right: 10px;
   }
-`
-
-const AlertButton = styled.button`
-  appearance: none;
-  border: none;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: ${({ theme }) => theme.primary1};
-  color: ${({ theme }) => theme.buttonText};
-  cursor: pointer;
-  text-align: center;
-  border-radius: 8px;
-  &:hover: {
-    opacity: 0.7;
-  }
-`
-
-const Alert = styled.div`
-  max-width: 500px;
-  width: 100%;
-  ${'' /* margin: 15px; */}
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 20px;
-  position: fixed;
-  top: 50vh;
-  left: 50vw;
-  transform: translate(-50%, -50%);
-  background-color: ${({ theme }) => theme.border};
-  border-radius: 15px;
-  box-shadow: 3px 3px 4px 2px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-`
-
-const AlertContainer = styled.div`
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
 `
 
 const fetcher = (url, params) =>
@@ -143,17 +98,14 @@ const Result = ({ line, sta }) => {
         <Refresh onClick={mutate} />
       </Header>
       {showAlert ? (
-        <AlertContainer onClick={onClickCloseAlert}>
-          <Alert>
-            {data?.alert?.message}
-            {data?.alert?.url ? (
-              <a href={data?.alert?.url} target="_blank" rel="noreferrer">
-                {t('more Info')}
-              </a>
-            ) : null}
-            <AlertButton onClick={onClickCloseAlert}>{t('close')}</AlertButton>
-          </Alert>
-        </AlertContainer>
+        <Alert onPress={onClickCloseAlert}>
+          {data?.alert?.message}
+          {data?.alert?.url ? (
+            <a href={data?.alert?.url} target="_blank" rel="noreferrer">
+              {t('more Info')}
+            </a>
+          ) : null}
+        </Alert>
       ) : null}
       {/* {(data?.data?.UP?.length === 0 && data?.data?.DOWN?.length === 0) ? (
       <ResultWrapper>

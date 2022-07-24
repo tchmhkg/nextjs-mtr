@@ -1,25 +1,34 @@
+const AEL_COLOR = '#1c7670'
+const TCL_COLOR = '#fe7f1d'
+const TML_COLOR = '#9a3b26'
+const TKL_COLOR = '#6b208b'
+const EAL_COLOR = '#5eb6e4'
+
 export const stations = [
   {
     line: {
       code: 'AEL',
       label: { en: 'Airport Express', tc: '機場快綫' },
-      color: '#1c7670',
+      color: AEL_COLOR,
     },
     stations: [
       {
         code: 'HOK',
         label: { en: 'Hong Kong', tc: '香港' },
         location: { lat: 22.284654109599554, lng: 114.15824513908593 },
+        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
       },
       {
         code: 'KOW',
         label: { en: 'Kowloon', tc: '九龍' },
         location: { lat: 22.304314573300715, lng: 114.1613895953227 },
+        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
       },
       {
         code: 'TSY',
         label: { en: 'Tsing Yi', tc: '青衣' },
         location: { lat: 22.358508172423235, lng: 114.10768242620871 },
+        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
       },
       {
         code: 'AIR',
@@ -37,18 +46,20 @@ export const stations = [
     line: {
       code: 'TCL',
       label: { en: 'Tung Chung Line', tc: '東涌綫' },
-      color: '#fe7f1d',
+      color: TCL_COLOR,
     },
     stations: [
       {
         code: 'HOK',
         label: { en: 'Hong Kong', tc: '香港' },
         location: { lat: 22.284654109599554, lng: 114.15824513908593 },
+        related: [{ lineCode: 'AEL', color: AEL_COLOR }],
       },
       {
         code: 'KOW',
         label: { en: 'Kowloon', tc: '九龍' },
         location: { lat: 22.304314573300715, lng: 114.1613895953227 },
+        related: [{ lineCode: 'AEL', color: AEL_COLOR }],
       },
       {
         code: 'OLY',
@@ -59,6 +70,7 @@ export const stations = [
         code: 'NAC',
         label: { en: 'Nam Cheong', tc: '南昌' },
         location: { lat: 22.32681844121303, lng: 114.15367056315998 },
+        related: [{ lineCode: 'TML', color: TML_COLOR }],
       },
       {
         code: 'LAK',
@@ -69,6 +81,7 @@ export const stations = [
         code: 'TSY',
         label: { en: 'Tsing Yi', tc: '青衣' },
         location: { lat: 22.358508172423235, lng: 114.10768242620871 },
+        related: [{ lineCode: 'AEL', color: AEL_COLOR }],
       },
       {
         code: 'SUN',
@@ -86,7 +99,7 @@ export const stations = [
     line: {
       code: 'TML',
       label: { en: 'Tuen Ma Line', tc: '屯馬綫' },
-      color: '#9a3b26',
+      color: TML_COLOR,
     },
     stations: [
       {
@@ -133,6 +146,7 @@ export const stations = [
         code: 'TAW',
         label: { en: 'Tai Wai', tc: '大圍' },
         location: { lat: 22.37269797216996, lng: 114.17842133604134 },
+        related: [{ lineCode: 'EAL', color: EAL_COLOR }],
       },
       {
         code: 'HIK',
@@ -168,6 +182,7 @@ export const stations = [
         code: 'HUH',
         label: { en: 'Hung Hom', tc: '紅磡' },
         location: { lat: 22.30334217928546, lng: 114.18149228682145 },
+        related: [{ lineCode: 'EAL', color: EAL_COLOR }],
       },
       {
         code: 'ETS',
@@ -183,6 +198,7 @@ export const stations = [
         code: 'NAC',
         label: { en: 'Nam Cheong', tc: '南昌' },
         location: { lat: 22.32681844121303, lng: 114.15367056315998 },
+        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
       },
       {
         code: 'MEF',
@@ -230,7 +246,7 @@ export const stations = [
     line: {
       code: 'TKL',
       label: { en: 'Tseung Kwan O Line', tc: '將軍澳綫' },
-      color: '#6b208b',
+      color: TKL_COLOR,
     },
     stations: [
       {
@@ -279,7 +295,7 @@ export const stations = [
     line: {
       code: 'EAL',
       label: { en: 'East Rail Line', tc: '東鐵綫' },
-      color: '#5eb6e4',
+      color: EAL_COLOR,
     },
     stations: [
       {
@@ -296,6 +312,7 @@ export const stations = [
         code: 'HUH',
         label: { en: 'Hung Hom', tc: '紅磡' },
         location: { lat: 22.30334217928546, lng: 114.18149228682145 },
+        related: [{ lineCode: 'TML', color: TML_COLOR }],
       },
       {
         code: 'MKK',
@@ -311,6 +328,7 @@ export const stations = [
         code: 'TAW',
         label: { en: 'Tai Wai', tc: '大圍' },
         location: { lat: 22.37274948018549, lng: 114.17860243588709 },
+        related: [{ lineCode: 'TML', color: TML_COLOR }],
       },
       {
         code: 'SHT',

@@ -1,10 +1,18 @@
+import Alert from '@components/alert'
 import useTranslation from '@hooks/useTranslation'
-import { getTrainState, setLine, setStation } from '@store/slices/trainSlice'
+import {
+  getTrainState,
+  setLine,
+  setRelatedLines,
+  setStation,
+} from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
 import { stations } from '@utils/next-train-data'
+import _ from 'lodash'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import CurrLocation from './curr-location'
+
 import Result from './train/result'
 
 const Heading = styled.h2`
@@ -73,10 +81,20 @@ const StationOption = styled(Option)`
   background: ${({ color }) => color};
   padding: 3px;
   .option-name {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     background: ${({ selected }) =>
       selected ? '#fff' : 'transparent'} !important;
     color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
     border-radius: 8px;
+    .more-option {
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 8px;
+    }
   }
 `
 
@@ -88,13 +106,27 @@ const LineColor = styled.div`
   margin: 0 5px;
 `
 
+const RelatedLineWrapper = styled.div``
+
+const RelatedLine = styled.div`
+  cursor: pointer;
+  border-radius: 8px;
+  background-color: ${({ lineColor }) => lineColor};
+  color: #ffffff;
+  padding: 3px;
+`
+
 const Home = () => {
   const dispatch = useDispatch()
-  const { line: selectedLine, station: selectedStation } =
-    useSelector(getTrainState)
+  const {
+    line: selectedLine,
+    station: selectedStation,
+    relatedLines,
+  } = useSelector(getTrainState)
   const { locale, t } = useTranslation()
   const rightListRef = useRef(null)
   const [gettingLocation, setGettingLocation] = useState(false)
+  const [showRelated, setShowRelated] = useState(false)
   // const [currLocation, setCurrLocation] = useState({lat: 0, lng: 0});
   // const [closestStation, setClosestStation] = useState({});
   // let stationRef = [];
@@ -228,6 +260,34 @@ const Home = () => {
     }
   }, [selectedStation, gettingLocation, scrollToStation])
 
+  useEffect(() => {
+    if (selectedStation) {
+      scrollToStation()
+    }
+  }, [selectedLine, selectedStation, scrollToStation])
+
+  const showMoreOptions = useCallback(
+    (related) => {
+      setShowRelated(true)
+      dispatch(setRelatedLines(related))
+    },
+    [dispatch]
+  )
+
+  const switchLine = useCallback(
+    (lineCode) => {
+      dispatch(setLine(lineCode))
+      setShowRelated(false)
+      // dispatch(setStation(closest))
+    },
+    [dispatch]
+  )
+
+  const onCloseAlert = useCallback(() => {
+    setShowRelated(false)
+    dispatch(setRelatedLines(null))
+  }, [dispatch])
+
   return (
     <Container>
       <Header>
@@ -259,13 +319,20 @@ const Home = () => {
             return (
               <StationOption
                 ref={refs[s.code]}
-                ß
                 key={s.code}
                 onClick={() => dispatch(setStation(s.code))}
                 selected={s.code === selectedStation}
               >
                 <div className="option-name station">
                   {s.label[langCodeFromLocale]}
+                  {!_.isEmpty(s.related) && (
+                    <div
+                      className="more-option"
+                      onClick={() => showMoreOptions(s.related)}
+                    >
+                      {'>'}
+                    </div>
+                  )}
                 </div>
               </StationOption>
             )
@@ -273,6 +340,21 @@ const Home = () => {
         </Right>
       </SelectorWrapper>
       <Result line={selectedLine} sta={selectedStation} />
+      {showRelated && (
+        <Alert onPressClose={onCloseAlert}>
+          <RelatedLineWrapper>
+            {relatedLines?.map((rStation) => (
+              <RelatedLine
+                key={rStation.lineCode}
+                lineColor={rStation.color}
+                onClick={() => switchLine(rStation.lineCode)}
+              >
+                {t(rStation.lineCode)}
+              </RelatedLine>
+            ))}
+          </RelatedLineWrapper>
+        </Alert>
+      )}
     </Container>
   )
 }
