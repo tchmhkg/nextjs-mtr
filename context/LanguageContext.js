@@ -1,10 +1,10 @@
-import {useEffect, createContext, useState} from 'react'
+import { isLocale } from '@translations/types'
 import { useRouter } from 'next/router'
-import { isLocale } from '~/translations/types'
+import { createContext, useEffect, useState } from 'react'
 
 export const LanguageContext = createContext({
   locale: 'en',
-  setLocale: () => null
+  setLocale: () => null,
 })
 
 export const LanguageProvider = ({ lang = 'en', children }) => {
@@ -18,15 +18,23 @@ export const LanguageProvider = ({ lang = 'en', children }) => {
   }, [locale])
 
   useEffect(() => {
-    if (typeof query.lang === 'string' && isLocale(query.lang) && locale !== query.lang) {
+    if (
+      typeof query.lang === 'string' &&
+      isLocale(query.lang) &&
+      locale !== query.lang
+    ) {
       setLocale(query.lang)
     }
   }, [query.lang, locale])
 
-  return <LanguageContext.Provider value={{ locale, setLocale }}>{children}</LanguageContext.Provider>
+  return (
+    <LanguageContext.Provider value={{ locale, setLocale }}>
+      {children}
+    </LanguageContext.Provider>
+  )
 }
 
-export const getLocalizationProps = ctx => {
+export const getLocalizationProps = (ctx) => {
   return {
     locale: ctx.params?.lang || 'en',
   }

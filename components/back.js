@@ -1,29 +1,29 @@
-import { useCallback } from "react";
-import { useRouter } from "next/router";
-import styled from 'styled-components';
-import useTranslation from "~/hooks/useTranslation";
+import useTranslation from '@hooks/useTranslation'
+import { useRouter } from 'next/router'
+import React, { useCallback } from 'react'
+import styled from 'styled-components'
 
 const Button = styled.a`
   cursor: pointer;
-  color: ${props => props.theme.text};
-`;
+  color: ${(props) => props.theme.text};
+`
 
-const BackButton = ({backUrl = ''}) => {
-  const {locale, t} = useTranslation();
-  const router = useRouter();
+const BackButton = ({ backUrl = '' }) => {
+  const { locale, t } = useTranslation()
+  const router = useRouter()
   const onClickBack = useCallback(() => {
-    if(backUrl) {
-      router.push(`/${locale}${backUrl}`);
+    if (backUrl) {
+      router.push(`/${locale}${backUrl}`)
     } else {
-      router.back();
+      router.back()
     }
-  }, [router, backUrl, locale]);
+  }, [router, backUrl, locale])
 
   return (
     <div>
       <Button onClick={onClickBack}>← {t('Back')}</Button>
     </div>
-  );
-};
+  )
+}
 
-export default React.memo(BackButton);
+export default React.memo(BackButton)

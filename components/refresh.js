@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import styled from 'styled-components';
-import { useTheme } from '~/theme';
+import { useTheme } from '@theme/theme'
+import { motion, useAnimation } from 'framer-motion'
+import React, { useCallback, useEffect, useState } from 'react'
+import styled from 'styled-components'
 
 const Container = styled(motion.div)`
   width: 20px;
@@ -11,32 +11,32 @@ const Container = styled(motion.div)`
   align-items: center;
   justify-content: center;
   padding-top: 3px;
-`;
+`
 
 const button = {
   rest: { scale: 1.3 },
   hover: { scale: 1.5 },
   pressed: { scale: 1.1 },
-};
+}
 const arrow = {
   rest: { rotate: 0 },
   click: { rotate: 360, transition: { duration: 0.4 } },
-};
+}
 
 const Refresh = ({ onClick }) => {
-  const { colors } = useTheme();
-  const controls = useAnimation();
-  const [count, setCount] = useState(0);
-  const onClickButton = () => {
-    onClick();
-    setCount(prev => prev + 1);
-  }
+  const { colors } = useTheme()
+  const controls = useAnimation()
+  const [count, setCount] = useState(0)
+  const onClickButton = useCallback(() => {
+    onClick()
+    setCount((prev) => prev + 1)
+  }, [onClick])
 
   useEffect(() => {
-    if(count > 0) {
-      controls.start("click");
+    if (count > 0) {
+      controls.start('click')
     }
-  }, [count])
+  }, [controls, count])
   return (
     <Container
       className="refresh"
@@ -61,7 +61,7 @@ const Refresh = ({ onClick }) => {
         />
       </motion.svg>
     </Container>
-  );
-};
+  )
+}
 
-export default React.memo(Refresh);
+export default React.memo(Refresh)

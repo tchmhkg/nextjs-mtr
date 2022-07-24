@@ -1,4 +1,4 @@
-NextJS app for MTR Next Train (Work in progress)
+# NextJS app for MTR Next Train (Work in progress)
 
 <!-- [Demo link](https://truman.vercel.app/) -->
 
