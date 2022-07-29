@@ -7,7 +7,7 @@ import NProgress from 'nprogress'
 import { LanguageProvider } from "@context/LanguageContext"
 import "@styles/global.scss"
 import ThemeManager from '@theme/theme'
-import { AnimateSharedLayout } from "framer-motion"
+import { LayoutGroup } from "framer-motion"
 import { Provider } from "react-redux"
 
 Router.events.on('routeChangeStart', () => NProgress.start());
@@ -18,13 +18,13 @@ Router.events.on('routeChangeError', () => NProgress.done());
 const App = ({ Component, pageProps }: AppProps) => {
   return (
     <Provider store={store}>
-      <AnimateSharedLayout>
+      <LayoutGroup>
         <ThemeManager>
           <LanguageProvider lang={pageProps.localization?.locale}>
             <Component {...pageProps} />
           </LanguageProvider>
         </ThemeManager>
-      </AnimateSharedLayout>
+      </LayoutGroup>
     </Provider>
   )
 }
