@@ -6,7 +6,11 @@ const LanguageSwitcher = dynamic(import('@components/language-switcher'))
 const ThemeSwitcher = dynamic(import('@components/theme-switcher'))
 const Image = dynamic(import('next/image'))
 
-const Container = styled.div`
+interface IContainer {
+  shouldUpdateZIndex?: boolean
+}
+
+const Container = styled.div<IContainer>`
   position: fixed;
   width: 100vw;
   top: 0;

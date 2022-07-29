@@ -7,7 +7,7 @@ import Bell from '@components/bell'
 import Refresh from '@components/refresh'
 import useTranslation from '@hooks/useTranslation'
 import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
-import { stations } from '@utils/next-train-data'
+import { DATA } from '@utils/next-train-data'
 import ResultList from './result-list'
 import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 
@@ -36,7 +36,7 @@ const Result = ({ line, sta }) => {
     fetcher
   )
   const lineColor = useMemo(
-    () => stations.find((l) => l.line.code === line)?.line?.color,
+    () => DATA.find((l) => l.line.code === line)?.line?.color,
     [line]
   )
   const [showAlert, setShowAlert] = useState(false)
@@ -44,7 +44,6 @@ const Result = ({ line, sta }) => {
   const getRouteDestLabel = useCallback(
     (routes = []) => {
       if (!routes || !routes.length) return '-'
-        ; ``
       const dests = Array.from(new Set([...routes.map((r) => t(r.dest))]))
       return dests.join(t('/'))
     },

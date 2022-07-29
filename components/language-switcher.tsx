@@ -4,12 +4,19 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
 
-const Wrapper = styled.div`
+interface IWrapper {
+  inNavbar: boolean
+}
+interface ILocaleButton {
+  selected: boolean
+}
+
+const Wrapper = styled.div<IWrapper>`
   display: flex;
   align-items: center;
 `
 
-const LocaleButton = styled.div`
+const LocaleButton = styled.div<ILocaleButton>`
   cursor: pointer;
   color: ${(props) => (props.selected ? '#ffffff' : props.theme.text)};
   display: flex;

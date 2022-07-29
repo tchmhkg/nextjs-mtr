@@ -1,5 +1,16 @@
 import styled from 'styled-components'
 
+interface ILeft {
+  bgColor?: string
+}
+interface IOption {
+  color?: string
+  selected: boolean
+}
+interface IRelatedLine {
+  lineColor: string
+}
+
 export const Heading = styled.h2`
   color: ${(props) => props.theme.text};
   margin: 0;
@@ -27,7 +38,7 @@ export const SelectorWrapper = styled.div`
   overflow: hidden;
 `
 
-export const Left = styled.div`
+export const Left = styled.div<ILeft>`
   flex: 1;
   justify-content: center;
   align-items: center;
@@ -43,13 +54,13 @@ export const Right = styled(Left)`
   margin-right: 0;
 `
 
-export const Option = styled.div`
+export const Option = styled.div<IOption>`
   cursor: pointer;
   display: flex;
   align-items: center;
   .option-name {
     background: ${({ color, selected }) =>
-    selected ? `${color}` : 'transparent'};
+      selected ? `${color}` : 'transparent'};
     color: ${({ selected, theme }) => (selected ? '#fff' : theme.text)};
     width: 100%;
     padding: 3px;
@@ -72,7 +83,7 @@ export const StationOption = styled(Option)`
     align-items: center;
     justify-content: space-between;
     background: ${({ selected }) =>
-    selected ? '#fff' : 'transparent'} !important;
+      selected ? '#fff' : 'transparent'} !important;
     color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
     border-radius: 8px;
     .more-option {
@@ -93,7 +104,7 @@ export const LineColor = styled.div`
 
 export const RelatedLineWrapper = styled.div``
 
-export const RelatedLine = styled.div`
+export const RelatedLine = styled.div<IRelatedLine>`
   cursor: pointer;
   border-radius: 8px;
   background-color: ${({ lineColor }) => lineColor};

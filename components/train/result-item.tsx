@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 
 import useTranslation from '@hooks/useTranslation'
 import { PlatForm, PlatFormWrapper } from './result-item.style'
-const isValidDate = (d) => d instanceof Date && !isNaN(d)
+const isValidDate = (d) => d instanceof Date// && !isNaN(d)
 
 const humanTime = (time = new Date()) => {
   return format(new Date(String(time).replace(' ', 'T')), 'HH:mm')

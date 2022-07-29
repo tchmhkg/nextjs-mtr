@@ -1,5 +1,10 @@
 import styled from 'styled-components'
 
+interface IWrapper {
+  left?: boolean
+  right?: boolean
+}
+
 export const ListWrapper = styled.div`
   height: 160px;
   overflow: auto;
@@ -31,7 +36,7 @@ export const ListWrapper = styled.div`
   }
 `
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.div<IWrapper>`
   flex: 1;
   justify-content: center;
   align-items: center;
