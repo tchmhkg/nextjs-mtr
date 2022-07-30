@@ -1,21 +1,21 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 
-interface IRelatedLine {
+export interface IRelatedLine {
   lineCode: string
   color: string
 }
 
-interface ILine {
+export interface ILine {
   code: string
   label: { en: string; tc: string }
   color: string
 }
 
-interface IStation {
+export interface IStation {
   code: string
   label: { en: string; tc: string }
   location: { lat: number; lng: number }
-  related: IRelatedLine[]
+  related?: IRelatedLine[]
 }
 export interface TrainState {
   line: ILine

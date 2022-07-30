@@ -7,7 +7,7 @@ import lightTheme from '@theme/light'
 
 const ThemeContext = createContext({
   mode: 'light',
-  setMode: (mode) => { },
+  setMode: (mode: string) => undefined,
   colors: lightTheme.theme,
 })
 

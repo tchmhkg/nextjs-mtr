@@ -1,8 +1,8 @@
 import Alert from '@components/alert'
 import useTranslation from '@hooks/useTranslation'
-import { getTrainState, setLine, setStation } from '@store/slices/trainSlice'
+import { getTrainState, ILine, setLine, setStation } from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
-import { stations } from '@utils/next-train-data'
+import { DATA, ILineStation } from '@utils/next-train-data'
 import _ from 'lodash'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CurrLocation from './curr-location'
@@ -33,7 +33,7 @@ const Home = () => {
   // const [currLocation, setCurrLocation] = useState({lat: 0, lng: 0});
   // const [closestStation, setClosestStation] = useState({});
   // let stationRef = [];
-  const refs = stations.reduce((stationRef, value) => {
+  const refs = DATA.reduce((stationRef, value) => {
     for (const station of value.stations) {
       stationRef[station.code] = React.createRef()
     }
@@ -46,7 +46,7 @@ const Home = () => {
   )
 
   const onChangeLine = useCallback(
-    (line) => {
+    (line: ILine) => {
       if (line.code === selectedLine?.code) return
       dispatch(setLine(line))
       dispatch(setStation(null))
@@ -54,12 +54,12 @@ const Home = () => {
     },
     [selectedLine, dispatch]
   )
-  const filterStations: any = useCallback(() => {
-    if (!selectedLine?.code) return []
-    return stations.find((s) => s.line.code === selectedLine.code)
+  const filterStations = useCallback((): ILineStation => {
+    if (!selectedLine?.code) return null
+    return DATA.find((s) => s.line.code === selectedLine.code)
   }, [selectedLine])
 
-  const calcDistance = useCallback((lat1, lon1, lat2, lon2, unit) => {
+  const calcDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number, unit: string) => {
     var radLat1 = (Math.PI * lat1) / 180
     var radLat2 = (Math.PI * lat2) / 180
     var theta = lon1 - lon2
@@ -83,13 +83,13 @@ const Home = () => {
   }, [])
 
   const findNearestStation = useCallback(
-    (lat, lng) => {
+    (lat: number, lng: number) => {
       if (!lat || !lng) return
       let closestStation = null
       let closestLine = null
       let closestDistance = null
 
-      for (const lineStation of stations) {
+      for (const lineStation of DATA) {
         for (const station of lineStation.stations) {
           const distance = calcDistance(
             lat,
@@ -114,7 +114,7 @@ const Home = () => {
   )
 
   const getPositionSuccess = useCallback(
-    (pos) => {
+    (pos: { coords: { latitude: number, longitude: number } }) => {
       var crd = pos.coords
 
       // console.log('Your current position is:');
@@ -127,7 +127,7 @@ const Home = () => {
     [findNearestStation]
   )
 
-  const getPositionError = useCallback((err) => {
+  const getPositionError = useCallback((err: GeolocationPositionError) => {
     console.warn(`ERROR(${err.code}): ${err.message}`)
   }, [])
 
@@ -173,8 +173,8 @@ const Home = () => {
   }, [])
 
   const switchLine = useCallback(
-    (lineCode) => {
-      const line = stations.find((s) => s.line.code === lineCode)?.line
+    (lineCode: string) => {
+      const line = DATA.find((s) => s.line.code === lineCode)?.line
       if (line) {
         dispatch(setLine(line))
       }
@@ -195,7 +195,7 @@ const Home = () => {
       </Header>
       <SelectorWrapper>
         <Left>
-          {stations.map((l) => (
+          {DATA.map((l) => (
             <LineOption
               key={l.line.code}
               onClick={() => onChangeLine(l.line)}

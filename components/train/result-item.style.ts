@@ -1,12 +1,16 @@
 import styled from 'styled-components'
 
+interface IPlatForm {
+  lineColor: string
+}
+
 export const PlatFormWrapper = styled.div`
   color: ${({ theme }) => theme.text};
   align-items: center;
   flex: 0.4;
 `
 
-export const PlatForm = styled.span`
+export const PlatForm = styled.span<IPlatForm>`
   border-radius: 50%;
   display: inline-flex;
   width: 23px;

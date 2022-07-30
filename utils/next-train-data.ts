@@ -1,10 +1,17 @@
+import { ILine, IStation } from '@store/slices/trainSlice'
+
 const AEL_COLOR = '#1c7670'
 const TCL_COLOR = '#fe7f1d'
 const TML_COLOR = '#9a3b26'
 const TKL_COLOR = '#6b208b'
 const EAL_COLOR = '#5eb6e4'
 
-export const stations = [
+export interface ILineStation {
+  line: ILine
+  stations: IStation[]
+}
+
+export const DATA: ILineStation[] = [
   {
     line: {
       code: 'AEL',
