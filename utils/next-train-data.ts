@@ -5,6 +5,9 @@ const TCL_COLOR = '#fe7f1d'
 const TML_COLOR = '#9a3b26'
 const TKL_COLOR = '#6b208b'
 const EAL_COLOR = '#5eb6e4'
+const SIL_COLOR = '#b5bd00'
+const TWL_COLOR = '#FF0000'
+const ISL_COLOR = '#0860a8'
 
 export interface ILineStation {
   line: ILine
@@ -23,7 +26,11 @@ export const DATA: ILineStation[] = [
         code: 'HOK',
         label: { en: 'Hong Kong', tc: '香港' },
         location: { lat: 22.284654109599554, lng: 114.15824513908593 },
-        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
+        related: [
+          { lineCode: 'TCL', color: TCL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR },
+          { lineCode: 'TWL', color: TWL_COLOR },
+        ],
       },
       {
         code: 'KOW',
@@ -60,7 +67,11 @@ export const DATA: ILineStation[] = [
         code: 'HOK',
         label: { en: 'Hong Kong', tc: '香港' },
         location: { lat: 22.284654109599554, lng: 114.15824513908593 },
-        related: [{ lineCode: 'AEL', color: AEL_COLOR }],
+        related: [
+          { lineCode: 'AEL', color: AEL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR },
+          { lineCode: 'TWL', color: TWL_COLOR },
+        ],
       },
       {
         code: 'KOW',
@@ -83,6 +94,7 @@ export const DATA: ILineStation[] = [
         code: 'LAK',
         label: { en: 'Lai King', tc: '荔景' },
         location: { lat: 22.348387078565278, lng: 114.12616746216915 },
+        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
       },
       {
         code: 'TSY',
@@ -195,6 +207,7 @@ export const DATA: ILineStation[] = [
         code: 'ETS',
         label: { en: 'East Tsim Sha Tsui', tc: '尖東' },
         location: { lat: 22.29473787652132, lng: 114.17346829228025 },
+        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
       },
       {
         code: 'AUS',
@@ -211,6 +224,7 @@ export const DATA: ILineStation[] = [
         code: 'MEF',
         label: { en: 'Mei Foo', tc: '美孚' },
         location: { lat: 22.337659621530488, lng: 114.13791652051626 },
+        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
       },
       {
         code: 'TWW',
@@ -260,11 +274,13 @@ export const DATA: ILineStation[] = [
         code: 'NOP',
         label: { en: 'North Point', tc: '北角' },
         location: { lat: 22.291358902846948, lng: 114.20059820000797 },
+        related: [{ lineCode: 'ISL', color: ISL_COLOR }],
       },
       {
         code: 'QUB',
         label: { en: 'Quarry Bay', tc: '鰂魚涌' },
         location: { lat: 22.287745414523513, lng: 114.20978208372225 },
+        related: [{ lineCode: 'ISL', color: ISL_COLOR }],
       },
       {
         code: 'YAT',
@@ -308,12 +324,17 @@ export const DATA: ILineStation[] = [
       {
         code: 'ADM',
         label: { en: 'Admiralty', tc: '金鐘' },
-        location: { lat: 22.279525373568482, lng: 114.16454931115187 },
+        location: { lat: 22.279437872105998, lng: 114.16451984982076 },
+        related: [
+          { lineCode: 'TWL', color: TWL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR },
+          { lineCode: 'SIL', color: SIL_COLOR },
+        ],
       },
       {
         code: 'EXC',
         label: { en: 'Exhibition Centre', tc: '會展' },
-        location: { lat: 22.282225730141956, lng: 114.175535638521 },
+        location: { lat: 22.28214319269499, lng: 114.1755009105559 },
       },
       {
         code: 'HUH',
@@ -386,6 +407,253 @@ export const DATA: ILineStation[] = [
         code: 'LMC',
         label: { en: 'Lok Ma Chau', tc: '落馬洲' },
         location: { lat: 22.51486441180752, lng: 114.06561777119347 },
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'SIL',
+      label: { en: 'South Island Line', tc: '南港島綫' },
+      color: SIL_COLOR,
+    },
+    stations: [
+      {
+        code: 'ADM',
+        label: { en: 'Admiralty', tc: '金鐘' },
+        location: { lat: 22.279437872105998, lng: 114.16451984982076 },
+        related: [
+          { lineCode: 'EAL', color: EAL_COLOR },
+          { lineCode: 'TWL', color: TWL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR },
+        ],
+      },
+      {
+        code: 'OCP',
+        label: { en: 'Ocean Park', tc: '海洋公園' },
+        location: { lat: 22.24871486908183, lng: 114.17444706443838 },
+      },
+      {
+        code: 'WCH',
+        label: { en: 'Wong Chuk Hang', tc: '黃竹坑' },
+        location: { lat: 22.247991813315792, lng: 114.16802676039767 },
+      },
+      {
+        code: 'LET',
+        label: { en: 'Lei Tung', tc: '利東' },
+        location: { lat: 22.24193936402401, lng: 114.15609647206259 },
+      },
+      {
+        code: 'SOH',
+        label: { en: 'South Horizons', tc: '海怡半島' },
+        location: { lat: 22.242859673123597, lng: 114.14874222376356 },
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'TWL',
+      label: { en: 'Tsuen Wan Line', tc: '荃灣綫' },
+      color: TWL_COLOR,
+    },
+    stations: [
+      {
+        code: 'TSW',
+        label: { en: 'Tsuen Wan', tc: '荃灣' },
+        location: { lat: 22.373684159195257, lng: 114.11771575657633 },
+      },
+      {
+        code: 'TWH',
+        label: { en: 'Tai Wo Hau', tc: '大窩口' },
+        location: { lat: 22.370794644055575, lng: 114.12505645843888 },
+      },
+      {
+        code: 'KWH',
+        label: { en: 'Kwai Hing', tc: '葵興' },
+        location: { lat: 22.363057866796055, lng: 114.13121071712648 },
+      },
+      {
+        code: 'KWF',
+        label: { en: 'Kwai Fong', tc: '葵芳' },
+        location: { lat: 22.356989290817886, lng: 114.12795087913108 },
+      },
+      {
+        code: 'LAK',
+        label: { en: 'Lai King', tc: '茘景' },
+        location: { lat: 22.348416575671703, lng: 114.1261675425042 },
+        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
+      },
+      {
+        code: 'MEF',
+        label: { en: 'Mei Foo', tc: '美孚' },
+        location: { lat: 22.337582622733322, lng: 114.13798326234978 },
+        related: [{ lineCode: 'TML', color: TML_COLOR }],
+      },
+      {
+        code: 'LCK',
+        label: { en: 'Lai Chi Kok', tc: '茘枝角' },
+        location: { lat: 22.33725933509118, lng: 114.14803452976578 },
+      },
+      {
+        code: 'CSW',
+        label: { en: 'Cheung Sha Wan', tc: '長沙灣' },
+        location: { lat: 22.335608624667422, lng: 114.1559945724623 },
+      },
+      {
+        code: 'SSP',
+        label: { en: 'Sham Shui Po', tc: '深水埗' },
+        location: { lat: 22.330773835318833, lng: 114.16226913522644 },
+      },
+      {
+        code: 'PRE',
+        label: { en: 'Prince Edward', tc: '太子' },
+        location: { lat: 22.325076640734018, lng: 114.16838400758587 },
+      },
+      {
+        code: 'MOK',
+        label: { en: 'Mong Kok', tc: '旺角' },
+        location: { lat: 22.31925160088338, lng: 114.16935448989463 },
+      },
+      {
+        code: 'YMT',
+        label: { en: 'Yau Ma Tei', tc: '油麻地' },
+        location: { lat: 22.31282704700396, lng: 114.17068012034585 },
+      },
+      {
+        code: 'JOR',
+        label: { en: 'Jordan', tc: '佐敦' },
+        location: { lat: 22.304796803873053, lng: 114.17166066656826 },
+      },
+      {
+        code: 'TST',
+        label: { en: 'Tsim Sha Tsui', tc: '尖沙咀' },
+        location: { lat: 22.29757137332664, lng: 114.17220789068388 },
+        related: [{ lineCode: 'TML', color: TML_COLOR }],
+      },
+      {
+        code: 'ADM',
+        label: { en: 'Admiralty', tc: '金鐘' },
+        location: { lat: 22.279437872105998, lng: 114.16451984982076 },
+        related: [
+          { lineCode: 'EAL', color: EAL_COLOR },
+          { lineCode: 'SIL', color: SIL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR },
+        ],
+      },
+      {
+        code: 'CEN',
+        label: { en: 'Central', tc: '中環' },
+        location: { lat: 22.281952496463273, lng: 114.15825203489491 },
+        related: [
+          { lineCode: 'ISL', color: ISL_COLOR },
+          { lineCode: 'TCL', color: TCL_COLOR },
+          { lineCode: 'AEL', color: AEL_COLOR },
+        ],
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'ISL',
+      label: { en: 'Island Line', tc: '港島綫' },
+      color: ISL_COLOR,
+    },
+    stations: [
+      {
+        code: 'KET',
+        label: { en: 'Kennedy Town', tc: '堅尼地城' },
+        location: { lat: 22.281245084235884, lng: 114.12888553429799 },
+      },
+      {
+        code: 'HKU',
+        label: { en: 'HKU', tc: '香港大學' },
+        location: { lat: 22.283982963712745, lng: 114.13504137936995 },
+      },
+      {
+        code: 'SYP',
+        label: { en: 'Sai Ying Pun', tc: '西營盤' },
+        location: { lat: 22.285532174451383, lng: 114.14273262026643 },
+      },
+      {
+        code: 'SHW',
+        label: { en: 'Sheung Wan', tc: '上環' },
+        location: { lat: 22.28658737999083, lng: 114.15186938435883 },
+      },
+      {
+        code: 'CEN',
+        label: { en: 'Central', tc: '中環' },
+        location: { lat: 22.281952496463273, lng: 114.15825203489491 },
+        related: [
+          { lineCode: 'TWL', color: TWL_COLOR },
+          { lineCode: 'TCL', color: TCL_COLOR },
+          { lineCode: 'AEL', color: AEL_COLOR },
+        ],
+      },
+      {
+        code: 'ADM',
+        label: { en: 'Admiralty', tc: '金鐘' },
+        location: { lat: 22.279437872105998, lng: 114.16451984982076 },
+        related: [
+          { lineCode: 'EAL', color: EAL_COLOR },
+          { lineCode: 'SIL', color: SIL_COLOR },
+          { lineCode: 'TWL', color: TWL_COLOR },
+        ],
+      },
+      {
+        code: 'WAC',
+        label: { en: 'Wan Chai', tc: '灣仔' },
+        location: { lat: 22.277548700740837, lng: 114.17315363198794 },
+      },
+      {
+        code: 'CAB',
+        label: { en: 'Causeway Bay', tc: '銅鑼灣' },
+        location: { lat: 22.28037664781269, lng: 114.18504197799862 },
+      },
+      {
+        code: 'TIH',
+        label: { en: 'Tin Hau', tc: '天后' },
+        location: { lat: 22.282418463838578, lng: 114.19172829641676 },
+      },
+      {
+        code: 'FOH',
+        label: { en: 'Fortress Hill', tc: '炮台山' },
+        location: { lat: 22.287994616922926, lng: 114.19356098402314 },
+      },
+      {
+        code: 'NOP',
+        label: { en: 'North Point', tc: '北角' },
+        location: { lat: 22.291270130030153, lng: 114.20049321172154 },
+        related: [{ lineCode: 'TKL', color: TKL_COLOR }],
+      },
+      {
+        code: 'QUB',
+        label: { en: 'Quarry Bay', tc: '鰂魚涌' },
+        location: { lat: 22.287884893337832, lng: 114.20975058946789 },
+        related: [{ lineCode: 'TKL', color: TKL_COLOR }],
+      },
+      {
+        code: 'TAK',
+        label: { en: 'Tai Koo', tc: '太古' },
+        location: { lat: 22.2846493141534, lng: 114.21635997362067 },
+      },
+      {
+        code: 'SWH',
+        label: { en: 'Sai Wan Ho', tc: '西灣河' },
+        location: { lat: 22.282100358518772, lng: 114.22190186563354 },
+      },
+      {
+        code: 'SKW',
+        label: { en: 'Shau Kei Wan', tc: '筲箕灣' },
+        location: { lat: 22.279240602838502, lng: 114.22887973735025 },
+      },
+      {
+        code: 'HFC',
+        label: { en: 'Heng Fa Chuen', tc: '杏花邨' },
+        location: { lat: 22.276806535580885, lng: 114.23991330359172 },
+      },
+      {
+        code: 'CHW',
+        label: { en: 'Chai Wan', tc: '柴灣' },
+        location: { lat: 22.264624576958997, lng: 114.23713759155268 },
       },
     ],
   },
