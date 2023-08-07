@@ -1,5 +1,4 @@
-import useTranslation from '@hooks/useTranslation'
-
+import { useTranslation } from 'next-i18next'
 import styled from 'styled-components'
 
 const AlertButton = styled.button`
@@ -34,7 +33,7 @@ const AlertContent = styled.div`
   top: 50vh;
   left: 50vw;
   transform: translate(-50%, -50%);
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 15px;
   z-index: 1000;
 `
@@ -51,12 +50,14 @@ const AlertContainer = styled.div`
 
 const Alert = ({ children, onPressClose }) => {
   const { t } = useTranslation()
-  return (<AlertContainer>
-    <AlertContent>
-      {children}
-      <AlertButton onClick={onPressClose}>{t('close')}</AlertButton>
-    </AlertContent>
-  </AlertContainer>)
+  return (
+    <AlertContainer>
+      <AlertContent>
+        {children}
+        <AlertButton onClick={onPressClose}>{t('close')}</AlertButton>
+      </AlertContent>
+    </AlertContainer>
+  )
 }
 
 export default Alert

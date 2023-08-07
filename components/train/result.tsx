@@ -5,9 +5,9 @@ import useSWR from 'swr'
 import Alert from '@components/alert'
 import Bell from '@components/bell'
 import Refresh from '@components/refresh'
-import useTranslation from '@hooks/useTranslation'
 import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
 import { DATA } from '@utils/next-train-data'
+import { useTranslation } from 'next-i18next'
 import ResultList from './result-list'
 import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 
@@ -19,17 +19,17 @@ const fetcher = (url, params) =>
     alert:
       res?.data?.status === 0 && res?.data?.message
         ? {
-          message: res?.data?.message, //"Special train service arrangements are now in place on this line. Please click here for more information.",
-          url: res?.data?.url ? decodeURI(res?.data?.url) : null, //decodeURI("https:\/\/www.mtr.com.hk\/alert\/alert_title_wap.html")
-        }
+            message: res?.data?.message, //"Special train service arrangements are now in place on this line. Please click here for more information.",
+            url: res?.data?.url ? decodeURI(res?.data?.url) : null, //decodeURI("https:\/\/www.mtr.com.hk\/alert\/alert_title_wap.html")
+          }
         : null,
   }))
 
 const Result = ({ line, sta }) => {
-  const { t, locale } = useTranslation()
+  const { t, i18n } = useTranslation()
   const params = useMemo(
-    () => ({ line, sta, lang: locale === 'zh' ? 'TC' : 'EN' }),
-    [line, sta, locale]
+    () => ({ line, sta, lang: i18n.language?.toUpperCase() || 'TC' }),
+    [i18n.language, line, sta]
   )
   const { data, mutate } = useSWR(
     [line && sta ? MTR_NEXT_TRAIN_API : null, params],
@@ -43,7 +43,7 @@ const Result = ({ line, sta }) => {
 
   const getRouteDestLabel = useCallback(
     (routes = []) => {
-      if (!routes || !routes.length) return '-'
+      if (!routes?.length) return '-'
       const dests = Array.from(new Set([...routes.map((r) => t(r.dest))]))
       return dests.join(t('/'))
     },
@@ -54,7 +54,7 @@ const Result = ({ line, sta }) => {
   const onClickCloseAlert = useCallback(() => setShowAlert(false), [])
 
   if (!line || !sta) return null
-  if (line && sta && !data) return t('Loading...')
+  if (line && sta && !data) return <div>{t('Loading...')}</div>
   return (
     <Wrapper>
       <Header>

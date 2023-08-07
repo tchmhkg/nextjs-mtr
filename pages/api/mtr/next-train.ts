@@ -7,7 +7,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { line, sta, lang = 'en' } = req.query
+  const { line, sta, lang = 'tc' } = req.query
 
   try {
     const apiRes = await axios.get(MTR_NEXT_TRAIN_API, {

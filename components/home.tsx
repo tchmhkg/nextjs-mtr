@@ -1,10 +1,14 @@
 import Alert from '@components/alert'
-import useTranslation from '@hooks/useTranslation'
-import { getTrainState, ILine, setLine, setStation } from '@store/slices/trainSlice'
+import {
+  getTrainState,
+  ILine,
+  setLine,
+  setStation,
+} from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
 import { DATA, ILineStation } from '@utils/next-train-data'
 import _ from 'lodash'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import CurrLocation from './curr-location'
 import {
   Container,
@@ -17,33 +21,26 @@ import {
   RelatedLineWrapper,
   Right,
   SelectorWrapper,
-  StationOption
+  StationOption,
 } from './home.style'
 
+import { useTranslation } from 'next-i18next'
 import Result from './train/result'
 
 const Home = () => {
   const dispatch = useDispatch()
   const { line: selectedLine, station: selectedStation } =
     useSelector(getTrainState)
-  const { locale, t } = useTranslation()
+  const { i18n, t } = useTranslation()
   const rightListRef = useRef(null)
   const [gettingLocation, setGettingLocation] = useState(false)
   const [showRelated, setShowRelated] = useState(false)
-  // const [currLocation, setCurrLocation] = useState({lat: 0, lng: 0});
-  // const [closestStation, setClosestStation] = useState({});
-  // let stationRef = [];
   const refs = DATA.reduce((stationRef, value) => {
     for (const station of value.stations) {
       stationRef[station.code] = React.createRef()
     }
     return stationRef
   }, {})
-
-  const langCodeFromLocale = useMemo(
-    () => (locale === 'zh' ? 'tc' : 'en'),
-    [locale]
-  )
 
   const onChangeLine = useCallback(
     (line: ILine) => {
@@ -59,28 +56,31 @@ const Home = () => {
     return DATA.find((s) => s.line.code === selectedLine.code)
   }, [selectedLine])
 
-  const calcDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number, unit: string) => {
-    var radLat1 = (Math.PI * lat1) / 180
-    var radLat2 = (Math.PI * lat2) / 180
-    var theta = lon1 - lon2
-    var radTheta = (Math.PI * theta) / 180
-    var dist =
-      Math.sin(radLat1) * Math.sin(radLat2) +
-      Math.cos(radLat1) * Math.cos(radLat2) * Math.cos(radTheta)
-    if (dist > 1) {
-      dist = 1
-    }
-    dist = Math.acos(dist)
-    dist = (dist * 180) / Math.PI
-    dist = dist * 60 * 1.1515
-    if (unit == 'K') {
-      dist = dist * 1.609344
-    }
-    if (unit == 'N') {
-      dist = dist * 0.8684
-    }
-    return dist
-  }, [])
+  const calcDistance = useCallback(
+    (lat1: number, lon1: number, lat2: number, lon2: number, unit: string) => {
+      const radLat1 = (Math.PI * lat1) / 180
+      const radLat2 = (Math.PI * lat2) / 180
+      const theta = lon1 - lon2
+      const radTheta = (Math.PI * theta) / 180
+      let dist =
+        Math.sin(radLat1) * Math.sin(radLat2) +
+        Math.cos(radLat1) * Math.cos(radLat2) * Math.cos(radTheta)
+      if (dist > 1) {
+        dist = 1
+      }
+      dist = Math.acos(dist)
+      dist = (dist * 180) / Math.PI
+      dist = dist * 60 * 1.1515
+      if (unit == 'K') {
+        dist = dist * 1.609344
+      }
+      if (unit == 'N') {
+        dist = dist * 0.8684
+      }
+      return dist
+    },
+    []
+  )
 
   const findNearestStation = useCallback(
     (lat: number, lng: number) => {
@@ -105,7 +105,6 @@ const Home = () => {
           }
         }
       }
-      // console.log('CLOSEST =>',closest);
       dispatch(setLine(closestLine))
       dispatch(setStation(closestStation))
       setGettingLocation(true)
@@ -114,14 +113,8 @@ const Home = () => {
   )
 
   const getPositionSuccess = useCallback(
-    (pos: { coords: { latitude: number, longitude: number } }) => {
-      var crd = pos.coords
-
-      // console.log('Your current position is:');
-      // console.log(`Latitude : ${crd.latitude}`);
-      // console.log(`Longitude: ${crd.longitude}`);
-      // console.log(`More or less ${crd.accuracy} meters.`);
-      // setCurrLocation({lat: crd.latitude, lng: crd.longitude});
+    (pos: { coords: { latitude: number; longitude: number } }) => {
+      const crd = pos.coords
       findNearestStation(crd.latitude, crd.longitude)
     },
     [findNearestStation]
@@ -132,7 +125,7 @@ const Home = () => {
   }, [])
 
   const getCurrLocation = useCallback(() => {
-    var options = {
+    const options = {
       enableHighAccuracy: true,
       maximumAge: 0,
     }
@@ -203,18 +196,12 @@ const Home = () => {
               color={l.line.color}
             >
               <LineColor color={l.line.color} />
-              <div className="option-name">
-                {l.line.label[langCodeFromLocale]}
-              </div>
+              <div className="option-name">{l.line.label[i18n.language]}</div>
             </LineOption>
           ))}
         </Left>
         <Right ref={rightListRef} bgColor={filterStations()?.line?.color}>
           {filterStations()?.stations?.map((s) => {
-            {
-              /* const ref = createRef();
-            stationRef.push({[s.code]: ref}) */
-            }
             return (
               <StationOption
                 ref={refs[s.code]}
@@ -223,12 +210,9 @@ const Home = () => {
                 selected={s.code === selectedStation?.code}
               >
                 <div className="option-name station">
-                  {s.label[langCodeFromLocale]}
+                  {s.label[i18n.language]}
                   {!_.isEmpty(s.related) && (
-                    <div
-                      className="more-option"
-                      onClick={showMoreOptions}
-                    >
+                    <div className="more-option" onClick={showMoreOptions}>
                       {'>'}
                     </div>
                   )}

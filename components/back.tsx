@@ -1,4 +1,4 @@
-import useTranslation from '@hooks/useTranslation'
+import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
@@ -9,15 +9,15 @@ const Button = styled.a`
 `
 
 const BackButton = ({ backUrl = '' }) => {
-  const { locale, t } = useTranslation()
+  const { i18n, t } = useTranslation()
   const router = useRouter()
   const onClickBack = useCallback(() => {
     if (backUrl) {
-      router.push(`/${locale}${backUrl}`)
+      router.push(`/${i18n.language}${backUrl}`)
     } else {
       router.back()
     }
-  }, [router, backUrl, locale])
+  }, [router, backUrl, i18n.language])
 
   return (
     <div>

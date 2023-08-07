@@ -1,5 +1,5 @@
 import styles from '@components/layout.module.scss'
-import useTranslation from '@hooks/useTranslation'
+import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic'
 import styled from 'styled-components'
 
@@ -28,7 +28,7 @@ const Layout = ({
   showBackToHome = true,
   ...props
 }) => {
-  const { locale, t } = useTranslation()
+  const { i18n, t } = useTranslation()
 
   return (
     <>
@@ -39,7 +39,7 @@ const Layout = ({
         <main>{children}</main>
         {!home && showBackToHome && (
           <div className={styles.backToHome}>
-            <Link href="/[lang]" as={`/${locale}`}>
+            <Link href="/[lang]" as={`/${i18n.language}`}>
               <a>← {t('Back to home')}</a>
             </Link>
           </div>
