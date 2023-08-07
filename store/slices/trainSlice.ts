@@ -3,6 +3,7 @@ import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 export interface IRelatedLine {
   lineCode: string
   color: string
+  stationCode?: string
 }
 
 export interface ILine {

@@ -1,35 +1,32 @@
 import { format, formatDuration, intervalToDuration } from 'date-fns'
 import { useCallback } from 'react'
 
-import useTranslation from '@hooks/useTranslation'
+import { useTranslation } from 'next-i18next'
 import { PlatForm, PlatFormWrapper } from './result-item.style'
-const isValidDate = (d) => d instanceof Date// && !isNaN(d)
+const isValidDate = (d) => d instanceof Date // && !isNaN(d)
 
 const humanTime = (time = new Date()) => {
   return format(new Date(String(time).replace(' ', 'T')), 'HH:mm')
 }
 
 const ResultItem = ({ times, lineColor, currTime }) => {
-  const { locale, t } = useTranslation()
+  const { i18n, t } = useTranslation()
   const humanDuration = useCallback(
-    (time = null, locale = 'en') => {
+    (time = null, locale = 'tc') => {
       const start = new Date(Date.parse(time?.replace(/-/g, '/')))
       const end = new Date(Date.parse(currTime?.replace(/-/g, '/')))
       if (!isValidDate(start) || !isValidDate(end)) {
         return '-'
       }
-      // const isPast = end > start;
       const diffMSeconds = start.getTime() - end.getTime()
       const diffSeconds = diffMSeconds / 1000
-      // console.log(diffSeconds)
-      // const minutesToArrive = intervalToDuration({start, end})?.minutes;
       if (diffSeconds <= 0) return t('leaving')
       if (diffSeconds <= 60) return t('arriving')
       const duration = formatDuration(
         intervalToDuration({ start: 0, end: diffMSeconds }), //parseInt(minutesToArrive) * 1000 * 60 })
         { format: ['hours', 'minutes'] }
       )
-      if (locale === 'zh') {
+      if (locale === 'tc') {
         return duration
           .replace(/\shours|\shour/g, '小時')
           .replace(/\sminutes|\sminute/g, '分鐘')
@@ -52,7 +49,7 @@ const ResultItem = ({ times, lineColor, currTime }) => {
         <PlatForm lineColor={lineColor}>{times?.plat}</PlatForm>
       </PlatFormWrapper>
       <div className="item-time">
-        {humanTime(times?.time)} ({humanDuration(times?.time, locale)})
+        {humanTime(times?.time)} ({humanDuration(times?.time, i18n.language)})
       </div>
     </div>
   )

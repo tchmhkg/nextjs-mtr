@@ -1,5 +1,4 @@
-import { LanguageContext } from '@context/LanguageContext'
-import { languageNames, locales } from '@translations/config'
+import { useTranslation } from 'next-i18next'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
@@ -42,26 +41,34 @@ const LocaleButton = styled.div<ILocaleButton>`
 
 const LanguageSwitcher = ({ inNavbar = false }) => {
   const router = useRouter()
-  const { locale: currentLocale } = React.useContext(LanguageContext)
 
+  const { i18n, t } = useTranslation()
   const handleLocaleChange = useCallback(
-    (locale) => {
-      if (currentLocale === locale) return
-      const regex = new RegExp(`^/(${locales.join('|')})`)
-      router.push(router.pathname, router.asPath.replace(regex, `/${locale}`))
+    (locale: string) => {
+      if (i18n.language === locale) return
+      i18n.changeLanguage(locale)
+
+      router.push(
+        {
+          pathname: router.pathname + locale,
+          query: router.query,
+        },
+        null,
+        { locale: locale }
+      )
     },
-    [router, currentLocale]
+    [i18n, router]
   )
 
   return (
     <Wrapper inNavbar={inNavbar}>
-      {locales.map((locale) => (
+      {router.locales?.map((locale) => (
         <LocaleButton
           key={locale}
-          selected={locale === currentLocale}
+          selected={locale === i18n.language}
           onClick={() => handleLocaleChange(locale)}
         >
-          {languageNames[locale]}
+          {t(locale)}
         </LocaleButton>
       ))}
     </Wrapper>
