@@ -28,8 +28,8 @@ export const DATA: ILineStation[] = [
         location: { lat: 22.284654109599554, lng: 114.15824513908593 },
         related: [
           { lineCode: 'TCL', color: TCL_COLOR },
-          { lineCode: 'ISL', color: ISL_COLOR },
-          { lineCode: 'TWL', color: TWL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR, stationCode: 'CEN' },
+          { lineCode: 'TWL', color: TWL_COLOR, stationCode: 'CEN' },
         ],
       },
       {
@@ -69,8 +69,8 @@ export const DATA: ILineStation[] = [
         location: { lat: 22.284654109599554, lng: 114.15824513908593 },
         related: [
           { lineCode: 'AEL', color: AEL_COLOR },
-          { lineCode: 'ISL', color: ISL_COLOR },
-          { lineCode: 'TWL', color: TWL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR, stationCode: 'CEN' },
+          { lineCode: 'TWL', color: TWL_COLOR, stationCode: 'CEN' },
         ],
       },
       {
@@ -207,7 +207,7 @@ export const DATA: ILineStation[] = [
         code: 'ETS',
         label: { en: 'East Tsim Sha Tsui', tc: '尖東' },
         location: { lat: 22.29473787652132, lng: 114.17346829228025 },
-        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
+        related: [{ lineCode: 'TWL', color: TWL_COLOR, stationCode: 'TST' }],
       },
       {
         code: 'AUS',
@@ -527,7 +527,7 @@ export const DATA: ILineStation[] = [
         code: 'TST',
         label: { en: 'Tsim Sha Tsui', tc: '尖沙咀' },
         location: { lat: 22.29757137332664, lng: 114.17220789068388 },
-        related: [{ lineCode: 'TML', color: TML_COLOR }],
+        related: [{ lineCode: 'TML', color: TML_COLOR, stationCode: 'ETS' }],
       },
       {
         code: 'ADM',
@@ -545,8 +545,8 @@ export const DATA: ILineStation[] = [
         location: { lat: 22.281952496463273, lng: 114.15825203489491 },
         related: [
           { lineCode: 'ISL', color: ISL_COLOR },
-          { lineCode: 'TCL', color: TCL_COLOR },
-          { lineCode: 'AEL', color: AEL_COLOR },
+          { lineCode: 'TCL', color: TCL_COLOR, stationCode: 'HOK' },
+          { lineCode: 'AEL', color: AEL_COLOR, stationCode: 'HOK' },
         ],
       },
     ],
@@ -584,8 +584,8 @@ export const DATA: ILineStation[] = [
         location: { lat: 22.281952496463273, lng: 114.15825203489491 },
         related: [
           { lineCode: 'TWL', color: TWL_COLOR },
-          { lineCode: 'TCL', color: TCL_COLOR },
-          { lineCode: 'AEL', color: AEL_COLOR },
+          { lineCode: 'TCL', color: TCL_COLOR, stationCode: 'HOK' },
+          { lineCode: 'AEL', color: AEL_COLOR, stationCode: 'HOK' },
         ],
       },
       {

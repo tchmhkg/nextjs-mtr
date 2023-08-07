@@ -166,10 +166,17 @@ const Home = () => {
   }, [])
 
   const switchLine = useCallback(
-    (lineCode: string) => {
-      const line = DATA.find((s) => s.line.code === lineCode)?.line
+    (lineCode: string, stationCode?: string) => {
+      const lineData = DATA.find((s) => s.line.code === lineCode)
+      const line = lineData?.line
       if (line) {
         dispatch(setLine(line))
+        if (stationCode) {
+          const station = lineData?.stations?.find(
+            (sta) => sta.code === stationCode
+          )
+          dispatch(setStation(station))
+        }
       }
       setShowRelated(false)
     },
@@ -230,7 +237,9 @@ const Home = () => {
               <RelatedLine
                 key={rStation.lineCode}
                 lineColor={rStation.color}
-                onClick={() => switchLine(rStation.lineCode)}
+                onClick={() =>
+                  switchLine(rStation.lineCode, rStation.stationCode)
+                }
               >
                 {t(rStation.lineCode)}
               </RelatedLine>
