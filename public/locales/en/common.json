@@ -91,6 +91,9 @@
   "CHW": "Chai Wan",
   "CHW_UP": "Chai Wan",
   "KET_DOWN": "Kennedy Town",
+  "TIK_UP": "Tiu Keng Leng",
+  "WHA": "Whampoa",
+  "WHA_DOWN": "Whampoa",
   "Platform": "Platform",
   "Loading...": "Loading...",
   "End Service": "Service for today has ended",
@@ -104,5 +107,6 @@
   "SIL": "South Island Line",
   "TWL": "Tsuen Wan Line",
   "ISL": "Island Line",
+  "KTL": "Kwun Tong Line",
   "close": "Close"
 }
