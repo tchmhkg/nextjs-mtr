@@ -8,6 +8,7 @@ const EAL_COLOR = '#5eb6e4'
 const SIL_COLOR = '#b5bd00'
 const TWL_COLOR = '#FF0000'
 const ISL_COLOR = '#0860a8'
+const KTL_COLOR = '#1a9431'
 
 export interface ILineStation {
   line: ILine
@@ -176,6 +177,7 @@ export const DATA: ILineStation[] = [
         code: 'DIH',
         label: { en: 'Diamond Hill', tc: '鑽石山' },
         location: { lat: 22.339927842120527, lng: 114.2016697801652 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
       },
       {
         code: 'KAT',
@@ -196,6 +198,7 @@ export const DATA: ILineStation[] = [
         code: 'HOM',
         label: { en: 'Ho Man Tin', tc: '何文田' },
         location: { lat: 22.30939904232788, lng: 114.18280164175012 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
       },
       {
         code: 'HUH',
@@ -286,11 +289,13 @@ export const DATA: ILineStation[] = [
         code: 'YAT',
         label: { en: 'Yau Tong', tc: '油塘' },
         location: { lat: 22.298076999023717, lng: 114.23695254473539 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
       },
       {
         code: 'TIK',
         label: { en: 'Tiu Keng Leng', tc: '調景嶺' },
         location: { lat: 22.30448910884455, lng: 114.25288816375374 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
       },
       {
         code: 'TKO',
@@ -351,6 +356,7 @@ export const DATA: ILineStation[] = [
         code: 'KOT',
         label: { en: 'Kowloon Tong', tc: '九龍塘' },
         location: { lat: 22.337207473813702, lng: 114.17616943530182 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
       },
       {
         code: 'TAW',
@@ -507,16 +513,19 @@ export const DATA: ILineStation[] = [
         code: 'PRE',
         label: { en: 'Prince Edward', tc: '太子' },
         location: { lat: 22.325076640734018, lng: 114.16838400758587 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
       },
       {
         code: 'MOK',
         label: { en: 'Mong Kok', tc: '旺角' },
         location: { lat: 22.31925160088338, lng: 114.16935448989463 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
       },
       {
         code: 'YMT',
         label: { en: 'Yau Ma Tei', tc: '油麻地' },
         location: { lat: 22.31282704700396, lng: 114.17068012034585 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
       },
       {
         code: 'JOR',
@@ -654,6 +663,108 @@ export const DATA: ILineStation[] = [
         code: 'CHW',
         label: { en: 'Chai Wan', tc: '柴灣' },
         location: { lat: 22.264624576958997, lng: 114.23713759155268 },
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'KTL',
+      label: { en: 'Kwun Tong Line', tc: '觀塘綫' },
+      color: KTL_COLOR,
+    },
+    stations: [
+      {
+        code: 'WHA',
+        label: { en: 'Whampoa', tc: '黃埔' },
+        location: { lat: 22.305027972320136, lng: 114.1895491302075 },
+      },
+      {
+        code: 'HOM',
+        label: { en: 'Ho Man Tin', tc: '何文田' },
+        location: { lat: 22.30939904232788, lng: 114.18280164175012 },
+        related: [{ lineCode: 'TML', color: TML_COLOR }],
+      },
+      {
+        code: 'YMT',
+        label: { en: 'Yau Ma Tei', tc: '油麻地' },
+        location: { lat: 22.31282704700396, lng: 114.17068012034585 },
+        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
+      },
+      {
+        code: 'MOK',
+        label: { en: 'Mong Kok', tc: '旺角' },
+        location: { lat: 22.31925160088338, lng: 114.16935448989463 },
+        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
+      },
+      {
+        code: 'PRE',
+        label: { en: 'Prince Edward', tc: '太子' },
+        location: { lat: 22.325076640734018, lng: 114.16838400758587 },
+        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
+      },
+      {
+        code: 'SKM',
+        label: { en: 'Shek Kip Mei', tc: '石硤尾' },
+        location: { lat: 22.332137502978632, lng: 114.16880086621994 },
+      },
+      {
+        code: 'KOT',
+        label: { en: 'Kowloon Tong', tc: '九龍塘' },
+        location: { lat: 22.337207473813702, lng: 114.17616943530182 },
+        related: [{ lineCode: 'EAL', color: EAL_COLOR }],
+      },
+      {
+        code: 'LOF',
+        label: { en: 'Lok Fu', tc: '樂富' },
+        location: { lat: 22.33804173250202, lng: 114.18703516959667 },
+      },
+      {
+        code: 'WTS',
+        label: { en: 'Wong Tai Sin', tc: '黃大仙' },
+        location: { lat: 22.341666605176346, lng: 114.19384952609641 },
+      },
+      {
+        code: 'DIH',
+        label: { en: 'Diamond Hill', tc: '鑽石山' },
+        location: { lat: 22.339927842120527, lng: 114.2016697801652 },
+        related: [{ lineCode: 'TML', color: TML_COLOR }],
+      },
+      {
+        code: 'CHH',
+        label: { en: 'Choi Hung', tc: '彩虹' },
+        location: { lat: 22.33489863657119, lng: 114.20898867026554 },
+      },
+      {
+        code: 'KOB',
+        label: { en: 'Kowloon Bay', tc: '九龍灣' },
+        location: { lat: 22.323253022081545, lng: 114.21397572795739 },
+      },
+      {
+        code: 'NTK',
+        label: { en: 'Ngau Tau Kok', tc: '牛頭角' },
+        location: { lat: 22.315573561429513, lng: 114.2190005741596 },
+      },
+      {
+        code: 'KWT',
+        label: { en: 'Kwun Tong', tc: '觀塘' },
+        location: { lat: 22.312228569409953, lng: 114.22635675739718 },
+      },
+      {
+        code: 'LAT',
+        label: { en: 'Lam Tin', tc: '藍田' },
+        location: { lat: 22.30686640004163, lng: 114.23274792327112 },
+      },
+      {
+        code: 'YAT',
+        label: { en: 'Yau Tong', tc: '油塘' },
+        location: { lat: 22.298076999023717, lng: 114.23695254473539 },
+        related: [{ lineCode: 'TKL', color: TKL_COLOR }],
+      },
+      {
+        code: 'TIK',
+        label: { en: 'Tiu Keng Leng', tc: '調景嶺' },
+        location: { lat: 22.30448910884455, lng: 114.25288816375374 },
+        related: [{ lineCode: 'TKL', color: TKL_COLOR }],
       },
     ],
   },
