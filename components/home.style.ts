@@ -90,6 +90,7 @@ export const StationOption = styled(Option)`
       font-size: 18px;
       cursor: pointer;
       padding: 0 8px;
+      color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
     }
   }
 `
@@ -110,4 +111,11 @@ export const RelatedLine = styled.div<IRelatedLine>`
   background-color: ${({ lineColor }) => lineColor};
   color: #ffffff;
   padding: 3px;
+`
+
+export const ShowMoreButton = styled.button`
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
 `

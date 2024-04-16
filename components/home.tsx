@@ -21,6 +21,7 @@ import {
   RelatedLineWrapper,
   Right,
   SelectorWrapper,
+  ShowMoreButton,
   StationOption,
 } from './home.style'
 
@@ -187,6 +188,15 @@ const Home = () => {
     setShowRelated(false)
   }, [])
 
+  const handleKeyDownShowMore = useCallback(
+    (e) => {
+      if (e.keyCode === 13) {
+        showMoreOptions()
+      }
+    },
+    [showMoreOptions]
+  )
+
   return (
     <Container>
       <Header>
@@ -219,9 +229,13 @@ const Home = () => {
                 <div className="option-name station">
                   {s.label[i18n.language]}
                   {!_.isEmpty(s.related) && (
-                    <div className="more-option" onClick={showMoreOptions}>
+                    <ShowMoreButton
+                      className="more-option"
+                      onClick={showMoreOptions}
+                      onKeyDown={handleKeyDownShowMore}
+                    >
                       {'>'}
-                    </div>
+                    </ShowMoreButton>
                   )}
                 </div>
               </StationOption>
