@@ -18,105 +18,6 @@ export interface ILineStation {
 export const DATA: ILineStation[] = [
   {
     line: {
-      code: 'AEL',
-      label: { en: 'Airport Express', tc: '機場快綫' },
-      color: AEL_COLOR,
-    },
-    stations: [
-      {
-        code: 'HOK',
-        label: { en: 'Hong Kong', tc: '香港' },
-        location: { lat: 22.284654109599554, lng: 114.15824513908593 },
-        related: [
-          { lineCode: 'TCL', color: TCL_COLOR },
-          { lineCode: 'ISL', color: ISL_COLOR, stationCode: 'CEN' },
-          { lineCode: 'TWL', color: TWL_COLOR, stationCode: 'CEN' },
-        ],
-      },
-      {
-        code: 'KOW',
-        label: { en: 'Kowloon', tc: '九龍' },
-        location: { lat: 22.304314573300715, lng: 114.1613895953227 },
-        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
-      },
-      {
-        code: 'TSY',
-        label: { en: 'Tsing Yi', tc: '青衣' },
-        location: { lat: 22.358508172423235, lng: 114.10768242620871 },
-        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
-      },
-      {
-        code: 'AIR',
-        label: { en: 'Airport', tc: '機場' },
-        location: { lat: 22.31585557451253, lng: 113.93656428430972 },
-      },
-      {
-        code: 'AWE',
-        label: { en: 'AsiaWorld-Expo', tc: '博覽館' },
-        location: { lat: 22.32087881389577, lng: 113.94181208198415 },
-      },
-    ],
-  },
-  {
-    line: {
-      code: 'TCL',
-      label: { en: 'Tung Chung Line', tc: '東涌綫' },
-      color: TCL_COLOR,
-    },
-    stations: [
-      {
-        code: 'HOK',
-        label: { en: 'Hong Kong', tc: '香港' },
-        location: { lat: 22.284654109599554, lng: 114.15824513908593 },
-        related: [
-          { lineCode: 'AEL', color: AEL_COLOR },
-          { lineCode: 'ISL', color: ISL_COLOR, stationCode: 'CEN' },
-          { lineCode: 'TWL', color: TWL_COLOR, stationCode: 'CEN' },
-        ],
-      },
-      {
-        code: 'KOW',
-        label: { en: 'Kowloon', tc: '九龍' },
-        location: { lat: 22.304314573300715, lng: 114.1613895953227 },
-        related: [{ lineCode: 'AEL', color: AEL_COLOR }],
-      },
-      {
-        code: 'OLY',
-        label: { en: 'Olympic', tc: '奧運' },
-        location: { lat: 22.317809046575164, lng: 114.16018390269836 },
-      },
-      {
-        code: 'NAC',
-        label: { en: 'Nam Cheong', tc: '南昌' },
-        location: { lat: 22.32681844121303, lng: 114.15367056315998 },
-        related: [{ lineCode: 'TML', color: TML_COLOR }],
-      },
-      {
-        code: 'LAK',
-        label: { en: 'Lai King', tc: '荔景' },
-        location: { lat: 22.348387078565278, lng: 114.12616746216915 },
-        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
-      },
-      {
-        code: 'TSY',
-        label: { en: 'Tsing Yi', tc: '青衣' },
-        location: { lat: 22.358508172423235, lng: 114.10768242620871 },
-        related: [{ lineCode: 'AEL', color: AEL_COLOR }],
-      },
-      {
-        code: 'SUN',
-        label: { en: 'Sunny Bay', tc: '欣澳' },
-        location: { lat: 22.331734796626517, lng: 114.02889408640976 },
-      },
-      {
-        code: 'TUC',
-        label: { en: 'Tung Chung', tc: '東涌' },
-        location: { lat: 22.289282798320432, lng: 113.94145810300658 },
-      },
-    ],
-  },
-  {
-    line: {
       code: 'TML',
       label: { en: 'Tuen Ma Line', tc: '屯馬綫' },
       color: TML_COLOR,
@@ -268,59 +169,6 @@ export const DATA: ILineStation[] = [
   },
   {
     line: {
-      code: 'TKL',
-      label: { en: 'Tseung Kwan O Line', tc: '將軍澳綫' },
-      color: TKL_COLOR,
-    },
-    stations: [
-      {
-        code: 'NOP',
-        label: { en: 'North Point', tc: '北角' },
-        location: { lat: 22.291358902846948, lng: 114.20059820000797 },
-        related: [{ lineCode: 'ISL', color: ISL_COLOR }],
-      },
-      {
-        code: 'QUB',
-        label: { en: 'Quarry Bay', tc: '鰂魚涌' },
-        location: { lat: 22.287745414523513, lng: 114.20978208372225 },
-        related: [{ lineCode: 'ISL', color: ISL_COLOR }],
-      },
-      {
-        code: 'YAT',
-        label: { en: 'Yau Tong', tc: '油塘' },
-        location: { lat: 22.298076999023717, lng: 114.23695254473539 },
-        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
-      },
-      {
-        code: 'TIK',
-        label: { en: 'Tiu Keng Leng', tc: '調景嶺' },
-        location: { lat: 22.30448910884455, lng: 114.25288816375374 },
-        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
-      },
-      {
-        code: 'TKO',
-        label: { en: 'Tseung Kwan O', tc: '將軍澳' },
-        location: { lat: 22.307497609793792, lng: 114.26012857974864 },
-      },
-      {
-        code: 'LHP',
-        label: { en: 'LOHAS Park', tc: '康城' },
-        location: { lat: 22.29634569730654, lng: 114.26947563794256 },
-      },
-      {
-        code: 'HAH',
-        label: { en: 'Hang Hau', tc: '坑口' },
-        location: { lat: 22.315571903429653, lng: 114.26442004948456 },
-      },
-      {
-        code: 'POA',
-        label: { en: 'Po Lam', tc: '寶琳' },
-        location: { lat: 22.322622415835006, lng: 114.25784016297298 },
-      },
-    ],
-  },
-  {
-    line: {
       code: 'EAL',
       label: { en: 'East Rail Line', tc: '東鐵綫' },
       color: EAL_COLOR,
@@ -413,45 +261,6 @@ export const DATA: ILineStation[] = [
         code: 'LMC',
         label: { en: 'Lok Ma Chau', tc: '落馬洲' },
         location: { lat: 22.51486441180752, lng: 114.06561777119347 },
-      },
-    ],
-  },
-  {
-    line: {
-      code: 'SIL',
-      label: { en: 'South Island Line', tc: '南港島綫' },
-      color: SIL_COLOR,
-    },
-    stations: [
-      {
-        code: 'ADM',
-        label: { en: 'Admiralty', tc: '金鐘' },
-        location: { lat: 22.279437872105998, lng: 114.16451984982076 },
-        related: [
-          { lineCode: 'EAL', color: EAL_COLOR },
-          { lineCode: 'TWL', color: TWL_COLOR },
-          { lineCode: 'ISL', color: ISL_COLOR },
-        ],
-      },
-      {
-        code: 'OCP',
-        label: { en: 'Ocean Park', tc: '海洋公園' },
-        location: { lat: 22.24871486908183, lng: 114.17444706443838 },
-      },
-      {
-        code: 'WCH',
-        label: { en: 'Wong Chuk Hang', tc: '黃竹坑' },
-        location: { lat: 22.247991813315792, lng: 114.16802676039767 },
-      },
-      {
-        code: 'LET',
-        label: { en: 'Lei Tung', tc: '利東' },
-        location: { lat: 22.24193936402401, lng: 114.15609647206259 },
-      },
-      {
-        code: 'SOH',
-        label: { en: 'South Horizons', tc: '海怡半島' },
-        location: { lat: 22.242859673123597, lng: 114.14874222376356 },
       },
     ],
   },
@@ -765,6 +574,197 @@ export const DATA: ILineStation[] = [
         label: { en: 'Tiu Keng Leng', tc: '調景嶺' },
         location: { lat: 22.30448910884455, lng: 114.25288816375374 },
         related: [{ lineCode: 'TKL', color: TKL_COLOR }],
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'AEL',
+      label: { en: 'Airport Express', tc: '機場快綫' },
+      color: AEL_COLOR,
+    },
+    stations: [
+      {
+        code: 'HOK',
+        label: { en: 'Hong Kong', tc: '香港' },
+        location: { lat: 22.284654109599554, lng: 114.15824513908593 },
+        related: [
+          { lineCode: 'TCL', color: TCL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR, stationCode: 'CEN' },
+          { lineCode: 'TWL', color: TWL_COLOR, stationCode: 'CEN' },
+        ],
+      },
+      {
+        code: 'KOW',
+        label: { en: 'Kowloon', tc: '九龍' },
+        location: { lat: 22.304314573300715, lng: 114.1613895953227 },
+        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
+      },
+      {
+        code: 'TSY',
+        label: { en: 'Tsing Yi', tc: '青衣' },
+        location: { lat: 22.358508172423235, lng: 114.10768242620871 },
+        related: [{ lineCode: 'TCL', color: TCL_COLOR }],
+      },
+      {
+        code: 'AIR',
+        label: { en: 'Airport', tc: '機場' },
+        location: { lat: 22.31585557451253, lng: 113.93656428430972 },
+      },
+      {
+        code: 'AWE',
+        label: { en: 'AsiaWorld-Expo', tc: '博覽館' },
+        location: { lat: 22.32087881389577, lng: 113.94181208198415 },
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'TCL',
+      label: { en: 'Tung Chung Line', tc: '東涌綫' },
+      color: TCL_COLOR,
+    },
+    stations: [
+      {
+        code: 'HOK',
+        label: { en: 'Hong Kong', tc: '香港' },
+        location: { lat: 22.284654109599554, lng: 114.15824513908593 },
+        related: [
+          { lineCode: 'AEL', color: AEL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR, stationCode: 'CEN' },
+          { lineCode: 'TWL', color: TWL_COLOR, stationCode: 'CEN' },
+        ],
+      },
+      {
+        code: 'KOW',
+        label: { en: 'Kowloon', tc: '九龍' },
+        location: { lat: 22.304314573300715, lng: 114.1613895953227 },
+        related: [{ lineCode: 'AEL', color: AEL_COLOR }],
+      },
+      {
+        code: 'OLY',
+        label: { en: 'Olympic', tc: '奧運' },
+        location: { lat: 22.317809046575164, lng: 114.16018390269836 },
+      },
+      {
+        code: 'NAC',
+        label: { en: 'Nam Cheong', tc: '南昌' },
+        location: { lat: 22.32681844121303, lng: 114.15367056315998 },
+        related: [{ lineCode: 'TML', color: TML_COLOR }],
+      },
+      {
+        code: 'LAK',
+        label: { en: 'Lai King', tc: '荔景' },
+        location: { lat: 22.348387078565278, lng: 114.12616746216915 },
+        related: [{ lineCode: 'TWL', color: TWL_COLOR }],
+      },
+      {
+        code: 'TSY',
+        label: { en: 'Tsing Yi', tc: '青衣' },
+        location: { lat: 22.358508172423235, lng: 114.10768242620871 },
+        related: [{ lineCode: 'AEL', color: AEL_COLOR }],
+      },
+      {
+        code: 'SUN',
+        label: { en: 'Sunny Bay', tc: '欣澳' },
+        location: { lat: 22.331734796626517, lng: 114.02889408640976 },
+      },
+      {
+        code: 'TUC',
+        label: { en: 'Tung Chung', tc: '東涌' },
+        location: { lat: 22.289282798320432, lng: 113.94145810300658 },
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'TKL',
+      label: { en: 'Tseung Kwan O Line', tc: '將軍澳綫' },
+      color: TKL_COLOR,
+    },
+    stations: [
+      {
+        code: 'NOP',
+        label: { en: 'North Point', tc: '北角' },
+        location: { lat: 22.291358902846948, lng: 114.20059820000797 },
+        related: [{ lineCode: 'ISL', color: ISL_COLOR }],
+      },
+      {
+        code: 'QUB',
+        label: { en: 'Quarry Bay', tc: '鰂魚涌' },
+        location: { lat: 22.287745414523513, lng: 114.20978208372225 },
+        related: [{ lineCode: 'ISL', color: ISL_COLOR }],
+      },
+      {
+        code: 'YAT',
+        label: { en: 'Yau Tong', tc: '油塘' },
+        location: { lat: 22.298076999023717, lng: 114.23695254473539 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
+      },
+      {
+        code: 'TIK',
+        label: { en: 'Tiu Keng Leng', tc: '調景嶺' },
+        location: { lat: 22.30448910884455, lng: 114.25288816375374 },
+        related: [{ lineCode: 'KTL', color: KTL_COLOR }],
+      },
+      {
+        code: 'TKO',
+        label: { en: 'Tseung Kwan O', tc: '將軍澳' },
+        location: { lat: 22.307497609793792, lng: 114.26012857974864 },
+      },
+      {
+        code: 'LHP',
+        label: { en: 'LOHAS Park', tc: '康城' },
+        location: { lat: 22.29634569730654, lng: 114.26947563794256 },
+      },
+      {
+        code: 'HAH',
+        label: { en: 'Hang Hau', tc: '坑口' },
+        location: { lat: 22.315571903429653, lng: 114.26442004948456 },
+      },
+      {
+        code: 'POA',
+        label: { en: 'Po Lam', tc: '寶琳' },
+        location: { lat: 22.322622415835006, lng: 114.25784016297298 },
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'SIL',
+      label: { en: 'South Island Line', tc: '南港島綫' },
+      color: SIL_COLOR,
+    },
+    stations: [
+      {
+        code: 'ADM',
+        label: { en: 'Admiralty', tc: '金鐘' },
+        location: { lat: 22.279437872105998, lng: 114.16451984982076 },
+        related: [
+          { lineCode: 'EAL', color: EAL_COLOR },
+          { lineCode: 'TWL', color: TWL_COLOR },
+          { lineCode: 'ISL', color: ISL_COLOR },
+        ],
+      },
+      {
+        code: 'OCP',
+        label: { en: 'Ocean Park', tc: '海洋公園' },
+        location: { lat: 22.24871486908183, lng: 114.17444706443838 },
+      },
+      {
+        code: 'WCH',
+        label: { en: 'Wong Chuk Hang', tc: '黃竹坑' },
+        location: { lat: 22.247991813315792, lng: 114.16802676039767 },
+      },
+      {
+        code: 'LET',
+        label: { en: 'Lei Tung', tc: '利東' },
+        location: { lat: 22.24193936402401, lng: 114.15609647206259 },
+      },
+      {
+        code: 'SOH',
+        label: { en: 'South Horizons', tc: '海怡半島' },
+        location: { lat: 22.242859673123597, lng: 114.14874222376356 },
       },
     ],
   },
