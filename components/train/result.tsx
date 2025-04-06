@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
 import Alert from '@components/alert'
@@ -60,6 +60,12 @@ const Result = ({ line, sta }) => {
 
   const onClickShowAlert = useCallback(() => setShowAlert(true), [])
   const onClickCloseAlert = useCallback(() => setShowAlert(false), [])
+
+  useEffect(() => {
+    if (sta) {
+      mutate()
+    }
+  }, [sta])
 
   if (!line || !sta) return null
   if (line && sta && !data) return <div>{t('Loading...')}</div>

@@ -9,6 +9,7 @@ const SIL_COLOR = '#b5bd00'
 const TWL_COLOR = '#FF0000'
 const ISL_COLOR = '#0860a8'
 const KTL_COLOR = '#1a9431'
+const DRL_COLOR = '#f550a6'
 
 export interface ILineStation {
   line: ILine
@@ -668,6 +669,7 @@ export const DATA: ILineStation[] = [
         code: 'SUN',
         label: { en: 'Sunny Bay', tc: '欣澳' },
         location: { lat: 22.331734796626517, lng: 114.02889408640976 },
+        related: [{ lineCode: 'DRL', color: DRL_COLOR }],
       },
       {
         code: 'TUC',
@@ -765,6 +767,28 @@ export const DATA: ILineStation[] = [
         code: 'SOH',
         label: { en: 'South Horizons', tc: '海怡半島' },
         location: { lat: 22.242859673123597, lng: 114.14874222376356 },
+      },
+    ],
+  },
+  {
+    line: {
+      code: 'DRL',
+      label: { en: 'Disneyland Rosort Line', tc: '迪士尼綫' },
+      color: DRL_COLOR,
+    },
+    stations: [
+      {
+        code: 'SUN',
+        label: { en: 'Sunny Bay', tc: '欣澳' },
+        location: { lat: 22.331734796626517, lng: 114.02889408640976 },
+        related: [
+          { lineCode: 'TCL', color: TCL_COLOR },
+        ],
+      },
+      {
+        code: 'DIS',
+        label: { en: 'Disneyland Resort', tc: '迪士尼' },
+        location: { lat: 22.31536553231452, lng: 114.04518448364603 },
       },
     ],
   },
