@@ -9,5 +9,8 @@ module.exports = {
   ...nextConfig,
   compiler: {
     styledComponents: true,
+    removeConsole: {
+      exclude: ['error'], // Keep console.error
+    },
   },
 }
