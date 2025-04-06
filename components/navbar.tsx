@@ -2,9 +2,9 @@ import dynamic from 'next/dynamic'
 import { memo } from 'react'
 import styled from 'styled-components'
 // import Menu from "@components/menu";
-const LanguageSwitcher = dynamic(import('@components/language-switcher'))
-const ThemeSwitcher = dynamic(import('@components/theme-switcher'))
-const Image = dynamic(import('next/image'))
+const LanguageSwitcher = dynamic(import('@components/language-switcher'), { ssr: false })
+const ThemeSwitcher = dynamic(import('@components/theme-switcher'), { ssr: false })
+const Image = dynamic(import('next/image'), { ssr: false })
 
 interface IContainer {
   shouldUpdateZIndex?: boolean
@@ -56,6 +56,7 @@ const GitHubButton = memo(() => (
         width={30}
         height={30}
         alt="GitHub Icon"
+        priority
       />
     </a>
   </GitHubIconWrapper>
