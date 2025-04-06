@@ -33,7 +33,7 @@ const ResultList = ({
 
   return (
     <Wrapper left={left} right={right}>
-      {label && `${t('To')}: ${label}`}
+      <div className="label">{label && `${t('To')}: ${label}`}</div>
       <ListWrapper>{renderResult()}</ListWrapper>
     </Wrapper>
   )

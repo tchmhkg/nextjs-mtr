@@ -49,7 +49,8 @@ const ResultItem = ({ times, lineColor, currTime }) => {
         <PlatForm lineColor={lineColor}>{times?.plat}</PlatForm>
       </PlatFormWrapper>
       <div className="item-time">
-        {humanTime(times?.time)} ({humanDuration(times?.time, i18n.language)})
+        <div className="time-text">{humanTime(times?.time)}</div>
+        <div className="time-diff">{humanDuration(times?.time, i18n.language)}</div>
       </div>
     </div>
   )

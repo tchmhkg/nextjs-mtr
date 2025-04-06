@@ -23,6 +23,7 @@ export const LastUpdate = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  font-size: 14px;
   .last-update-time {
     margin-right: 10px;
   }

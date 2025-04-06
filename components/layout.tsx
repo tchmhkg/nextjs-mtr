@@ -10,8 +10,8 @@ const Link = dynamic(import('next/link'))
 
 const Container = styled.div`
   overflow-y: auto;
-  height: calc(100% - 70px);
-  top: 70px;
+  height: calc(100% - 50px);
+  top: 50px;
   padding: 15px;
   position: relative;
   color: ${(props) => props.theme.text};

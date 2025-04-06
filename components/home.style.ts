@@ -12,6 +12,7 @@ interface IRelatedLine {
 }
 
 export const Heading = styled.h2`
+  font-family: 'Poppins', sans-serif;
   color: ${(props) => props.theme.text};
   margin: 0;
 `
@@ -60,7 +61,7 @@ export const Option = styled.div<IOption>`
   align-items: center;
   .option-name {
     background: ${({ color, selected }) =>
-      selected ? `${color}` : 'transparent'};
+    selected ? `${color}` : 'transparent'};
     color: ${({ selected, theme }) => (selected ? '#fff' : theme.text)};
     width: 100%;
     padding: 3px;
@@ -83,7 +84,7 @@ export const StationOption = styled(Option)`
     align-items: center;
     justify-content: space-between;
     background: ${({ selected }) =>
-      selected ? '#fff' : 'transparent'} !important;
+    selected ? '#fff' : 'transparent'} !important;
     color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
     border-radius: 8px;
     .more-option {
