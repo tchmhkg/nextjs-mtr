@@ -19,9 +19,9 @@ const fetcher = (url, params) =>
     alert:
       res?.data?.status === 0 && res?.data?.message
         ? {
-            message: res?.data?.message, //"Special train service arrangements are now in place on this line. Please click here for more information.",
-            url: res?.data?.url ? decodeURI(res?.data?.url) : null, //decodeURI("https:\/\/www.mtr.com.hk\/alert\/alert_title_wap.html")
-          }
+          message: res?.data?.message, //"Special train service arrangements are now in place on this line. Please click here for more information.",
+          url: res?.data?.url ? decodeURI(res?.data?.url) : null, //decodeURI("https:\/\/www.mtr.com.hk\/alert\/alert_title_wap.html")
+        }
         : null,
   }))
 
@@ -32,9 +32,17 @@ const Result = ({ line, sta }) => {
     [i18n.language, line, sta]
   )
   const { data, mutate } = useSWR(
-    [line && sta ? MTR_NEXT_TRAIN_API : null, params],
-    fetcher
+    line && sta ? MTR_NEXT_TRAIN_API : null,
+    (url) => fetcher(url, params),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      refreshInterval: 30000,
+      dedupeInterval: 10000,
+      retryCount: 3
+    }
   )
+
   const lineColor = useMemo(
     () => DATA.find((l) => l.line.code === line)?.line?.color,
     [line]
