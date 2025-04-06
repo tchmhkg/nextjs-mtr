@@ -7,6 +7,7 @@ interface IPlatForm {
 export const PlatFormWrapper = styled.div`
   color: ${({ theme }) => theme.text};
   align-items: center;
+  text-align: center;
   flex: 0.4;
 `
 
