@@ -23,6 +23,7 @@ const dark = {
     alertBackground: '#613400',
     alertBorder: '#faad14',
     alertText: '#fffbe6',
+    statusBar: '#1a1a1a',
   },
 };
 
