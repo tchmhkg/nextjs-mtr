@@ -20,8 +20,8 @@ const ResultItem = ({ times, lineColor, currTime }) => {
       }
       const diffMSeconds = start.getTime() - end.getTime()
       const diffSeconds = diffMSeconds / 1000
-      if (diffSeconds <= 0) return t('leaving')
-      if (diffSeconds <= 60) return t('arriving')
+      if (diffSeconds <= 0) return <span className="time-leaving">{t('leaving')}</span>
+      if (diffSeconds <= 60) return <span className="time-arriving">{t('arriving')}</span>
       const duration = formatDuration(
         intervalToDuration({ start: 0, end: diffMSeconds }), //parseInt(minutesToArrive) * 1000 * 60 })
         { format: ['hours', 'minutes'] }

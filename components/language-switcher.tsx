@@ -22,7 +22,7 @@ const LocaleButton = styled.div<ILocaleButton>`
   justify-content: center;
   margin: 0 5px;
   border-radius: 20px;
-  padding: 5px 8px;
+  padding: 4px 8px;
   font-size: 14px;
   background: ${({ selected, theme }) =>
     selected ? theme.primary1 : 'transparent'};

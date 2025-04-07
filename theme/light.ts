@@ -24,6 +24,8 @@ const light = {
     alertBorder: '#ffe58f',
     alertText: '#613400',
     statusBar: '#f5f7fa',
+    leaving: '#ff4d4f',
+    arriving: '#52c41a',
   },
 };
 
