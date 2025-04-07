@@ -58,7 +58,6 @@ export default class MyDocument extends Document {
             sizes="32x32"
           />
           <link rel="apple-touch-icon" href="/assets/icon-192x192.png" />
-          <meta name="theme-color" content="#126AE7" />
           <meta name="format-detection" content="telephone=no" />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
