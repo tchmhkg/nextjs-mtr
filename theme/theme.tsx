@@ -7,7 +7,7 @@ import lightTheme from '@theme/light'
 
 const ThemeContext = createContext({
   mode: 'light',
-  setMode: (mode: string) => undefined,
+  setMode: (_mode: string) => undefined,
   colors: lightTheme.theme,
 })
 
@@ -25,7 +25,12 @@ const ManageThemeProvider = ({ children }) => {
     if (themeState !== modeFromStorage) {
       setModeToStorage(themeState)
     }
-  }, [themeState, modeFromStorage, setModeToStorage])
+  }, [
+    themeState,
+    modeFromStorage,
+    setModeToStorage,
+    themeColors.theme.background,
+  ])
 
   return (
     <ThemeContext.Provider
@@ -35,17 +40,25 @@ const ManageThemeProvider = ({ children }) => {
         colors: themeColors.theme,
       }}
     >
-      <ThemeProvider
-        theme={themeColors.theme}
-      >
-        {children}
-      </ThemeProvider>
+      <ThemeProvider theme={themeColors.theme}>{children}</ThemeProvider>
     </ThemeContext.Provider>
   )
 }
 
-const ThemeManager = ({ children }) => (
-  <ManageThemeProvider>{children}</ManageThemeProvider>
-)
+const ThemeManager = ({ children }) => {
+  const [mounted, setMounted] = useState<boolean>(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const body = <ManageThemeProvider>{children}</ManageThemeProvider>
+
+  // Hack: https://brianlovin.com/writing/adding-dark-mode-with-next-js#client-server-mismatches
+  if (!mounted) {
+    return <div style={{ visibility: 'hidden' }}>{body}</div>
+  }
+  return body
+}
 
 export default ThemeManager

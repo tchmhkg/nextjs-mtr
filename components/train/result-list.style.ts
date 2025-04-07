@@ -50,9 +50,11 @@ export const Wrapper = styled.div<IWrapper>`
   align-items: center;
   flex-direction: column;
   margin-bottom: 5px;
-  margin-left: ${({ right }) => (right ? '3px' : 0)};
-  margin-right: ${({ left }) => (left ? '3px' : 0)};
   .label {
     font-weight: bold;
+  }
+  @media (min-width: 769px) {
+    margin-left: ${({ right }) => (right ? '3px' : 0)};
+    margin-right: ${({ left }) => (left ? '3px' : 0)};
   }
 `

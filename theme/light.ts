@@ -23,6 +23,7 @@ const light = {
     alertBackground: '#fffbe6',
     alertBorder: '#ffe58f',
     alertText: '#613400',
+    statusBar: '#f5f7fa',
   },
 };
 

@@ -12,9 +12,8 @@ const Link = dynamic(import('next/link'))
 
 const Container = styled.div`
   overflow-y: auto;
-  height: calc(100% - 50px);
-  top: 50px;
   padding: 15px;
+  padding-top: 50px;
   position: relative;
   color: ${(props) => props.theme.text};
   a {
@@ -36,7 +35,7 @@ const Layout = ({
   return (
     <>
       <NextHead>
-        <meta name="theme-color" content={colors.backgroundAlt} />
+        <meta name="theme-color" content={colors.statusBar} />
       </NextHead>
       <Navbar />
       <Container>
