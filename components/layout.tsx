@@ -1,6 +1,8 @@
+import { useTheme } from '@theme/theme'
 import styles from '@components/layout.module.scss'
 import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic'
+import NextHead from 'next/head'
 import styled from 'styled-components'
 
 const Head = dynamic(import('@components/head'))
@@ -28,10 +30,14 @@ const Layout = ({
   showBackToHome = true,
   ...props
 }) => {
+  const { colors } = useTheme()
   const { i18n, t } = useTranslation()
 
   return (
     <>
+      <NextHead>
+        <meta name="theme-color" content={colors.backgroundAlt} />
+      </NextHead>
       <Navbar />
       <Container>
         <Head />
