@@ -24,6 +24,8 @@ const dark = {
     alertBorder: '#faad14',
     alertText: '#fffbe6',
     statusBar: '#1a1a1a',
+    leaving: '#ff4d4f',
+    arriving: '#52c41a',
   },
 };
 

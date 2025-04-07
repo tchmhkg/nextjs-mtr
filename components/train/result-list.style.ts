@@ -37,6 +37,12 @@ export const ListWrapper = styled.div`
       .time-diff {
         font-size: 14px;
       }
+      .time-leaving {
+        color: ${({ theme }) => theme.leaving};
+      }
+      .time-arriving {
+        color: ${({ theme }) => theme.arriving};
+      }
     }
     @media (max-width: 374px) {
       font-size: 15px;

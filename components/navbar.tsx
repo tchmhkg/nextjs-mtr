@@ -36,8 +36,8 @@ const RightWrapper = styled.div`
 const GitHubIconWrapper = styled.div`
   background-color: #ffffff;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   @media (max-width: 374px) {
     margin-right: 15px;
   }
@@ -52,8 +52,8 @@ const GitHubButton = memo(() => (
     >
       <Image
         src="/images/github.png"
-        width={30}
-        height={30}
+        width={25}
+        height={25}
         alt="GitHub Icon"
         priority
       />

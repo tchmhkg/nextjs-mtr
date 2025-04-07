@@ -8,11 +8,11 @@ const AlertButton = styled.button`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 10px 20px;
+  padding: 8px 16px;
   cursor: pointer;
   text-align: center;
   border-radius: 8px;
-  font-size: 18px;
+  font-size: 14px;
   margin-top: 16px;
   width: max-content;
   align-self: center;
@@ -22,9 +22,8 @@ const AlertButton = styled.button`
 `
 
 const AlertContent = styled.div`
-  max-width: 500px;
-  width: 100%;
-  ${'' /* margin: 15px; */}
+  max-width: 400px;
+  width: 90%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -33,8 +32,8 @@ const AlertContent = styled.div`
   top: 50vh;
   left: 50vw;
   transform: translate(-50%, -50%);
-  background-color: #ffffff;
-  border-radius: 15px;
+  background-color: ${({ theme }) => theme.backgroundAlt};
+  border-radius: 12px;
   z-index: 1000;
 `
 

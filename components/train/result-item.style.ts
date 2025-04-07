@@ -22,5 +22,4 @@ export const PlatForm = styled.span<IPlatForm>`
   color: ${({ lineColor, theme }) => (lineColor ? '#fff' : theme.platformText)};
   background-color: ${({ lineColor, theme }) =>
     lineColor ? lineColor : theme.platformBackground};
-  margin-left: 5px;
 `

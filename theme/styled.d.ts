@@ -21,5 +21,7 @@ declare module 'styled-components' {
         inactiveMenu: string
         platformBackground: string
         platformText: string
+        leaving: string
+        arriving: string
     }
 } 
