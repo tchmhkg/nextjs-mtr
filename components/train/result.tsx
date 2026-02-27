@@ -50,7 +50,7 @@ const Result = ({ line, sta }: ResultProps) => {
   )
   const { data, mutate } = useSWR(
     line && sta ? MTR_NEXT_TRAIN_API : null,
-    (url) => fetcher(url, params),
+    (url) => fetcher(MTR_NEXT_TRAIN_API, params),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
@@ -79,10 +79,10 @@ const Result = ({ line, sta }: ResultProps) => {
   const onClickCloseAlert = useCallback(() => setShowAlert(false), [])
 
   useEffect(() => {
-    if (sta) {
+    if (line && sta) {
       mutate()
     }
-  }, [sta])
+  }, [line, sta, mutate])
 
   if (!line || !sta) return null
   if (line && sta && !data) return <div>{t('Loading...')}</div>
