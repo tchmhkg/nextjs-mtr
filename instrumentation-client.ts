@@ -19,14 +19,13 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
 
   // Define how likely Replay events are sampled when an error occurs.
-  replaysOnErrorSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
 });
 
-import("@sentry/nextjs").then((lazyLoadedSentry) => {
-  Sentry.addIntegration(lazyLoadedSentry.replayIntegration());
-});
+const lazyLoadedSentry = await import("@sentry/nextjs");
+Sentry.addIntegration(lazyLoadedSentry.replayIntegration());
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
