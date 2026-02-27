@@ -3,6 +3,7 @@ import '@styles/global.scss'
 import type { AppProps } from 'next/app'
 import Router from 'next/router'
 import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 import ThemeManager from '@theme/theme'
 import { LayoutGroup } from 'framer-motion'
