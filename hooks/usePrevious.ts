@@ -1,10 +1,9 @@
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 
-// custom hook for getting previous value 
-export function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
+// custom hook for getting previous value
+export function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T | undefined>(undefined);
+  const previous = ref.current;
+  ref.current = value;
+  return previous;
 }
