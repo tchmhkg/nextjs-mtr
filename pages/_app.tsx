@@ -9,6 +9,7 @@ import ThemeManager from '@theme/theme'
 import { LayoutGroup } from 'framer-motion'
 import { appWithTranslation } from 'next-i18next'
 import { Provider } from 'react-redux'
+import ErrorBoundary from '@components/error-boundary'
 
 Router.events.on('routeChangeStart', () => NProgress.start())
 Router.events.on('routeChangeComplete', () => NProgress.done())
@@ -19,7 +20,9 @@ const App = ({ Component, pageProps }: AppProps) => {
     <Provider store={store}>
       <LayoutGroup>
         <ThemeManager>
-          <Component {...pageProps} />
+          <ErrorBoundary>
+            <Component {...pageProps} />
+          </ErrorBoundary>
         </ThemeManager>
       </LayoutGroup>
     </Provider>

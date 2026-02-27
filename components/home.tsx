@@ -26,6 +26,12 @@ import {
 } from './home.style'
 
 import { useTranslation } from 'next-i18next'
+
+type Language = 'en' | 'tc'
+
+const getLanguage = (lang: string): Language => {
+  return lang === 'tc' ? 'tc' : 'en'
+}
 import Result from './train/result'
 
 const Home = () => {
@@ -33,15 +39,15 @@ const Home = () => {
   const { line: selectedLine, station: selectedStation } =
     useSelector(getTrainState)
   const { i18n, t } = useTranslation()
-  const rightListRef = useRef(null)
+  const rightListRef = useRef<HTMLDivElement>(null)
   const [gettingLocation, setGettingLocation] = useState(false)
   const [showRelated, setShowRelated] = useState(false)
-  const refs = DATA.reduce((stationRef, value) => {
+  const refs = React.useMemo(() => DATA.reduce((stationRef: Record<string, React.RefObject<HTMLDivElement | null>>, value) => {
     for (const station of value.stations) {
-      stationRef[station.code] = React.createRef()
+      stationRef[station.code] = React.createRef<HTMLDivElement | null>()
     }
     return stationRef
-  }, {})
+  }, {} as Record<string, React.RefObject<HTMLDivElement | null>>), [])
 
   const onChangeLine = useCallback(
     (line: ILine) => {
@@ -52,8 +58,8 @@ const Home = () => {
     },
     [selectedLine, dispatch]
   )
-  const filterStations = useCallback((): ILineStation => {
-    if (!selectedLine?.code) return null
+  const filterStations = useCallback((): ILineStation | undefined => {
+    if (!selectedLine?.code) return undefined
     return DATA.find((s) => s.line.code === selectedLine.code)
   }, [selectedLine])
 
@@ -87,8 +93,8 @@ const Home = () => {
     (lat: number, lng: number) => {
       if (!lat || !lng) return
       let closestStation = null
-      let closestLine = null
-      let closestDistance = null
+      let closestLine: ILine | null = null
+      let closestDistance: number | null = null
 
       for (const lineStation of DATA) {
         for (const station of lineStation.stations) {
@@ -97,18 +103,20 @@ const Home = () => {
             lng,
             station.location.lat,
             station.location.lng,
-            undefined
+            'K'
           )
-          if (!closestStation || distance < closestDistance) {
+          if (!closestStation || closestDistance === null || distance < closestDistance) {
             closestDistance = distance
             closestLine = lineStation.line
             closestStation = station
           }
         }
       }
-      dispatch(setLine(closestLine))
-      dispatch(setStation(closestStation))
-      setGettingLocation(true)
+      if (closestLine && closestStation) {
+        dispatch(setLine(closestLine))
+        dispatch(setStation(closestStation))
+        setGettingLocation(true)
+      }
     },
     [calcDistance, dispatch]
   )
@@ -122,7 +130,7 @@ const Home = () => {
   )
 
   const getPositionError = useCallback((err: GeolocationPositionError) => {
-    console.warn(`ERROR(${err.code}): ${err.message}`)
+    // Error handled by component - could show user notification here
   }, [])
 
   const getCurrLocation = useCallback(() => {
@@ -176,7 +184,9 @@ const Home = () => {
           const station = lineData?.stations?.find(
             (sta) => sta.code === stationCode
           )
-          dispatch(setStation(station))
+          if (station) {
+            dispatch(setStation(station))
+          }
         }
       }
       setShowRelated(false)
@@ -189,8 +199,8 @@ const Home = () => {
   }, [])
 
   const handleKeyDownShowMore = useCallback(
-    (e) => {
-      if (e.keyCode === 13) {
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
         showMoreOptions()
       }
     },
@@ -201,23 +211,35 @@ const Home = () => {
     <Container>
       <Header>
         <Heading>MTR Next Train</Heading>
-        <CurrLocation onClick={getCurrLocation} />
+        <CurrLocation
+          onClick={getCurrLocation}
+          aria-label={t('Find nearest station')}
+        />
       </Header>
-      <SelectorWrapper>
-        <Left>
+      <SelectorWrapper role="tabpanel" aria-label={t('Train line and station selection')}>
+        <Left role="tablist" aria-label={t('Select train line')}>
           {DATA.map((l) => (
             <LineOption
               key={l.line.code}
               onClick={() => onChangeLine(l.line)}
               selected={l.line.code === selectedLine?.code}
               color={l.line.color}
+              role="tab"
+              aria-selected={l.line.code === selectedLine?.code}
+              aria-label={`${t('Select')} ${l.line.label[getLanguage(i18n.language)]}`}
+              tabIndex={l.line.code === selectedLine?.code ? 0 : -1}
             >
-              <LineColor color={l.line.color} />
-              <div className="option-name">{l.line.label[i18n.language]}</div>
+              <LineColor color={l.line.color} aria-hidden="true" />
+              <div className="option-name">{l.line.label[getLanguage(i18n.language)]}</div>
             </LineOption>
           ))}
         </Left>
-        <Right ref={rightListRef} bgColor={filterStations()?.line?.color}>
+        <Right
+          ref={rightListRef}
+          bgColor={filterStations()?.line?.color || undefined}
+          role="tabpanel"
+          aria-label={`${selectedLine ? selectedLine.label[getLanguage(i18n.language)] : ''} ${t('stations')}`}
+        >
           {filterStations()?.stations?.map((s) => {
             return (
               <StationOption
@@ -225,14 +247,20 @@ const Home = () => {
                 key={s.code}
                 onClick={() => dispatch(setStation(s))}
                 selected={s.code === selectedStation?.code}
+                role="button"
+                tabIndex={0}
+                aria-label={`${t('Select station')} ${s.label[getLanguage(i18n.language)]}`}
               >
                 <div className="option-name station">
-                  {s.label[i18n.language]}
+                  {s.label[getLanguage(i18n.language)]}
                   {!_.isEmpty(s.related) && (
                     <ShowMoreButton
                       className="more-option"
                       onClick={showMoreOptions}
                       onKeyDown={handleKeyDownShowMore}
+                      aria-label={`${t('Show interchange options for')} ${s.label[getLanguage(i18n.language)]}`}
+                      role="button"
+                      tabIndex={0}
                     >
                       {'>'}
                     </ShowMoreButton>
@@ -243,7 +271,9 @@ const Home = () => {
           })}
         </Right>
       </SelectorWrapper>
-      <Result line={selectedLine?.code} sta={selectedStation?.code} />
+      {selectedLine?.code && selectedStation?.code && (
+        <Result line={selectedLine.code} sta={selectedStation.code} />
+      )}
       {showRelated && selectedStation && (
         <Alert onPressClose={onCloseAlert}>
           <RelatedLineWrapper>

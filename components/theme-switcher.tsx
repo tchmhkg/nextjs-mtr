@@ -14,7 +14,7 @@ const ThemeSwitcher = ({ inNavbar = false }) => {
   const theme = useTheme()
   const [isOn, setIsOn] = useState(theme.mode === 'dark')
   const onChangeTheme = useCallback(
-    (e) => {
+    (e: React.MouseEvent) => {
       setIsOn(!isOn)
     },
     [isOn]

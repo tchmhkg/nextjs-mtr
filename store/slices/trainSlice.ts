@@ -19,8 +19,8 @@ export interface IStation {
   related?: IRelatedLine[]
 }
 export interface TrainState {
-  line: ILine
-  station: IStation
+  line: ILine | null
+  station: IStation | null
 }
 
 /**
@@ -29,7 +29,7 @@ export interface TrainState {
 const initialState: TrainState = {
   line: null,
   station: null,
-} as const
+}
 
 /**
  * Create a slice as a reducer containing actions.

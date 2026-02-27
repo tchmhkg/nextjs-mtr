@@ -1,20 +1,35 @@
 import { format, formatDuration, intervalToDuration } from 'date-fns'
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 import { useTranslation } from 'next-i18next'
 import { PlatForm, PlatFormWrapper } from './result-item.style'
-const isValidDate = (d) => d instanceof Date // && !isNaN(d)
 
-const humanTime = (time = new Date()) => {
+interface TrainTime {
+  seq: string
+  dest: string
+  plat: string
+  time: string
+}
+
+interface ResultItemProps {
+  times: TrainTime
+  lineColor: string
+  currTime?: string
+}
+
+const isValidDate = (d: any): d is Date => d instanceof Date // && !isNaN(d)
+
+const humanTime = (time: Date | string = new Date()) => {
   return format(new Date(String(time).replace(' ', 'T')), 'HH:mm')
 }
 
-const ResultItem = ({ times, lineColor, currTime }) => {
+const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
   const { i18n, t } = useTranslation()
   const humanDuration = useCallback(
-    (time = null, locale = 'tc') => {
+    (time: string | null = null, locale = 'tc') => {
+      if (!currTime) return '-'
       const start = new Date(Date.parse(time?.replace(/-/g, '/')))
-      const end = new Date(Date.parse(currTime?.replace(/-/g, '/')))
+      const end = new Date(Date.parse(currTime.replace(/-/g, '/')))
       if (!isValidDate(start) || !isValidDate(end)) {
         return '-'
       }
@@ -56,4 +71,4 @@ const ResultItem = ({ times, lineColor, currTime }) => {
   )
 }
 
-export default ResultItem
+export default React.memo(ResultItem)

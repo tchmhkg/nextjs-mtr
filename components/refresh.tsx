@@ -3,6 +3,10 @@ import { motion, useAnimation } from 'framer-motion'
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
+interface RefreshProps {
+  onClick: () => void
+}
+
 const Container = styled(motion.div)`
   width: 20px;
   height: 20px;
@@ -23,7 +27,7 @@ const arrow = {
   click: { rotate: 360, transition: { duration: 0.4 } },
 }
 
-const Refresh = ({ onClick }) => {
+const Refresh = ({ onClick }: RefreshProps) => {
   const { colors } = useTheme()
   const controls = useAnimation()
   const [count, setCount] = useState(0)

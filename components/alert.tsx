@@ -1,5 +1,11 @@
 import { useTranslation } from 'next-i18next'
 import styled from 'styled-components'
+import React from 'react'
+
+interface AlertProps {
+  children: React.ReactNode
+  onPressClose: () => void
+}
 
 const AlertButton = styled.button`
   appearance: none;
@@ -47,13 +53,16 @@ const AlertContainer = styled.div`
   z-index: 999;
 `
 
-const Alert = ({ children, onPressClose }) => {
+const Alert = ({ children, onPressClose }: AlertProps) => {
   const { t } = useTranslation()
   return (
-    <AlertContainer>
+    <AlertContainer role="dialog" aria-modal="true" aria-labelledby="alert-title">
       <AlertContent>
+        <div id="alert-title" className="sr-only">{t('Alert')}</div>
         {children}
-        <AlertButton onClick={onPressClose}>{t('close')}</AlertButton>
+        <AlertButton onClick={onPressClose} aria-label={t('Close alert')}>
+          {t('close')}
+        </AlertButton>
       </AlertContent>
     </AlertContainer>
   )

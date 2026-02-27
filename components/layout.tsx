@@ -4,6 +4,16 @@ import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic'
 import NextHead from 'next/head'
 import styled from 'styled-components'
+import React from 'react'
+
+interface LayoutProps {
+  children: React.ReactNode
+  home?: boolean
+  showAvatar?: boolean
+  back?: boolean
+  showBackToHome?: boolean
+  backUrl?: string
+}
 
 const Head = dynamic(import('@components/head'))
 const Navbar = dynamic(import('@components/navbar'))
@@ -28,7 +38,7 @@ const Layout = ({
   back = false,
   showBackToHome = true,
   ...props
-}) => {
+}: LayoutProps) => {
   const { colors } = useTheme()
   const { i18n, t } = useTranslation()
 

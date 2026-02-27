@@ -6,10 +6,6 @@ import { GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 const Index = () => {
-  // useEffect(() => {
-  //   window.location.replace(`/${i18nextConfig.i18n.defaultLocale}`)
-  // }, [])
-
   return (
     <>
       <Head>
