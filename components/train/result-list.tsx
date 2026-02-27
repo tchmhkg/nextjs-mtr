@@ -1,7 +1,24 @@
 import { useTranslation } from 'next-i18next'
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 import ResultItem from './result-item'
 import { ListWrapper, Wrapper } from './result-list.style'
+
+interface TrainTime {
+  seq: string
+  dest: string
+  plat: string
+  time: string
+}
+
+interface ResultListProps {
+  left?: boolean
+  right?: boolean
+  label?: string
+  data?: TrainTime[]
+  lineColor: string
+  delay?: boolean
+  currTime?: string
+}
 
 const ResultList = ({
   left = false,
@@ -11,7 +28,7 @@ const ResultList = ({
   lineColor,
   delay = false,
   currTime = null,
-}) => {
+}: ResultListProps) => {
   const { t } = useTranslation()
 
   const renderResult = useCallback(() => {
@@ -26,7 +43,7 @@ const ResultList = ({
         key={times.seq}
         times={times}
         lineColor={lineColor}
-        currTime={currTime}
+        currTime={currTime || undefined}
       />
     ))
   }, [currTime, data, delay, lineColor, t])
@@ -39,4 +56,4 @@ const ResultList = ({
   )
 }
 
-export default ResultList
+export default React.memo(ResultList)

@@ -1,6 +1,22 @@
 import Axios from 'axios'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
+
+interface ResultProps {
+  line: string
+  sta: string
+}
+
+interface ApiParams {
+  line: string
+  sta: string
+  lang: string
+}
+
+interface TrainRoute {
+  dest: string
+  [key: string]: any
+}
 
 import Alert from '@components/alert'
 import Bell from '@components/bell'
@@ -11,7 +27,7 @@ import { useTranslation } from 'next-i18next'
 import ResultList from './result-list'
 import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 
-const fetcher = (url, params) =>
+const fetcher = (url: string, params: ApiParams) =>
   Axios.get(url, { params }).then((res) => ({
     data: res?.data?.data?.[`${params?.line}-${params?.sta}`],
     isdelay: res?.data.isdelay === 'Y',
@@ -25,7 +41,7 @@ const fetcher = (url, params) =>
         : null,
   }))
 
-const Result = ({ line, sta }) => {
+const Result = ({ line, sta }: ResultProps) => {
   const { t, i18n } = useTranslation()
   const params = useMemo(
     () => ({ line, sta, lang: i18n.language?.toUpperCase() || 'TC' }),
@@ -33,7 +49,7 @@ const Result = ({ line, sta }) => {
   )
   const { data, mutate } = useSWR(
     line && sta ? MTR_NEXT_TRAIN_API : null,
-    (url) => fetcher(url, params),
+    (url) => fetcher(MTR_NEXT_TRAIN_API, params),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
@@ -50,7 +66,7 @@ const Result = ({ line, sta }) => {
   const [showAlert, setShowAlert] = useState(false)
 
   const getRouteDestLabel = useCallback(
-    (routes = []) => {
+    (routes: TrainRoute[] = []) => {
       if (!routes?.length) return '-'
       const dests = Array.from(new Set([...routes.map((r) => t(r.dest))]))
       return dests.join(t('/'))
@@ -61,11 +77,42 @@ const Result = ({ line, sta }) => {
   const onClickShowAlert = useCallback(() => setShowAlert(true), [])
   const onClickCloseAlert = useCallback(() => setShowAlert(false), [])
 
+  const renderTrainLists = useCallback(() => {
+    if (!data?.data?.UP && !data?.data?.DOWN) {
+      return <div>{t('Service not available')}</div>
+    }
+
+    return (
+      <>
+        {data?.data?.UP && data?.curr_time && (
+          <ResultList
+            left
+            label={getRouteDestLabel(data.data.UP)}
+            data={data.data.UP}
+            lineColor={lineColor}
+            delay={data.isdelay}
+            currTime={data.curr_time}
+          />
+        )}
+        {data?.data?.DOWN && data?.curr_time && (
+          <ResultList
+            right
+            label={getRouteDestLabel(data.data.DOWN)}
+            data={data.data.DOWN}
+            lineColor={lineColor}
+            delay={data.isdelay}
+            currTime={data.curr_time}
+          />
+        )}
+      </>
+    )
+  }, [data, lineColor, t])
+
   useEffect(() => {
-    if (sta) {
+    if (line && sta) {
       mutate()
     }
-  }, [sta])
+  }, [line, sta, mutate])
 
   if (!line || !sta) return null
   if (line && sta && !data) return <div>{t('Loading...')}</div>
@@ -92,42 +139,11 @@ const Result = ({ line, sta }) => {
           ) : null}
         </Alert>
       ) : null}
-      {/* {(data?.data?.UP?.length === 0 && data?.data?.DOWN?.length === 0) ? (
       <ResultWrapper>
-        <ResultList
-          label="-"
-          data={[]}
-          lineColor={lineColor}
-        />
-      </ResultWrapper>) : ( */}
-      <ResultWrapper>
-        {!data?.data?.UP && !data?.data?.DOWN ? (
-          <div>{t('Service not available')}</div>
-        ) : null}
-        {data?.data?.UP ? (
-          <ResultList
-            left
-            label={getRouteDestLabel(data?.data?.UP)}
-            data={data?.data?.UP}
-            lineColor={lineColor}
-            delay={data?.isdelay}
-            currTime={data?.curr_time}
-          />
-        ) : null}
-        {data?.data?.DOWN ? (
-          <ResultList
-            right
-            label={getRouteDestLabel(data?.data?.DOWN)}
-            data={data?.data?.DOWN}
-            lineColor={lineColor}
-            delay={data?.isdelay}
-            currTime={data?.curr_time}
-          />
-        ) : null}
+        {renderTrainLists()}
       </ResultWrapper>
-      {/* )} */}
     </Wrapper>
   )
 }
 
-export default Result
+export default React.memo(Result)

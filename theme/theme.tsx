@@ -5,15 +5,21 @@ import { useLocalStorage } from '@hooks/useLocalStorage'
 import darkTheme from '@theme/dark'
 import lightTheme from '@theme/light'
 
-const ThemeContext = createContext({
+interface ThemeContextType {
+  mode: string
+  setMode: (mode: string) => void
+  colors: typeof lightTheme.theme
+}
+
+const ThemeContext = createContext<ThemeContextType>({
   mode: 'light',
-  setMode: (_mode: string) => undefined,
+  setMode: (_mode: string) => {},
   colors: lightTheme.theme,
 })
 
 export const useTheme = () => useContext(ThemeContext)
 
-const ManageThemeProvider = ({ children }) => {
+const ManageThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [modeFromStorage, setModeToStorage] = useLocalStorage('mode', 'light')
   const [themeState, setThemeState] = useState(modeFromStorage)
 
@@ -45,7 +51,7 @@ const ManageThemeProvider = ({ children }) => {
   )
 }
 
-const ThemeManager = ({ children }) => {
+const ThemeManager = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState<boolean>(false)
 
   useEffect(() => {

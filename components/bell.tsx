@@ -3,6 +3,10 @@ import { motion, useAnimation } from 'framer-motion'
 import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
+interface BellProps {
+  onClick: () => void
+}
+
 const Container = styled(motion.div)`
   width: 24px;
   height: 24px;
@@ -18,7 +22,7 @@ const button = {
   pressed: { scale: 1.1 },
 }
 
-const Bell = ({ onClick }) => {
+const Bell = ({ onClick }: BellProps) => {
   const { colors } = useTheme()
   const controls = useAnimation()
   const [count, setCount] = useState(0)

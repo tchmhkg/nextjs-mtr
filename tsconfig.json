@@ -3,7 +3,8 @@
     "target": "esnext",
     "lib": [
       "dom",
-      "es2017"
+      "es2017",
+      "es2021"
     ],
     "allowJs": true,
     "skipLibCheck": true,

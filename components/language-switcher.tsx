@@ -50,10 +50,10 @@ const LanguageSwitcher = ({ inNavbar = false }) => {
 
       router.push(
         {
-          pathname: router.pathname + locale,
+          pathname: router.pathname,
           query: router.query,
         },
-        null,
+        router.pathname,
         { locale: locale }
       )
     },
