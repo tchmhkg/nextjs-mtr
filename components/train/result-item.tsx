@@ -28,8 +28,8 @@ const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
   const humanDuration = useCallback(
     (time: string | null = null, locale = 'tc') => {
       if (!currTime) return '-'
-      const start = new Date(Date.parse(time?.replace(/-/g, '/')))
-      const end = new Date(Date.parse(currTime.replace(/-/g, '/')))
+      const start = new Date(Date.parse(time?.replaceAll('-', '/')))
+      const end = new Date(Date.parse(currTime.replaceAll('-', '/')))
       if (!isValidDate(start) || !isValidDate(end)) {
         return '-'
       }

@@ -1,7 +1,6 @@
 import Axios from 'axios'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
-import { ILine, IStation } from '@store/slices/trainSlice'
 
 interface ResultProps {
   line: string
@@ -78,6 +77,37 @@ const Result = ({ line, sta }: ResultProps) => {
   const onClickShowAlert = useCallback(() => setShowAlert(true), [])
   const onClickCloseAlert = useCallback(() => setShowAlert(false), [])
 
+  const renderTrainLists = useCallback(() => {
+    if (!data?.data?.UP && !data?.data?.DOWN) {
+      return <div>{t('Service not available')}</div>
+    }
+
+    return (
+      <>
+        {data?.data?.UP && data?.curr_time && (
+          <ResultList
+            left
+            label={getRouteDestLabel(data.data.UP)}
+            data={data.data.UP}
+            lineColor={lineColor}
+            delay={data.isdelay}
+            currTime={data.curr_time}
+          />
+        )}
+        {data?.data?.DOWN && data?.curr_time && (
+          <ResultList
+            right
+            label={getRouteDestLabel(data.data.DOWN)}
+            data={data.data.DOWN}
+            lineColor={lineColor}
+            delay={data.isdelay}
+            currTime={data.curr_time}
+          />
+        )}
+      </>
+    )
+  }, [data, lineColor, t])
+
   useEffect(() => {
     if (line && sta) {
       mutate()
@@ -110,29 +140,7 @@ const Result = ({ line, sta }: ResultProps) => {
         </Alert>
       ) : null}
       <ResultWrapper>
-        {!data?.data?.UP && !data?.data?.DOWN ? (
-          <div>{t('Service not available')}</div>
-        ) : null}
-        {data?.data?.UP && data?.curr_time ? (
-          <ResultList
-            left
-            label={getRouteDestLabel(data.data.UP)}
-            data={data.data.UP}
-            lineColor={lineColor}
-            delay={data.isdelay}
-            currTime={data.curr_time}
-          />
-        ) : null}
-        {data?.data?.DOWN && data?.curr_time ? (
-          <ResultList
-            right
-            label={getRouteDestLabel(data.data.DOWN)}
-            data={data.data.DOWN}
-            lineColor={lineColor}
-            delay={data.isdelay}
-            currTime={data.curr_time}
-          />
-        ) : null}
+        {renderTrainLists()}
       </ResultWrapper>
     </Wrapper>
   )

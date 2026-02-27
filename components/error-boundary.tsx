@@ -1,5 +1,4 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { useTranslation } from 'next-i18next'
 
 interface Props {
   children: ReactNode
@@ -39,7 +38,7 @@ class ErrorBoundary extends Component<Props, State> {
           <h2>Something went wrong</h2>
           <p>We apologize for the inconvenience. Please try refreshing the page.</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => globalThis.location.reload()}
             style={{
               padding: '10px 20px',
               backgroundColor: '#007bff',
