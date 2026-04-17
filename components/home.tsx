@@ -1,3 +1,5 @@
+'use client'
+
 import Alert from '@components/alert'
 import {
   getTrainState,
@@ -25,7 +27,7 @@ import {
   StationOption,
 } from './home.style'
 
-import { useTranslation } from 'next-i18next/pages'
+import { useT } from 'next-i18next/client'
 
 type Language = 'en' | 'tc'
 
@@ -38,7 +40,7 @@ const Home = () => {
   const dispatch = useDispatch()
   const { line: selectedLine, station: selectedStation } =
     useSelector(getTrainState)
-  const { i18n, t } = useTranslation()
+  const { i18n, t } = useT()
   const rightListRef = useRef<HTMLDivElement>(null)
   const [gettingLocation, setGettingLocation] = useState(false)
   const [showRelated, setShowRelated] = useState(false)
@@ -222,21 +224,21 @@ const Home = () => {
             <LineOption
               key={l.line.code}
               onClick={() => onChangeLine(l.line)}
-              selected={l.line.code === selectedLine?.code}
-              color={l.line.color}
+              $selected={l.line.code === selectedLine?.code}
+              $color={l.line.color}
               role="tab"
               aria-selected={l.line.code === selectedLine?.code}
               aria-label={`${t('Select')} ${l.line.label[getLanguage(i18n.language)]}`}
               tabIndex={l.line.code === selectedLine?.code ? 0 : -1}
             >
-              <LineColor color={l.line.color} aria-hidden="true" />
+              <LineColor $color={l.line.color} aria-hidden="true" />
               <div className="option-name">{l.line.label[getLanguage(i18n.language)]}</div>
             </LineOption>
           ))}
         </Left>
         <Right
           ref={rightListRef}
-          bgColor={filterStations()?.line?.color || undefined}
+          $bgColor={filterStations()?.line?.color || undefined}
           role="tabpanel"
           aria-label={`${selectedLine ? selectedLine.label[getLanguage(i18n.language)] : ''} ${t('stations')}`}
         >
@@ -246,7 +248,7 @@ const Home = () => {
                 ref={refs[s.code]}
                 key={s.code}
                 onClick={() => dispatch(setStation(s))}
-                selected={s.code === selectedStation?.code}
+                $selected={s.code === selectedStation?.code}
                 role="button"
                 tabIndex={0}
                 aria-label={`${t('Select station')} ${s.label[getLanguage(i18n.language)]}`}
@@ -280,7 +282,7 @@ const Home = () => {
             {selectedStation.related?.map((rStation) => (
               <RelatedLine
                 key={rStation.lineCode}
-                lineColor={rStation.color}
+                $lineColor={rStation.color}
                 onClick={() =>
                   switchLine(rStation.lineCode, rStation.stationCode)
                 }

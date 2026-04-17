@@ -1,23 +1,27 @@
+'use client'
+
 import { useTheme } from '@theme/theme'
-import NextHead from 'next/head'
-import { memo } from 'react'
+import { useEffect } from 'react'
 
-const Head = ({ children }: { children?: any }) => {
-  const { mode } = useTheme()
-  return (
-    <NextHead>
-      <meta
-        name="viewport"
-        content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
-      />
-      <meta
-        name="apple-mobile-web-app-status-bar-style"
-        content={mode === 'dark' ? 'black-translucent' : 'default'}
-      />
-      <title>Next MTR Train</title>
-      {children}
-    </NextHead>
-  )
+export default function Head() {
+  const { mode, colors } = useTheme()
+
+  useEffect(() => {
+    const themeColor = document.querySelector(
+      'meta[name="theme-color"]'
+    ) as HTMLMetaElement | null
+    if (themeColor) themeColor.setAttribute('content', colors.statusBar)
+
+    const appleBar = document.querySelector(
+      'meta[name="apple-mobile-web-app-status-bar-style"]'
+    ) as HTMLMetaElement | null
+    if (appleBar) {
+      appleBar.setAttribute(
+        'content',
+        mode === 'dark' ? 'black-translucent' : 'default'
+      )
+    }
+  }, [colors.statusBar, mode])
+
+  return null
 }
-
-export default memo(Head)

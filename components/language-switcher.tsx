@@ -1,5 +1,8 @@
-import { useTranslation } from 'next-i18next/pages'
-import { useRouter } from 'next/router'
+'use client'
+
+import { SUPPORTED_LOCALES, localizedPath } from '@utils/locale-path'
+import { usePathname, useRouter } from 'next/navigation'
+import { useT } from 'next-i18next/client'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
 
@@ -41,28 +44,20 @@ const LocaleButton = styled.div<ILocaleButton>`
 
 const LanguageSwitcher = ({ inNavbar = false }) => {
   const router = useRouter()
+  const pathname = usePathname()
+  const { i18n, t } = useT()
 
-  const { i18n, t } = useTranslation()
   const handleLocaleChange = useCallback(
     (locale: string) => {
       if (i18n.language === locale) return
-      i18n.changeLanguage(locale)
-
-      router.push(
-        {
-          pathname: router.pathname,
-          query: router.query,
-        },
-        router.pathname,
-        { locale: locale }
-      )
+      router.push(localizedPath(locale, pathname))
     },
-    [i18n, router]
+    [i18n.language, router, pathname]
   )
 
   return (
     <Wrapper inNavbar={inNavbar}>
-      {router.locales?.map((locale) => (
+      {SUPPORTED_LOCALES.map((locale) => (
         <LocaleButton
           key={locale}
           selected={locale === i18n.language}

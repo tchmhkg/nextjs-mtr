@@ -1,3 +1,5 @@
+'use client'
+
 import Axios from 'axios'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
@@ -23,7 +25,7 @@ import Bell from '@components/bell'
 import Refresh from '@components/refresh'
 import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
 import { DATA } from '@utils/next-train-data'
-import { useTranslation } from 'next-i18next/pages'
+import { useT } from 'next-i18next/client'
 import ResultList from './result-list'
 import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 
@@ -42,7 +44,7 @@ const fetcher = (url: string, params: ApiParams) =>
   }))
 
 const Result = ({ line, sta }: ResultProps) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useT()
   const params = useMemo(
     () => ({ line, sta, lang: i18n.language?.toUpperCase() || 'TC' }),
     [i18n.language, line, sta]

@@ -1,8 +1,11 @@
-import { useTheme } from '@theme/theme'
+'use client'
+
+import Head from '@components/head'
 import styles from '@components/layout.module.scss'
-import { useTranslation } from 'next-i18next/pages'
+import { localizedPath } from '@utils/locale-path'
 import dynamic from 'next/dynamic'
-import NextHead from 'next/head'
+import Link from 'next/link'
+import { useT } from 'next-i18next/client'
 import styled from 'styled-components'
 import React from 'react'
 
@@ -15,10 +18,8 @@ interface LayoutProps {
   backUrl?: string
 }
 
-const Head = dynamic(import('@components/head'))
 const Navbar = dynamic(import('@components/navbar'))
 const BackButton = dynamic(import('@components/back'))
-const Link = dynamic(import('next/link'))
 
 const Container = styled.div`
   overflow-y: auto;
@@ -39,14 +40,10 @@ const Layout = ({
   showBackToHome = true,
   ...props
 }: LayoutProps) => {
-  const { colors } = useTheme()
-  const { i18n, t } = useTranslation()
+  const { i18n, t } = useT()
 
   return (
     <>
-      <NextHead>
-        <meta name="theme-color" content={colors.statusBar} />
-      </NextHead>
       <Navbar />
       <Container>
         <Head />
@@ -54,8 +51,8 @@ const Layout = ({
         <main>{children}</main>
         {!home && showBackToHome && (
           <div className={styles.backToHome}>
-            <Link href="/[lang]" as={`/${i18n.language}`}>
-              <a>← {t('Back to home')}</a>
+            <Link href={localizedPath(i18n.language, '/')}>
+              ← {t('Back to home')}
             </Link>
           </div>
         )}

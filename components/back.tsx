@@ -1,5 +1,8 @@
-import { useTranslation } from 'next-i18next/pages'
-import { useRouter } from 'next/router'
+'use client'
+
+import { localizedPath } from '@utils/locale-path'
+import { useRouter } from 'next/navigation'
+import { useT } from 'next-i18next/client'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
 
@@ -9,11 +12,11 @@ const Button = styled.a`
 `
 
 const BackButton = ({ backUrl = '' }) => {
-  const { i18n, t } = useTranslation()
+  const { i18n, t } = useT()
   const router = useRouter()
   const onClickBack = useCallback(() => {
     if (backUrl) {
-      router.push(`/${i18n.language}${backUrl}`)
+      router.push(localizedPath(i18n.language, backUrl))
     } else {
       router.back()
     }

@@ -1,7 +1,9 @@
+'use client'
+
 import { format, formatDuration, intervalToDuration } from 'date-fns'
 import React, { useCallback } from 'react'
 
-import { useTranslation } from 'next-i18next/pages'
+import { useT } from 'next-i18next/client'
 import { PlatForm, PlatFormWrapper } from './result-item.style'
 
 interface TrainTime {
@@ -24,7 +26,7 @@ const humanTime = (time: Date | string = new Date()) => {
 }
 
 const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
-  const { i18n, t } = useTranslation()
+  const { i18n, t } = useT()
   const humanDuration = useCallback(
     (time: string | null = null, locale = 'tc') => {
       if (!currTime) return '-'
@@ -61,7 +63,7 @@ const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
     <div className="list-item" key={times.seq}>
       <div className="item-dest">{t(times?.dest)}</div>
       <PlatFormWrapper>
-        <PlatForm lineColor={lineColor}>{times?.plat}</PlatForm>
+        <PlatForm $lineColor={lineColor}>{times?.plat}</PlatForm>
       </PlatFormWrapper>
       <div className="item-time">
         <div className="time-text">{humanTime(times?.time)}</div>

@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 
 interface IWrapper {
-  left?: boolean
-  right?: boolean
+  $left?: boolean
+  $right?: boolean
 }
 
 export const ListWrapper = styled.div`
@@ -60,7 +60,7 @@ export const Wrapper = styled.div<IWrapper>`
     font-weight: bold;
   }
   @media (min-width: 769px) {
-    margin-left: ${({ right }) => (right ? '3px' : 0)};
-    margin-right: ${({ left }) => (left ? '3px' : 0)};
+    margin-left: ${({ $right }) => ($right ? '3px' : 0)};
+    margin-right: ${({ $left }) => ($left ? '3px' : 0)};
   }
 `

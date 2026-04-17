@@ -1,4 +1,6 @@
-import { useTranslation } from 'next-i18next/pages'
+'use client'
+
+import { useT } from 'next-i18next/client'
 import styled from 'styled-components'
 import React from 'react'
 
@@ -54,7 +56,7 @@ const AlertContainer = styled.div`
 `
 
 const Alert = ({ children, onPressClose }: AlertProps) => {
-  const { t } = useTranslation()
+  const { t } = useT()
   return (
     <AlertContainer role="dialog" aria-modal="true" aria-labelledby="alert-title">
       <AlertContent>

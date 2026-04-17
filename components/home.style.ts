@@ -1,14 +1,11 @@
 import styled from 'styled-components'
 
-interface ILeft {
-  bgColor?: string
-}
 interface IOption {
-  color?: string
-  selected: boolean
+  $color?: string
+  $selected: boolean
 }
 interface IRelatedLine {
-  lineColor: string
+  $lineColor: string
 }
 
 export const Heading = styled.h2`
@@ -39,7 +36,7 @@ export const SelectorWrapper = styled.div`
   overflow: hidden;
 `
 
-export const Left = styled.div<ILeft>`
+export const Left = styled.div`
   flex: 1;
   justify-content: center;
   align-items: center;
@@ -48,8 +45,8 @@ export const Left = styled.div<ILeft>`
   overflow-y: auto;
   margin-right: 3px;
 `
-export const Right = styled(Left)`
-  background: ${({ bgColor }) => bgColor || 'transparent'};
+export const Right = styled(Left)<{ $bgColor?: string }>`
+  background: ${({ $bgColor }) => $bgColor || 'transparent'};
   border-radius: 8px;
   margin-left: 3px;
   margin-right: 0;
@@ -60,9 +57,9 @@ export const Option = styled.div<IOption>`
   display: flex;
   align-items: center;
   .option-name {
-    background: ${({ color, selected }) =>
-    selected ? `${color}` : 'transparent'};
-    color: ${({ selected, theme }) => (selected ? '#fff' : theme.text)};
+    background: ${({ $color, $selected }) =>
+    $selected ? `${$color}` : 'transparent'};
+    color: ${({ $selected, theme }) => ($selected ? '#fff' : theme.text)};
     width: 100%;
     padding: 3px;
   }
@@ -75,7 +72,7 @@ export const LineOption = styled(Option)`
 `
 
 export const StationOption = styled(Option)`
-  background: ${({ color }) => color};
+  background: ${({ $color }) => $color};
   padding: 3px;
   .option-name {
     position: relative;
@@ -83,23 +80,23 @@ export const StationOption = styled(Option)`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    background: ${({ selected }) =>
-    selected ? '#fff' : 'transparent'} !important;
-    color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
+    background: ${({ $selected }) =>
+    $selected ? '#fff' : 'transparent'} !important;
+    color: ${({ $selected }) => ($selected ? '#000' : '#fff')} !important;
     border-radius: 8px;
     .more-option {
       font-size: 18px;
       cursor: pointer;
       padding: 0 8px;
-      color: ${({ selected }) => (selected ? '#000' : '#fff')} !important;
+      color: ${({ $selected }) => ($selected ? '#000' : '#fff')} !important;
     }
   }
 `
 
-export const LineColor = styled.div`
+export const LineColor = styled.div<{ $color: string }>`
   width: 18px;
   height: 5px;
-  background-color: ${({ color }) => color};
+  background-color: ${({ $color }) => $color};
   border-radius: 5px;
   margin: 0 5px;
 `
@@ -109,7 +106,7 @@ export const RelatedLineWrapper = styled.div``
 export const RelatedLine = styled.div<IRelatedLine>`
   cursor: pointer;
   border-radius: 8px;
-  background-color: ${({ lineColor }) => lineColor};
+  background-color: ${({ $lineColor }) => $lineColor};
   color: #ffffff;
   padding: 3px;
 `
