@@ -1,6 +1,7 @@
 'use client'
 
 import Alert from '@components/alert'
+import type { MtrNextTrainParsed } from '@lib/mtr-next-train'
 import {
   getTrainState,
   ILine,
@@ -10,7 +11,8 @@ import {
 import { useDispatch, useSelector } from '@store/store'
 import { DATA, ILineStation } from '@utils/next-train-data'
 import _ from 'lodash'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from 'next-i18next/client'
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import CurrLocation from './curr-location'
 import {
   Container,
@@ -27,8 +29,6 @@ import {
   StationOption,
 } from './home.style'
 
-import { useT } from 'next-i18next/client'
-
 type Language = 'en' | 'tc'
 
 const getLanguage = (lang: string): Language => {
@@ -36,7 +36,19 @@ const getLanguage = (lang: string): Language => {
 }
 import Result from './train/result'
 
-const Home = () => {
+type HomeProps = {
+  heading?: string
+  initialLineFromUrl?: string | null
+  initialStaFromUrl?: string | null
+  initialSchedule?: MtrNextTrainParsed | null
+}
+
+const Home = ({
+  heading = 'MTR Next Train',
+  initialLineFromUrl = null,
+  initialStaFromUrl = null,
+  initialSchedule = null,
+}: HomeProps) => {
   const dispatch = useDispatch()
   const { line: selectedLine, station: selectedStation } =
     useSelector(getTrainState)
@@ -156,8 +168,20 @@ const Home = () => {
   }, [selectedStation, refs])
 
   useEffect(() => {
+    if (initialLineFromUrl && initialStaFromUrl) return
     getCurrLocation()
-  }, [getCurrLocation])
+  }, [getCurrLocation, initialLineFromUrl, initialStaFromUrl])
+
+  useLayoutEffect(() => {
+    if (!initialLineFromUrl || !initialStaFromUrl) return
+    const lineData = DATA.find((s) => s.line.code === initialLineFromUrl)
+    const line = lineData?.line
+    const station = lineData?.stations?.find((s) => s.code === initialStaFromUrl)
+    if (line && station) {
+      dispatch(setLine(line))
+      dispatch(setStation(station))
+    }
+  }, [dispatch, initialLineFromUrl, initialStaFromUrl])
 
   useEffect(() => {
     if (gettingLocation) {
@@ -209,10 +233,19 @@ const Home = () => {
     [showMoreOptions]
   )
 
+  const scheduleForResult =
+    initialSchedule &&
+    initialLineFromUrl &&
+    initialStaFromUrl &&
+    selectedLine?.code === initialLineFromUrl &&
+    selectedStation?.code === initialStaFromUrl
+      ? initialSchedule
+      : undefined
+
   return (
     <Container>
       <Header>
-        <Heading>MTR Next Train</Heading>
+        <Heading>{heading}</Heading>
         <CurrLocation
           onClick={getCurrLocation}
           aria-label={t('Find nearest station')}
@@ -274,7 +307,11 @@ const Home = () => {
         </Right>
       </SelectorWrapper>
       {selectedLine?.code && selectedStation?.code && (
-        <Result line={selectedLine.code} sta={selectedStation.code} />
+        <Result
+          line={selectedLine.code}
+          sta={selectedStation.code}
+          initialSchedule={scheduleForResult}
+        />
       )}
       {showRelated && selectedStation && (
         <Alert onPressClose={onCloseAlert}>

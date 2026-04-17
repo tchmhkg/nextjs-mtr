@@ -1,5 +1,4 @@
-import axios from 'axios'
-import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
+import { fetchMtrNextTrain } from '@lib/mtr-next-train'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -13,57 +12,60 @@ export async function GET(request: Request) {
       {
         success: false,
         error: 'Missing required parameters: line and sta',
-        data: [],
+        data: null,
+        isdelay: false,
+        curr_time: null,
+        alert: null,
       },
       { status: 400 }
     )
   }
 
   try {
-    const apiRes = await axios.get(MTR_NEXT_TRAIN_API, {
-      params: {
-        line,
-        sta,
-        lang,
-      },
+    const parsed = await fetchMtrNextTrain({
+      line,
+      sta,
+      lang,
     })
     return NextResponse.json({
       success: true,
-      data: apiRes?.data || [],
+      data: parsed.data,
+      isdelay: parsed.isdelay,
+      curr_time: parsed.curr_time,
+      alert: parsed.alert,
     })
   } catch (error) {
     console.error('MTR API Error:', error)
 
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'MTR API returned an error',
-            data: [],
-          },
-          { status: error.response.status }
-        )
-      }
-      if (error.request) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Network error - unable to reach MTR API',
-            data: [],
-          },
-          { status: 503 }
-        )
-      }
+    const status =
+      error && typeof error === 'object' && 'status' in error
+        ? Number((error as { status?: number }).status)
+        : undefined
+
+    if (status === 404 || (status && status >= 400 && status < 500)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'MTR API returned an error',
+          data: null,
+          isdelay: false,
+          curr_time: null,
+          alert: null,
+        },
+        { status }
+      )
     }
 
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to fetch train data',
-        data: [],
+        data: null,
+        isdelay: false,
+        curr_time: null,
+        alert: null,
       },
-      { status: 500 }
+      { status: 503 }
     )
   }
 }
