@@ -1,3 +1,5 @@
+'use client'
+
 import { useTheme } from '@theme/theme'
 import { motion, useAnimation } from 'framer-motion'
 import React, { useEffect, useState } from 'react'

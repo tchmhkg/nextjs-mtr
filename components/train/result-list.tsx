@@ -1,4 +1,6 @@
-import { useTranslation } from 'next-i18next'
+'use client'
+
+import { useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 import ResultItem from './result-item'
 import { ListWrapper, Wrapper } from './result-list.style'
@@ -29,7 +31,7 @@ const ResultList = ({
   delay = false,
   currTime = null,
 }: ResultListProps) => {
-  const { t } = useTranslation()
+  const t = useTranslations()
 
   const renderResult = useCallback(() => {
     if (delay) {
@@ -49,7 +51,7 @@ const ResultList = ({
   }, [currTime, data, delay, lineColor, t])
 
   return (
-    <Wrapper left={left} right={right}>
+    <Wrapper $left={left} $right={right}>
       <div className="label">{label && `${t('To')}: ${label}`}</div>
       <ListWrapper>{renderResult()}</ListWrapper>
     </Wrapper>

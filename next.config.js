@@ -1,12 +1,9 @@
-const { i18n } = require('./next-i18next.config')
+const createNextIntlPlugin = require('next-intl/plugin')
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  i18n,
-}
-
-module.exports = {
-  ...nextConfig,
   compiler: {
     styledComponents: true,
     removeConsole: {
@@ -15,13 +12,12 @@ module.exports = {
   },
 }
 
-
 // Injected content via Sentry wizard below
 
 const { withSentryConfig } = require("@sentry/nextjs");
 
 module.exports = withSentryConfig(
-  module.exports,
+  withNextIntl(nextConfig),
   {
     // For all available options, see:
     // https://www.npmjs.com/package/@sentry/webpack-plugin#options

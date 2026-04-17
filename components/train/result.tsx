@@ -1,63 +1,80 @@
-import Axios from 'axios'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import useSWR from 'swr'
-
-interface ResultProps {
-  line: string
-  sta: string
-}
-
-interface ApiParams {
-  line: string
-  sta: string
-  lang: string
-}
-
-interface TrainRoute {
-  dest: string
-  [key: string]: any
-}
+'use client'
 
 import Alert from '@components/alert'
 import Bell from '@components/bell'
 import Refresh from '@components/refresh'
-import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
+import type { MtrNextTrainParsed } from '@lib/mtr-next-train'
 import { DATA } from '@utils/next-train-data'
-import { useTranslation } from 'next-i18next'
+import type { MessageKey } from '@i18n/message-key'
+import { useLocale, useTranslations } from 'next-intl'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import useSWR from 'swr'
 import ResultList from './result-list'
 import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 
-const fetcher = (url: string, params: ApiParams) =>
-  Axios.get(url, { params }).then((res) => ({
-    data: res?.data?.data?.[`${params?.line}-${params?.sta}`],
-    isdelay: res?.data.isdelay === 'Y',
-    curr_time: res?.data?.curr_time,
-    alert:
-      res?.data?.status === 0 && res?.data?.message
-        ? {
-          message: res?.data?.message, //"Special train service arrangements are now in place on this line. Please click here for more information.",
-          url: res?.data?.url ? decodeURI(res?.data?.url) : null, //decodeURI("https:\/\/www.mtr.com.hk\/alert\/alert_title_wap.html")
-        }
-        : null,
-  }))
+interface ResultProps {
+  line: string
+  sta: string
+  initialSchedule?: MtrNextTrainParsed | null
+}
 
-const Result = ({ line, sta }: ResultProps) => {
-  const { t, i18n } = useTranslation()
-  const params = useMemo(
-    () => ({ line, sta, lang: i18n.language?.toUpperCase() || 'TC' }),
-    [i18n.language, line, sta]
-  )
-  const { data, mutate } = useSWR(
-    line && sta ? MTR_NEXT_TRAIN_API : null,
-    (url) => fetcher(MTR_NEXT_TRAIN_API, params),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      refreshInterval: 30000,
-      dedupeInterval: 10000,
-      retryCount: 3
+interface TrainRoute {
+  dest: string
+  [key: string]: unknown
+}
+
+type SwrTrainPayload = {
+  data: MtrNextTrainParsed['data']
+  isdelay: boolean
+  curr_time: string | null
+  alert: MtrNextTrainParsed['alert']
+}
+
+const fetcher = async (url: string): Promise<SwrTrainPayload> => {
+  const res = await fetch(url)
+  const json = await res.json()
+  if (!res.ok) {
+    throw new Error(json.error || 'Request failed')
+  }
+  if (!json.success) {
+    throw new Error(json.error || 'Request failed')
+  }
+  return {
+    data: json.data,
+    isdelay: json.isdelay,
+    curr_time: json.curr_time,
+    alert: json.alert,
+  }
+}
+
+const Result = ({ line, sta, initialSchedule }: ResultProps) => {
+  const locale = useLocale()
+  const t = useTranslations()
+  const apiUrl = useMemo(() => {
+    if (!line || !sta) return null
+    const lang = (locale || 'tc').toLowerCase()
+    const q = new URLSearchParams({ line, sta, lang })
+    return `/api/mtr/next-train?${q.toString()}`
+  }, [line, sta, locale])
+
+  const fallbackData = useMemo((): SwrTrainPayload | undefined => {
+    if (!initialSchedule) return undefined
+    return {
+      data: initialSchedule.data,
+      isdelay: initialSchedule.isdelay,
+      curr_time: initialSchedule.curr_time,
+      alert: initialSchedule.alert,
     }
-  )
+  }, [initialSchedule])
+
+  const { data, mutate } = useSWR(apiUrl, fetcher, {
+    fallbackData,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: true,
+    refreshInterval: 30000,
+    dedupeInterval: 10000,
+    errorRetryCount: 3,
+  })
 
   const lineColor = useMemo(
     () => DATA.find((l) => l.line.code === line)?.line?.color,
@@ -68,7 +85,9 @@ const Result = ({ line, sta }: ResultProps) => {
   const getRouteDestLabel = useCallback(
     (routes: TrainRoute[] = []) => {
       if (!routes?.length) return '-'
-      const dests = Array.from(new Set([...routes.map((r) => t(r.dest))]))
+      const dests = Array.from(
+        new Set(routes.map((r) => t(r.dest as MessageKey)))
+      )
       return dests.join(t('/'))
     },
     [t]
@@ -106,7 +125,7 @@ const Result = ({ line, sta }: ResultProps) => {
         )}
       </>
     )
-  }, [data, lineColor, t])
+  }, [data, getRouteDestLabel, lineColor, t])
 
   useEffect(() => {
     if (line && sta) {
@@ -115,7 +134,7 @@ const Result = ({ line, sta }: ResultProps) => {
   }, [line, sta, mutate])
 
   if (!line || !sta) return null
-  if (line && sta && !data) return <div>{t('Loading...')}</div>
+  if (line && sta && !data) return <div>{t('loading')}</div>
   return (
     <Wrapper>
       <Header>

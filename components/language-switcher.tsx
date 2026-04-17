@@ -1,37 +1,34 @@
-import { useTranslation } from 'next-i18next'
-import { useRouter } from 'next/router'
+'use client'
+
+import { usePathname, useRouter } from '@i18n/navigation'
+import { routing } from '@i18n/routing'
+import { SUPPORTED_LOCALES } from '@utils/locale-path'
+import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
 
-interface IWrapper {
-  inNavbar: boolean
-}
-interface ILocaleButton {
-  selected: boolean
-}
-
-const Wrapper = styled.div<IWrapper>`
+const Wrapper = styled.div`
   display: flex;
   align-items: center;
 `
 
-const LocaleButton = styled.div<ILocaleButton>`
+const LocaleButton = styled.div<{ $selected: boolean }>`
   cursor: pointer;
-  color: ${(props) => (props.selected ? '#ffffff' : props.theme.text)};
+  color: ${(props) => (props.$selected ? '#ffffff' : props.theme.text)};
   display: flex;
   justify-content: center;
   margin: 0 5px;
   border-radius: 20px;
   padding: 4px 8px;
   font-size: 14px;
-  background: ${({ selected, theme }) =>
-    selected ? theme.primary1 : 'transparent'};
-  background: ${({ selected, theme }) =>
-    selected
+  background: ${({ $selected, theme }) =>
+    $selected ? theme.primary1 : 'transparent'};
+  background: ${({ $selected, theme }) =>
+    $selected
       ? `-webkit-linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
       : 'transparent'};
-  background: ${({ selected, theme }) =>
-    selected
+  background: ${({ $selected, theme }) =>
+    $selected
       ? `linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
       : 'transparent'};
   @media (max-width: 374px) {
@@ -39,36 +36,31 @@ const LocaleButton = styled.div<ILocaleButton>`
   }
 `
 
-const LanguageSwitcher = ({ inNavbar = false }) => {
+type AppLocale = (typeof routing.locales)[number]
+
+const LanguageSwitcher = () => {
   const router = useRouter()
+  const pathname = usePathname()
+  const currentLocale = useLocale()
+  const t = useTranslations()
 
-  const { i18n, t } = useTranslation()
   const handleLocaleChange = useCallback(
-    (locale: string) => {
-      if (i18n.language === locale) return
-      i18n.changeLanguage(locale)
-
-      router.push(
-        {
-          pathname: router.pathname,
-          query: router.query,
-        },
-        router.pathname,
-        { locale: locale }
-      )
+    (nextLocale: AppLocale) => {
+      if (currentLocale === nextLocale) return
+      router.replace(pathname, { locale: nextLocale })
     },
-    [i18n, router]
+    [currentLocale, router, pathname]
   )
 
   return (
-    <Wrapper inNavbar={inNavbar}>
-      {router.locales?.map((locale) => (
+    <Wrapper>
+      {SUPPORTED_LOCALES.map((lng) => (
         <LocaleButton
-          key={locale}
-          selected={locale === i18n.language}
-          onClick={() => handleLocaleChange(locale)}
+          key={lng}
+          $selected={lng === currentLocale}
+          onClick={() => handleLocaleChange(lng)}
         >
-          {t(locale)}
+          {t(lng)}
         </LocaleButton>
       ))}
     </Wrapper>

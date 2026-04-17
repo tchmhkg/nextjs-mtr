@@ -1,3 +1,5 @@
+'use client'
+
 import { motion } from 'framer-motion'
 import { memo, useCallback, useEffect, useState } from 'react'
 
@@ -5,12 +7,12 @@ import styles from '@components/theme-switcher.module.scss'
 import { useTheme } from '@theme/theme'
 
 const spring = {
-  type: 'spring',
+  type: 'spring' as const,
   stiffness: 700,
   damping: 30,
 }
 
-const ThemeSwitcher = ({ inNavbar = false }) => {
+const ThemeSwitcher = () => {
   const theme = useTheme()
   const [isOn, setIsOn] = useState(theme.mode === 'dark')
   const onChangeTheme = useCallback(
@@ -21,7 +23,7 @@ const ThemeSwitcher = ({ inNavbar = false }) => {
   )
 
   useEffect(() => {
-    setIsOn(theme.mode === 'dark')
+    queueMicrotask(() => setIsOn(theme.mode === 'dark'))
   }, [theme.mode])
 
   useEffect(() => {
@@ -32,7 +34,6 @@ const ThemeSwitcher = ({ inNavbar = false }) => {
     <div
       className={styles.switch}
       data-enabled={isOn}
-      data-innavbar={inNavbar}
       data-on="🌜"
       data-off="🌞"
       onClick={onChangeTheme}

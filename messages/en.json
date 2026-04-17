@@ -1,4 +1,5 @@
 {
+  "appTitle": "Next MTR Train",
   "en": "Eng",
   "tc": "繁",
   "Back to home": "Back to home",
@@ -113,5 +114,15 @@
   "TWL": "Tsuen Wan Line",
   "ISL": "Island Line",
   "KTL": "Kwun Tong Line",
-  "close": "Close"
+  "close": "Close",
+  "Alert": "Alert",
+  "Close alert": "Close alert",
+  "Find nearest station": "Find nearest station",
+  "Train line and station selection": "Train line and station selection",
+  "Select train line": "Select train line",
+  "Select": "Select",
+  "stations": "stations",
+  "Select station": "Select station",
+  "Show interchange options for": "Show interchange options for",
+  "more Info": "More Info"
 }

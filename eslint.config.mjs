@@ -13,7 +13,11 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-export default defineConfig([{
+export default defineConfig([
+  {
+    ignores: ["public/workbox-*.js"],
+  },
+  {
     extends: [...nextCoreWebVitals, ...compat.extends("prettier")],
 
     settings: {
@@ -27,4 +31,5 @@ export default defineConfig([{
             allow: ["error"],
         }],
     },
-}]);
+  },
+]);

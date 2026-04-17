@@ -1,7 +1,10 @@
+'use client'
+
 import { format, formatDuration, intervalToDuration } from 'date-fns'
 import React, { useCallback } from 'react'
 
-import { useTranslation } from 'next-i18next'
+import type { MessageKey } from '@i18n/message-key'
+import { useLocale, useTranslations } from 'next-intl'
 import { PlatForm, PlatFormWrapper } from './result-item.style'
 
 interface TrainTime {
@@ -24,7 +27,8 @@ const humanTime = (time: Date | string = new Date()) => {
 }
 
 const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
-  const { i18n, t } = useTranslation()
+  const locale = useLocale()
+  const t = useTranslations()
   const humanDuration = useCallback(
     (time: string | null = null, locale = 'tc') => {
       if (!currTime) return '-'
@@ -59,13 +63,13 @@ const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
 
   return (
     <div className="list-item" key={times.seq}>
-      <div className="item-dest">{t(times?.dest)}</div>
+      <div className="item-dest">{t(times?.dest as MessageKey)}</div>
       <PlatFormWrapper>
-        <PlatForm lineColor={lineColor}>{times?.plat}</PlatForm>
+        <PlatForm $lineColor={lineColor}>{times?.plat}</PlatForm>
       </PlatFormWrapper>
       <div className="item-time">
         <div className="time-text">{humanTime(times?.time)}</div>
-        <div className="time-diff">{humanDuration(times?.time, i18n.language)}</div>
+        <div className="time-diff">{humanDuration(times?.time, locale)}</div>
       </div>
     </div>
   )

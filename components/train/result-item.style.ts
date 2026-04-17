@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 interface IPlatForm {
-  lineColor: string
+  $lineColor: string
 }
 
 export const PlatFormWrapper = styled.div`
@@ -19,7 +19,7 @@ export const PlatForm = styled.span<IPlatForm>`
   font-size: 16px;
   align-items: center;
   justify-content: center;
-  color: ${({ lineColor, theme }) => (lineColor ? '#fff' : theme.platformText)};
-  background-color: ${({ lineColor, theme }) =>
-    lineColor ? lineColor : theme.platformBackground};
+  color: ${({ $lineColor, theme }) => ($lineColor ? '#fff' : theme.platformText)};
+  background-color: ${({ $lineColor, theme }) =>
+    $lineColor ? $lineColor : theme.platformBackground};
 `

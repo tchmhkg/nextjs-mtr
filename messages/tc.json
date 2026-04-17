@@ -1,4 +1,5 @@
 {
+  "appTitle": "Next MTR Train",
   "en": "Eng",
   "tc": "繁",
   "Back to home": "回到首頁",
@@ -113,5 +114,15 @@
   "TWL": "荃灣綫",
   "ISL": "港島綫",
   "KTL": "觀塘綫",
-  "close": "關閉"
+  "close": "關閉",
+  "Alert": "提示",
+  "Close alert": "關閉提示",
+  "Find nearest station": "尋找最近車站",
+  "Train line and station selection": "路綫及車站選擇",
+  "Select train line": "選擇路綫",
+  "Select": "選擇",
+  "stations": "車站",
+  "Select station": "選擇車站",
+  "Show interchange options for": "顯示轉車選項",
+  "more Info": "更多資訊"
 }
