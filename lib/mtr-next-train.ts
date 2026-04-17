@@ -59,12 +59,12 @@ export function parseMtrUpstreamBody(
   const isdelay = r?.isdelay === 'Y'
   const curr_time = (r?.curr_time as string | null | undefined) ?? null
   const messageStr = stringFromUnknown(r.message)
-  const urlRaw = r.url != null ? stringFromUnknown(r.url) : ''
+  const urlRaw = r.url == null ? '' : stringFromUnknown(r.url)
   const alert =
     r?.status === 0 && messageStr
       ? {
           message: messageStr,
-          url: urlRaw ? decodeUriSafe(urlRaw) : null,
+          url: urlRaw === '' ? null : decodeUriSafe(urlRaw),
         }
       : null
   return {

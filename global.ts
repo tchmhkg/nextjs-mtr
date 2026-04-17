@@ -7,6 +7,3 @@ declare module 'next-intl' {
     Messages: typeof messages
   }
 }
-
-/** Marker type so this file remains a valid ES module for `declare module` augmentation. */
-export type NextIntlAppAugmentation = void
