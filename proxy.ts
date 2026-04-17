@@ -1,12 +1,12 @@
-import { createMiddleware } from 'next-i18next/middleware'
+import createMiddleware from 'next-intl/middleware'
 import type { NextRequest } from 'next/server'
 
-import i18nConfig from './i18n.config'
+import { routing } from './i18n/routing'
 
-const handler = createMiddleware(i18nConfig)
+const handleI18n = createMiddleware(routing)
 
-export function proxy(request: NextRequest) {
-  return handler(request)
+export default function proxy(request: NextRequest) {
+  return handleI18n(request)
 }
 
 export const config = {

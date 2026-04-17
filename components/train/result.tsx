@@ -5,7 +5,8 @@ import Bell from '@components/bell'
 import Refresh from '@components/refresh'
 import type { MtrNextTrainParsed } from '@lib/mtr-next-train'
 import { DATA } from '@utils/next-train-data'
-import { useT } from 'next-i18next/client'
+import type { MessageKey } from '@i18n/message-key'
+import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import ResultList from './result-list'
@@ -47,13 +48,14 @@ const fetcher = async (url: string): Promise<SwrTrainPayload> => {
 }
 
 const Result = ({ line, sta, initialSchedule }: ResultProps) => {
-  const { t, i18n } = useT()
+  const locale = useLocale()
+  const t = useTranslations()
   const apiUrl = useMemo(() => {
     if (!line || !sta) return null
-    const lang = (i18n.language || 'tc').toLowerCase()
+    const lang = (locale || 'tc').toLowerCase()
     const q = new URLSearchParams({ line, sta, lang })
     return `/api/mtr/next-train?${q.toString()}`
-  }, [line, sta, i18n.language])
+  }, [line, sta, locale])
 
   const fallbackData = useMemo((): SwrTrainPayload | undefined => {
     if (!initialSchedule) return undefined
@@ -83,7 +85,9 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
   const getRouteDestLabel = useCallback(
     (routes: TrainRoute[] = []) => {
       if (!routes?.length) return '-'
-      const dests = Array.from(new Set([...routes.map((r) => t(r.dest))]))
+      const dests = Array.from(
+        new Set([...routes.map((r) => t(r.dest as MessageKey))])
+      )
       return dests.join(t('/'))
     },
     [t]
@@ -130,7 +134,7 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
   }, [line, sta, mutate])
 
   if (!line || !sta) return null
-  if (line && sta && !data) return <div>{t('Loading...')}</div>
+  if (line && sta && !data) return <div>{t('loading')}</div>
   return (
     <Wrapper>
       <Header>

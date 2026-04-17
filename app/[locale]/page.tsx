@@ -1,8 +1,11 @@
 import Home from '@components/home'
 import Layout from '@components/layout'
+import { routing } from '@i18n/routing'
 import { fetchMtrNextTrain } from '@lib/mtr-next-train'
-import { getT } from 'next-i18next/server'
+import { hasLocale } from 'next-intl'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 
 export async function generateMetadata({
   params,
@@ -10,7 +13,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const { locale } = await params
-  const { t } = await getT(undefined, { lng: locale })
+  if (!hasLocale(routing.locales, locale)) {
+    notFound()
+  }
+  setRequestLocale(locale)
+  const t = await getTranslations({ locale })
   return {
     title: t('appTitle'),
     robots: { index: false, follow: false },
@@ -25,8 +32,12 @@ export default async function HomePage({
   searchParams: Promise<{ line?: string; sta?: string }>
 }) {
   const { locale } = await params
+  if (!hasLocale(routing.locales, locale)) {
+    notFound()
+  }
   const sp = await searchParams
-  const { t } = await getT(undefined, { lng: locale })
+  setRequestLocale(locale)
+  const t = await getTranslations({ locale })
 
   let initialSchedule = null
   if (sp.line && sp.sta) {

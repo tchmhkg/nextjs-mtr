@@ -9,9 +9,10 @@ import {
   setStation,
 } from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
+import type { MessageKey } from '@i18n/message-key'
 import { DATA, ILineStation } from '@utils/next-train-data'
 import _ from 'lodash'
-import { useT } from 'next-i18next/client'
+import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import CurrLocation from './curr-location'
 import {
@@ -52,7 +53,8 @@ const Home = ({
   const dispatch = useDispatch()
   const { line: selectedLine, station: selectedStation } =
     useSelector(getTrainState)
-  const { i18n, t } = useT()
+  const locale = useLocale()
+  const t = useTranslations()
   const rightListRef = useRef<HTMLDivElement>(null)
   const [gettingLocation, setGettingLocation] = useState(false)
   const [showRelated, setShowRelated] = useState(false)
@@ -261,11 +263,11 @@ const Home = ({
               $color={l.line.color}
               role="tab"
               aria-selected={l.line.code === selectedLine?.code}
-              aria-label={`${t('Select')} ${l.line.label[getLanguage(i18n.language)]}`}
+              aria-label={`${t('Select')} ${l.line.label[getLanguage(locale)]}`}
               tabIndex={l.line.code === selectedLine?.code ? 0 : -1}
             >
               <LineColor $color={l.line.color} aria-hidden="true" />
-              <div className="option-name">{l.line.label[getLanguage(i18n.language)]}</div>
+              <div className="option-name">{l.line.label[getLanguage(locale)]}</div>
             </LineOption>
           ))}
         </Left>
@@ -273,7 +275,7 @@ const Home = ({
           ref={rightListRef}
           $bgColor={filterStations()?.line?.color || undefined}
           role="tabpanel"
-          aria-label={`${selectedLine ? selectedLine.label[getLanguage(i18n.language)] : ''} ${t('stations')}`}
+          aria-label={`${selectedLine ? selectedLine.label[getLanguage(locale)] : ''} ${t('stations')}`}
         >
           {filterStations()?.stations?.map((s) => {
             return (
@@ -284,16 +286,16 @@ const Home = ({
                 $selected={s.code === selectedStation?.code}
                 role="button"
                 tabIndex={0}
-                aria-label={`${t('Select station')} ${s.label[getLanguage(i18n.language)]}`}
+                aria-label={`${t('Select station')} ${s.label[getLanguage(locale)]}`}
               >
                 <div className="option-name station">
-                  {s.label[getLanguage(i18n.language)]}
+                  {s.label[getLanguage(locale)]}
                   {!_.isEmpty(s.related) && (
                     <ShowMoreButton
                       className="more-option"
                       onClick={showMoreOptions}
                       onKeyDown={handleKeyDownShowMore}
-                      aria-label={`${t('Show interchange options for')} ${s.label[getLanguage(i18n.language)]}`}
+                      aria-label={`${t('Show interchange options for')} ${s.label[getLanguage(locale)]}`}
                       role="button"
                       tabIndex={0}
                     >
@@ -324,7 +326,7 @@ const Home = ({
                   switchLine(rStation.lineCode, rStation.stationCode)
                 }
               >
-                {t(rStation.lineCode)}
+                {t(rStation.lineCode as MessageKey)}
               </RelatedLine>
             ))}
           </RelatedLineWrapper>

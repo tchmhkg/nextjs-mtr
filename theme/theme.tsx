@@ -54,19 +54,7 @@ const ManageThemeProvider = ({ children }: { children: React.ReactNode }) => {
 }
 
 const ThemeManager = ({ children }: { children: React.ReactNode }) => {
-  const [mounted, setMounted] = useState<boolean>(false)
-
-  useEffect(() => {
-    queueMicrotask(() => setMounted(true))
-  }, [])
-
-  const body = <ManageThemeProvider>{children}</ManageThemeProvider>
-
-  // Hack: https://brianlovin.com/writing/adding-dark-mode-with-next-js#client-server-mismatches
-  if (!mounted) {
-    return <div style={{ visibility: 'hidden' }}>{body}</div>
-  }
-  return body
+  return <ManageThemeProvider>{children}</ManageThemeProvider>
 }
 
 export default ThemeManager

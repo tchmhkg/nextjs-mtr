@@ -69,7 +69,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const hdr = await headers()
-  const lang = hdr.get('x-i18next-current-language') ?? 'tc'
+  const lang = hdr.get('x-next-intl-locale') ?? 'tc'
 
   return (
     <html lang={lang} dir="ltr" className={`${inter.className} ${poppins.className}`}>

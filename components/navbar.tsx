@@ -1,11 +1,10 @@
 'use client'
 
-import dynamic from 'next/dynamic'
+import LanguageSwitcher from '@components/language-switcher'
+import ThemeSwitcher from '@components/theme-switcher'
+import Image from 'next/image'
 import { memo } from 'react'
 import styled from 'styled-components'
-const LanguageSwitcher = dynamic(import('@components/language-switcher'), { ssr: false })
-const ThemeSwitcher = dynamic(import('@components/theme-switcher'), { ssr: false })
-const Image = dynamic(import('next/image'), { ssr: false })
 
 interface IContainer {
   shouldUpdateZIndex?: boolean
@@ -23,7 +22,8 @@ const Container = styled.div<IContainer>`
   -webkit-transition: background-color 200ms linear;
   -ms-transition: background-color 200ms linear;
   transition: background-color 200ms linear;
-  z-index: ${({ shouldUpdateZIndex }) => (shouldUpdateZIndex ? 20 : 15)};
+  /* Above NProgress bar (z-index ~1031) so the bar never covers controls */
+  z-index: ${({ shouldUpdateZIndex }) => (shouldUpdateZIndex ? 1100 : 1090)};
   @media (min-width: 768px) {
     padding-right: 15px;
   }
@@ -69,8 +69,8 @@ const Header = () => {
     <Container>
       <RightWrapper>
         <GitHubButton />
-        <LanguageSwitcher inNavbar />
-        <ThemeSwitcher inNavbar />
+        <LanguageSwitcher />
+        <ThemeSwitcher />
       </RightWrapper>
     </Container>
   )

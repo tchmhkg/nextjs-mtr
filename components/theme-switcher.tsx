@@ -12,7 +12,7 @@ const spring = {
   damping: 30,
 }
 
-const ThemeSwitcher = ({ inNavbar = false }) => {
+const ThemeSwitcher = () => {
   const theme = useTheme()
   const [isOn, setIsOn] = useState(theme.mode === 'dark')
   const onChangeTheme = useCallback(
@@ -34,7 +34,6 @@ const ThemeSwitcher = ({ inNavbar = false }) => {
     <div
       className={styles.switch}
       data-enabled={isOn}
-      data-innavbar={inNavbar}
       data-on="🌜"
       data-off="🌞"
       onClick={onChangeTheme}

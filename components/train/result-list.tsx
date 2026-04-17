@@ -1,6 +1,6 @@
 'use client'
 
-import { useT } from 'next-i18next/client'
+import { useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 import ResultItem from './result-item'
 import { ListWrapper, Wrapper } from './result-list.style'
@@ -31,7 +31,7 @@ const ResultList = ({
   delay = false,
   currTime = null,
 }: ResultListProps) => {
-  const { t } = useT()
+  const t = useTranslations()
 
   const renderResult = useCallback(() => {
     if (delay) {

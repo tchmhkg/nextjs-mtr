@@ -2,12 +2,12 @@
 
 import Head from '@components/head'
 import styles from '@components/layout.module.scss'
-import { localizedPath } from '@utils/locale-path'
-import dynamic from 'next/dynamic'
-import Link from 'next/link'
-import { useT } from 'next-i18next/client'
+import Navbar from '@components/navbar'
+import { Link } from '@i18n/navigation'
+import { useTranslations } from 'next-intl'
 import styled from 'styled-components'
 import React from 'react'
+import dynamic from 'next/dynamic'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -18,7 +18,6 @@ interface LayoutProps {
   backUrl?: string
 }
 
-const Navbar = dynamic(import('@components/navbar'))
 const BackButton = dynamic(import('@components/back'))
 
 const Container = styled.div`
@@ -40,7 +39,7 @@ const Layout = ({
   showBackToHome = true,
   ...props
 }: LayoutProps) => {
-  const { i18n, t } = useT()
+  const t = useTranslations()
 
   return (
     <>
@@ -51,7 +50,7 @@ const Layout = ({
         <main>{children}</main>
         {!home && showBackToHome && (
           <div className={styles.backToHome}>
-            <Link href={localizedPath(i18n.language, '/')}>
+            <Link href="/">
               ← {t('Back to home')}
             </Link>
           </div>

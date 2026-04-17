@@ -1,17 +1,11 @@
 import AppProviders from '@components/app-providers'
-import i18nConfig from '../../i18n.config'
-import { I18nProvider } from 'next-i18next/client'
-import {
-  generateI18nStaticParams,
-  getResources,
-  getT,
-  initServerI18next,
-} from 'next-i18next/server'
+import { routing } from '@i18n/routing'
+import { hasLocale, NextIntlClientProvider } from 'next-intl'
+import { getMessages, setRequestLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
 
-initServerI18next(i18nConfig)
-
-export async function generateStaticParams() {
-  return generateI18nStaticParams().map(({ lng }) => ({ locale: lng }))
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
 }
 
 export default async function LocaleLayout({
@@ -22,12 +16,16 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const { i18n } = await getT(undefined, { lng: locale })
-  const resources = getResources(i18n, ['common'])
+  if (!hasLocale(routing.locales, locale)) {
+    notFound()
+  }
+
+  setRequestLocale(locale)
+  const messages = await getMessages()
 
   return (
-    <I18nProvider language={locale} resources={resources}>
+    <NextIntlClientProvider messages={messages}>
       <AppProviders>{children}</AppProviders>
-    </I18nProvider>
+    </NextIntlClientProvider>
   )
 }
