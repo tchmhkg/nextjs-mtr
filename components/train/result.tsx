@@ -86,7 +86,7 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
     (routes: TrainRoute[] = []) => {
       if (!routes?.length) return '-'
       const dests = Array.from(
-        new Set([...routes.map((r) => t(r.dest as MessageKey))])
+        new Set(routes.map((r) => t(r.dest as MessageKey)))
       )
       return dests.join(t('/'))
     },

@@ -7,11 +7,13 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+type GenerateMetadataProps = Readonly<{
+  params: Promise<{ locale: string }>
+}>
+
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: string }>
-}): Promise<Metadata> {
+}: GenerateMetadataProps): Promise<Metadata> {
   const { locale } = await params
   if (!hasLocale(routing.locales, locale)) {
     notFound()
@@ -24,13 +26,12 @@ export async function generateMetadata({
   }
 }
 
-export default async function HomePage({
-  params,
-  searchParams,
-}: {
+type HomePageProps = Readonly<{
   params: Promise<{ locale: string }>
   searchParams: Promise<{ line?: string; sta?: string }>
-}) {
+}>
+
+export default async function HomePage({ params, searchParams }: HomePageProps) {
   const { locale } = await params
   if (!hasLocale(routing.locales, locale)) {
     notFound()

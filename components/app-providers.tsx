@@ -12,17 +12,17 @@ import { Provider } from 'react-redux'
 
 NProgress.configure({ showSpinner: false })
 
-export default function AppProviders({
-  children,
-}: {
+type AppProvidersProps = Readonly<{
   children: React.ReactNode
-}) {
+}>
+
+export default function AppProviders({ children }: AppProvidersProps) {
   const pathname = usePathname()
 
   useEffect(() => {
     NProgress.start()
-    const id = window.setTimeout(() => NProgress.done(), 220)
-    return () => window.clearTimeout(id)
+    const id = globalThis.setTimeout(() => NProgress.done(), 220)
+    return () => globalThis.clearTimeout(id)
   }, [pathname])
 
   return (

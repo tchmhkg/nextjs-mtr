@@ -9,6 +9,7 @@ export default function proxy(request: NextRequest) {
   return handleI18n(request)
 }
 
+// Next.js requires a static string literal here; tagged templates break segment config analysis.
 export const config = {
   matcher: [
     '/((?!api|_next/static|_next/image|_next/data|monitoring|.*\\..*).*)',

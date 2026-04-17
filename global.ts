@@ -8,4 +8,5 @@ declare module 'next-intl' {
   }
 }
 
-export {}
+/** Marker type so this file remains a valid ES module for `declare module` augmentation. */
+export type NextIntlAppAugmentation = void

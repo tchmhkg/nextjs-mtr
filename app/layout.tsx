@@ -63,11 +63,11 @@ export const viewport: Viewport = {
   ],
 }
 
-export default async function RootLayout({
-  children,
-}: {
+type RootLayoutProps = Readonly<{
   children: React.ReactNode
-}) {
+}>
+
+export default async function RootLayout({ children }: RootLayoutProps) {
   const hdr = await headers()
   const lang = hdr.get('x-next-intl-locale') ?? 'tc'
 
