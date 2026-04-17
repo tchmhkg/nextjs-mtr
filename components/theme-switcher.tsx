@@ -5,7 +5,7 @@ import styles from '@components/theme-switcher.module.scss'
 import { useTheme } from '@theme/theme'
 
 const spring = {
-  type: 'spring',
+  type: 'spring' as const,
   stiffness: 700,
   damping: 30,
 }
@@ -21,7 +21,7 @@ const ThemeSwitcher = ({ inNavbar = false }) => {
   )
 
   useEffect(() => {
-    setIsOn(theme.mode === 'dark')
+    queueMicrotask(() => setIsOn(theme.mode === 'dark'))
   }, [theme.mode])
 
   useEffect(() => {

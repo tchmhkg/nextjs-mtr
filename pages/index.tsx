@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Home from '@components/home'
 import Layout from '@components/layout'
 import { GetStaticProps } from 'next'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations'
 
 const Index = () => {
   return (

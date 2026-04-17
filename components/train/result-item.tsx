@@ -1,7 +1,7 @@
 import { format, formatDuration, intervalToDuration } from 'date-fns'
 import React, { useCallback } from 'react'
 
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from 'next-i18next/pages'
 import { PlatForm, PlatFormWrapper } from './result-item.style'
 
 interface TrainTime {

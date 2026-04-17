@@ -23,7 +23,7 @@ import Bell from '@components/bell'
 import Refresh from '@components/refresh'
 import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
 import { DATA } from '@utils/next-train-data'
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from 'next-i18next/pages'
 import ResultList from './result-list'
 import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 
@@ -106,7 +106,7 @@ const Result = ({ line, sta }: ResultProps) => {
         )}
       </>
     )
-  }, [data, lineColor, t])
+  }, [data, getRouteDestLabel, lineColor, t])
 
   useEffect(() => {
     if (line && sta) {

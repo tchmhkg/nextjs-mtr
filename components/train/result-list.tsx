@@ -1,4 +1,4 @@
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from 'next-i18next/pages'
 import React, { useCallback } from 'react'
 import ResultItem from './result-item'
 import { ListWrapper, Wrapper } from './result-list.style'

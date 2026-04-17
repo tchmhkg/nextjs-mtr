@@ -25,7 +25,7 @@ import {
   StationOption,
 } from './home.style'
 
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from 'next-i18next/pages'
 
 type Language = 'en' | 'tc'
 
@@ -160,7 +160,7 @@ const Home = () => {
   useEffect(() => {
     if (gettingLocation) {
       scrollToStation()
-      setGettingLocation(false)
+      queueMicrotask(() => setGettingLocation(false))
     }
   }, [selectedStation, gettingLocation, scrollToStation])
 

@@ -55,7 +55,7 @@ const ThemeManager = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState<boolean>(false)
 
   useEffect(() => {
-    setMounted(true)
+    queueMicrotask(() => setMounted(true))
   }, [])
 
   const body = <ManageThemeProvider>{children}</ManageThemeProvider>

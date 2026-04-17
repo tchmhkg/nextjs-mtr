@@ -7,7 +7,7 @@ import 'nprogress/nprogress.css'
 
 import ThemeManager from '@theme/theme'
 import { LayoutGroup } from 'framer-motion'
-import { appWithTranslation } from 'next-i18next'
+import { appWithTranslation } from 'next-i18next/pages'
 import { Provider } from 'react-redux'
 import ErrorBoundary from '@components/error-boundary'
 

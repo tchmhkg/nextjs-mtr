@@ -1,4 +1,4 @@
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from 'next-i18next/pages'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
