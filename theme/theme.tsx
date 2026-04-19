@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
 
 import { useLocalStorage } from '@hooks/useLocalStorage'
@@ -22,29 +22,18 @@ const ThemeContext = createContext<ThemeContextType>({
 export const useTheme = () => useContext(ThemeContext)
 
 const ManageThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [modeFromStorage, setModeToStorage] = useLocalStorage('mode', 'light')
-  const [themeState, setThemeState] = useState(modeFromStorage)
-
-  const themeColors = themeState === 'dark' ? darkTheme : lightTheme
+  const [mode, setMode] = useLocalStorage('mode', 'light')
+  const themeColors = mode === 'dark' ? darkTheme : lightTheme
 
   useEffect(() => {
     document.body.style.background = themeColors.theme.background
-
-    if (themeState !== modeFromStorage) {
-      setModeToStorage(themeState)
-    }
-  }, [
-    themeState,
-    modeFromStorage,
-    setModeToStorage,
-    themeColors.theme.background,
-  ])
+  }, [themeColors.theme.background])
 
   return (
     <ThemeContext.Provider
       value={{
-        mode: themeState,
-        setMode: setThemeState,
+        mode,
+        setMode,
         colors: themeColors.theme,
       }}
     >

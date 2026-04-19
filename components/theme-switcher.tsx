@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback } from 'react'
 
 import styles from '@components/theme-switcher.module.scss'
 import { useTheme } from '@theme/theme'
@@ -13,22 +13,11 @@ const spring = {
 }
 
 const ThemeSwitcher = () => {
-  const theme = useTheme()
-  const [isOn, setIsOn] = useState(theme.mode === 'dark')
-  const onChangeTheme = useCallback(
-    (e: React.MouseEvent) => {
-      setIsOn(!isOn)
-    },
-    [isOn]
-  )
-
-  useEffect(() => {
-    queueMicrotask(() => setIsOn(theme.mode === 'dark'))
-  }, [theme.mode])
-
-  useEffect(() => {
-    theme.setMode(isOn ? 'dark' : 'light')
-  }, [isOn, theme])
+  const { mode, setMode } = useTheme()
+  const isOn = mode === 'dark'
+  const onChangeTheme = useCallback(() => {
+    setMode(isOn ? 'light' : 'dark')
+  }, [isOn, setMode])
 
   return (
     <div
