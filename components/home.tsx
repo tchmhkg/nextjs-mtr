@@ -11,7 +11,6 @@ import {
 import { useDispatch, useSelector } from '@store/store'
 import type { MessageKey } from '@i18n/message-key'
 import { DATA, ILineStation } from '@utils/next-train-data'
-import _ from 'lodash'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import CurrLocation from './curr-location'
@@ -290,7 +289,7 @@ const Home = ({
               >
                 <div className="option-name station">
                   {s.label[getLanguage(locale)]}
-                  {!_.isEmpty(s.related) && (
+                  {(s.related?.length ?? 0) > 0 && (
                     <ShowMoreButton
                       className="more-option"
                       onClick={showMoreOptions}

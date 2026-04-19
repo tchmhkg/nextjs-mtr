@@ -46,7 +46,8 @@ export function useLocalStorage<T>(
     (value: T | ((prev: T) => T)) => {
       try {
         const current = getSnapshot()
-        const next = value instanceof Function ? value(current) : value
+        const next =
+          typeof value === 'function' ? (value as (prev: T) => T)(current) : value
         globalThis.localStorage?.setItem(key, JSON.stringify(next))
         globalThis.window?.dispatchEvent(new Event(LOCAL_STORAGE_CHANGED))
       } catch {
