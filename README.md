@@ -21,24 +21,228 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command       | Description              |
-| ------------- | ------------------------ |
-| `yarn dev`    | Development server       |
-| `yarn build`  | Production build         |
-| `yarn start`  | Run production server    |
-| `yarn lint`   | ESLint                   |
+| Command            | Description                              |
+| ------------------ | ---------------------------------------- |
+| `yarn dev`         | Development server                       |
+| `yarn build`       | Production build                         |
+| `yarn start`       | Run production server                    |
+| `yarn lint`        | ESLint                                   |
+| `yarn check:mapper`| Runnable check for MTR schedule mapper   |
 
 ## Stack
 
 - **Framework:** Next.js (App Router), React, TypeScript
 - **UI:** styled-components, Sass modules where used
 - **State:** Redux Toolkit + react-redux (line/station selection)
-- **Data:** SWR for client fetching; route handler under `/api/mtr/next-train`
+- **Data:** SWR for client polling; BFF route at `/api/next-train`
 - **i18n:** next-intl
+- **Validation:** Zod at the API route boundary
 - **Monitoring (optional):** Sentry (`@sentry/nextjs`)
 - **UX:** nextjs-toploader for route progress; date-fns for times
 
 Formatting in the editor is typically handled with **Prettier** and **ESLint** (flat config: `eslint.config.mjs`, extends Next core-web-vitals + Prettier).
+
+## Architecture
+
+The app uses a **Backend-for-Frontend (BFF)** pattern. The browser never calls the Hong Kong government open-data API directly. All upstream access goes through a server-side schedules service, with a thin API route as the HTTP adapter.
+
+```mermaid
+flowchart TB
+  subgraph browser [Browser]
+    Result["components/train/result.tsx<br/>SWR 30s refresh"]
+  end
+
+  subgraph apiLayer [API adapter]
+    Route["app/api/next-train/route.ts<br/>Zod validation · ApiResponse"]
+  end
+
+  subgraph schedulesService [Schedules service]
+    GetNextTrain["lib/schedules/get-next-train.ts<br/>mode routing · ApiError mapping"]
+    Mappers["lib/schedules/mappers/<br/>upstream JSON → NextTrainDto"]
+  end
+
+  subgraph upstreamLayer [Upstream clients]
+    MtrClient["lib/upstream/mtr/client.ts"]
+    LrClient["lib/upstream/lr/client.ts<br/>stub"]
+  end
+
+  GovApi["Hong Kong open-data API<br/>rt.data.gov.hk"]
+
+  Result -->|"GET /api/next-train"| Route
+  Route --> GetNextTrain
+  GetNextTrain --> Mappers
+  GetNextTrain --> MtrClient
+  GetNextTrain --> LrClient
+  MtrClient --> GovApi
+  Mappers --> GetNextTrain
+  GetNextTrain --> Route
+  Route --> Result
+```
+
+### Folder layout
+
+```
+app/
+├── [locale]/page.tsx          # SSR: calls getNextTrain() directly
+└── api/next-train/route.ts    # Client polling endpoint
+
+lib/
+├── schedules/                 # Server-side schedules domain
+│   ├── get-next-train.ts      # Orchestration entry point
+│   ├── contracts/             # DTOs, ApiResponse, Zod schemas
+│   ├── errors/api-error.ts    # ApiError + helpers
+│   ├── http/respond.ts        # NextResponse adapters
+│   └── mappers/               # Upstream JSON → NextTrainDto
+└── upstream/                  # Raw fetch clients (server-only)
+    ├── mtr/
+    └── lr/                    # stub (not yet implemented)
+
+components/                    # React UI (client)
+store/                         # Redux: line/station selection only
+utils/next-train-data.ts       # Static line/station metadata
+```
+
+### Layer responsibilities
+
+| Layer | Location | Responsibility |
+| ----- | -------- | -------------- |
+| **UI** | `components/`, `app/[locale]/` | Render schedules; poll API via SWR |
+| **API adapter** | `app/api/next-train/` | Parse/validate HTTP input; return `ApiResponse<T>` |
+| **Schedules service** | `lib/schedules/` | Orchestrate fetch → map → DTO; map errors |
+| **Upstream** | `lib/upstream/` | Raw `fetch` to external APIs (30s revalidation) |
+| **Static data** | `utils/next-train-data.ts` | Line/station codes and labels (no API call) |
+
+Client components import types from `@lib/schedules/contracts/*` only — never from `lib/upstream/*`.
+
+## Data flow
+
+### Overview
+
+```mermaid
+flowchart LR
+  subgraph ssrPath [SSR path — initial load]
+    direction TB
+    User1[User] --> Page["app/[locale]/page.tsx"]
+    Page -->|"getNextTrain() direct"| Service1[getNextTrain]
+    Service1 --> Home["Home · Result fallbackData"]
+  end
+
+  subgraph clientPath [Client path — polling]
+    direction TB
+    Result["Result.tsx SWR"] -->|"GET /api/next-train"| Route[route.ts]
+    Route -->|"getNextTrain()"| Service2[getNextTrain]
+    Service2 --> ApiResp["ApiResponse NextTrainDto"]
+    ApiResp --> Result
+  end
+
+  Service1 --> Shared[getNextTrain pipeline]
+  Service2 --> Shared
+  Shared --> Fetch[fetchMtrSchedule 30s cache]
+  Fetch --> Map[mapMtrUpstreamToDto]
+```
+
+### Initial page load (SSR)
+
+When the user opens a URL with `?line=TWL&sta=CEN`, the server component fetches schedule data directly — no extra HTTP hop to the API route.
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant Page as app/[locale]/page.tsx
+  participant Service as getNextTrain
+  participant Upstream as fetchMtrSchedule
+  participant Mapper as mapMtrUpstreamToDto
+  participant Home as Home / Result
+
+  User->>Page: GET /?line=TWL&sta=CEN
+  Page->>Service: getNextTrain mode mtr line sta lang
+  Service->>Upstream: fetch 30s revalidate
+  Upstream-->>Service: raw JSON
+  Service->>Mapper: map to NextTrainDto
+  Mapper-->>Service: NextTrainDto
+  Service-->>Page: data + meta
+  Page->>Home: initialSchedule prop
+  Home->>Result: SWR fallbackData
+```
+
+### Client refresh (SWR)
+
+After hydration, SWR polls the BFF route every 30 seconds (aligned with upstream cache TTL).
+
+```mermaid
+sequenceDiagram
+  participant Result as Result.tsx
+  participant Route as /api/next-train
+  participant Zod as nextTrainQuerySchema
+  participant Service as getNextTrain
+  participant Upstream as fetchMtrSchedule
+
+  loop every 30s
+    Result->>Route: GET ?mode=mtr&line=TWL&sta=CEN&lang=tc
+    Route->>Zod: safeParse query
+    Zod-->>Route: validated input
+    Route->>Service: getNextTrain
+    Service->>Upstream: fetch cached upstream
+    Upstream-->>Service: raw JSON
+    Service-->>Route: NextTrainDto + meta
+    Route-->>Result: ApiResponse success
+    Result->>Result: update up down isDelayed lastUpdated
+  end
+```
+
+### API contract
+
+**Request**
+
+```
+GET /api/next-train?mode=mtr&line=TWL&sta=CEN&lang=tc
+```
+
+| Param | Required | Default | Values |
+| ----- | -------- | ------- | ------ |
+| `mode` | No | `mtr` | `mtr`, `lr` (lr not yet implemented) |
+| `line` | Yes | — | Line code, e.g. `TWL` |
+| `sta` | Yes | — | Station code, e.g. `CEN` |
+| `lang` | No | `tc` | `tc`, `en` |
+
+**Success response**
+
+```json
+{
+  "success": true,
+  "data": {
+    "up": [{ "seq": "1", "dest": "Tsuen Wan", "plat": "1", "time": "1 min" }],
+    "down": [{ "seq": "1", "dest": "Central", "plat": "2", "time": "2 min" }],
+    "isDelayed": false,
+    "lastUpdated": "2026-07-11 01:00:05",
+    "alert": null
+  },
+  "meta": {
+    "source": "mtr",
+    "revalidatedAt": "2026-07-11T01:00:05.000Z"
+  }
+}
+```
+
+**Error response**
+
+```json
+{
+  "success": false,
+  "error": { "code": "VALIDATION_ERROR", "message": "Invalid parameters" },
+  "data": null
+}
+```
+
+### Caching
+
+| Layer | Mechanism | TTL |
+| ----- | --------- | --- |
+| Upstream fetch | `fetch(..., { next: { revalidate: 30 } })` | 30s |
+| API response | `Cache-Control: public, s-maxage=30, stale-while-revalidate=60` | 30s |
+| Client | SWR `refreshInterval: 30000`, `dedupeInterval: 10000` | 30s / 10s |
+
+SSR and API both call `getNextTrain()`, so Next.js fetch cache deduplicates upstream requests within the 30s window.
 
 ## Environment variables
 
