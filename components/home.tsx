@@ -1,7 +1,8 @@
 'use client'
 
 import Alert from '@components/alert'
-import type { MtrNextTrainParsed } from '@lib/mtr-next-train'
+import type { MessageKey } from '@i18n/message-key'
+import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
 import {
   getTrainState,
   ILine,
@@ -9,7 +10,6 @@ import {
   setStation,
 } from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
-import type { MessageKey } from '@i18n/message-key'
 import { DATA, ILineStation } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -28,19 +28,19 @@ import {
   ShowMoreButton,
   StationOption,
 } from './home.style'
+import Result from './train/result'
 
 type Language = 'en' | 'tc'
 
 const getLanguage = (lang: string): Language => {
   return lang === 'tc' ? 'tc' : 'en'
 }
-import Result from './train/result'
 
 type HomeProps = {
   heading?: string
   initialLineFromUrl?: string | null
   initialStaFromUrl?: string | null
-  initialSchedule?: MtrNextTrainParsed | null
+  initialSchedule?: NextTrainDto | null
 }
 
 const Home = ({
@@ -236,10 +236,10 @@ const Home = ({
 
   const scheduleForResult =
     initialSchedule &&
-    initialLineFromUrl &&
-    initialStaFromUrl &&
-    selectedLine?.code === initialLineFromUrl &&
-    selectedStation?.code === initialStaFromUrl
+      initialLineFromUrl &&
+      initialStaFromUrl &&
+      selectedLine?.code === initialLineFromUrl &&
+      selectedStation?.code === initialStaFromUrl
       ? initialSchedule
       : undefined
 

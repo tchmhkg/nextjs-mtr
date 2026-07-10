@@ -3,9 +3,10 @@
 import Alert from '@components/alert'
 import Bell from '@components/bell'
 import Refresh from '@components/refresh'
-import type { MtrNextTrainParsed } from '@lib/mtr-next-train'
-import { DATA } from '@utils/next-train-data'
 import type { MessageKey } from '@i18n/message-key'
+import type { ApiSuccessResponse } from '@lib/schedules/contracts/api-response'
+import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
+import { DATA } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
@@ -15,7 +16,7 @@ import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 interface ResultProps {
   line: string
   sta: string
-  initialSchedule?: MtrNextTrainParsed | null
+  initialSchedule?: NextTrainDto | null
 }
 
 interface TrainRoute {
@@ -23,28 +24,17 @@ interface TrainRoute {
   [key: string]: unknown
 }
 
-type SwrTrainPayload = {
-  data: MtrNextTrainParsed['data']
-  isdelay: boolean
-  curr_time: string | null
-  alert: MtrNextTrainParsed['alert']
-}
-
-const fetcher = async (url: string): Promise<SwrTrainPayload> => {
+const fetcher = async (url: string): Promise<NextTrainDto> => {
   const res = await fetch(url)
-  const json = await res.json()
-  if (!res.ok) {
-    throw new Error(json.error || 'Request failed')
+  const json = (await res.json()) as ApiSuccessResponse<NextTrainDto> & {
+    error?: { message?: string }
   }
-  if (!json.success) {
-    throw new Error(json.error || 'Request failed')
+  if (!res.ok || !json.success) {
+    throw new Error(
+      typeof json.error === 'object' ? json.error?.message : 'Request failed'
+    )
   }
-  return {
-    data: json.data,
-    isdelay: json.isdelay,
-    curr_time: json.curr_time,
-    alert: json.alert,
-  }
+  return json.data
 }
 
 const Result = ({ line, sta, initialSchedule }: ResultProps) => {
@@ -53,22 +43,12 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
   const apiUrl = useMemo(() => {
     if (!line || !sta) return null
     const lang = (locale || 'tc').toLowerCase()
-    const q = new URLSearchParams({ line, sta, lang })
-    return `/api/mtr/next-train?${q.toString()}`
+    const q = new URLSearchParams({ mode: 'mtr', line, sta, lang })
+    return `/api/next-train?${q.toString()}`
   }, [line, sta, locale])
 
-  const fallbackData = useMemo((): SwrTrainPayload | undefined => {
-    if (!initialSchedule) return undefined
-    return {
-      data: initialSchedule.data,
-      isdelay: initialSchedule.isdelay,
-      curr_time: initialSchedule.curr_time,
-      alert: initialSchedule.alert,
-    }
-  }, [initialSchedule])
-
   const { data, mutate } = useSWR(apiUrl, fetcher, {
-    fallbackData,
+    fallbackData: initialSchedule ?? undefined,
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
     refreshInterval: 30000,
@@ -97,30 +77,30 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
   const onClickCloseAlert = useCallback(() => setShowAlert(false), [])
 
   const renderTrainLists = useCallback(() => {
-    if (!data?.data?.UP && !data?.data?.DOWN) {
+    if (!data?.up && !data?.down) {
       return <div>{t('Service not available')}</div>
     }
 
     return (
       <>
-        {data?.data?.UP && data?.curr_time && (
+        {data?.up && data?.lastUpdated && (
           <ResultList
             left
-            label={getRouteDestLabel(data.data.UP)}
-            data={data.data.UP}
+            label={getRouteDestLabel(data.up)}
+            data={data.up}
             lineColor={lineColor}
-            delay={data.isdelay}
-            currTime={data.curr_time}
+            delay={data.isDelayed}
+            currTime={data.lastUpdated}
           />
         )}
-        {data?.data?.DOWN && data?.curr_time && (
+        {data?.down && data?.lastUpdated && (
           <ResultList
             right
-            label={getRouteDestLabel(data.data.DOWN)}
-            data={data.data.DOWN}
+            label={getRouteDestLabel(data.down)}
+            data={data.down}
             lineColor={lineColor}
-            delay={data.isdelay}
-            currTime={data.curr_time}
+            delay={data.isDelayed}
+            currTime={data.lastUpdated}
           />
         )}
       </>
@@ -139,9 +119,9 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
     <Wrapper>
       <Header>
         <LastUpdate>
-          {data?.curr_time ? (
+          {data?.lastUpdated ? (
             <div className="last-update-time">
-              {t('last update')}: {data?.curr_time}
+              {t('last update')}: {data.lastUpdated}
             </div>
           ) : null}
           {data?.alert ? <Bell onClick={onClickShowAlert} /> : null}

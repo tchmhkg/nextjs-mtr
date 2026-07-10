@@ -1,10 +1,10 @@
 import Home from '@components/home'
 import Layout from '@components/layout'
 import { routing } from '@i18n/routing'
-import { fetchMtrNextTrain } from '@lib/mtr-next-train'
+import { getNextTrain } from '@lib/schedules/get-next-train'
+import type { Metadata } from 'next'
 import { hasLocale } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 type GenerateMetadataProps = Readonly<{
@@ -43,11 +43,14 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   let initialSchedule = null
   if (sp.line && sp.sta) {
     try {
-      initialSchedule = await fetchMtrNextTrain({
-        line: sp.line,
-        sta: sp.sta,
-        lang: locale,
-      })
+      initialSchedule = (
+        await getNextTrain({
+          mode: 'mtr',
+          line: sp.line,
+          sta: sp.sta,
+          lang: locale,
+        })
+      ).data
     } catch {
       initialSchedule = null
     }
