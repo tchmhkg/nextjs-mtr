@@ -5,6 +5,3 @@ export interface LrScheduleRequest {
   sta: string
   lang: string
 }
-
-// Raw LR response shape TBD — see docs/LR_Next_Train_API_Spec_v1.1.pdf
-export type LrScheduleRaw = unknown
