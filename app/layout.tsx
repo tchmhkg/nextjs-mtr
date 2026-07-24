@@ -1,9 +1,9 @@
 import { env } from '@lib/env'
 import '@styles/globals.css'
-import NextTopLoader from 'nextjs-toploader'
 import type { Metadata, Viewport } from 'next'
 import { Noto_Sans_TC, Outfit } from 'next/font/google'
 import { headers } from 'next/headers'
+import NextTopLoader from 'nextjs-toploader'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -36,7 +36,8 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    // default light theme → light chrome until ThemeProvider hydrates
+    statusBarStyle: 'default',
   },
   formatDetection: { telephone: false },
   twitter: {
@@ -59,10 +60,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
+  // Matches --page-bg-color; ThemeProvider updates on mode toggle
+  themeColor: '#e2e8f0',
 }
 
 type RootLayoutProps = Readonly<{
@@ -82,8 +81,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="theme-color" content="#ffffff" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link
           href="/splashscreens/iphone5_splash.png"
           media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"
