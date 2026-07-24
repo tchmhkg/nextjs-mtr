@@ -12,44 +12,44 @@
     "verify": "yarn check:mapper && yarn check:mtr-time"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.11.2",
-    "@sentry/nextjs": "^10.49.0",
+    "@reduxjs/toolkit": "^2.12.0",
+    "@sentry/nextjs": "^10.68.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@tanstack/react-query": "^5.101.4",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
-    "date-fns": "^4.1.0",
+    "date-fns": "^4.4.0",
     "next": "16.2.11",
-    "next-intl": "^4.9.1",
+    "next-intl": "^4.13.4",
     "nextjs-toploader": "^3.9.17",
-    "react": "19.2.5",
-    "react-dom": "19.2.5",
-    "react-redux": "^9.2.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-redux": "^9.3.0",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.3.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^9.39.4",
     "@serwist/turbopack": "^9.5.12",
-    "@types/node": "^25.6.0",
-    "@types/react": "19.2.14",
+    "@types/node": "^25.9.5",
+    "@types/react": "19.2.17",
     "esbuild": "^0.28.1",
-    "eslint": "^9.39.4",
+    "eslint": "^9.39.5",
     "eslint-config-next": "16.2.11",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import": "^2.32.0",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "serwist": "^9.5.12",
-    "tsx": "^4.23.0",
+    "tsx": "^4.23.1",
     "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=20.9.0"
   },
   "resolutions": {
-    "@types/react": "19.2.14"
+    "@types/react": "19.2.17"
   }
 }
