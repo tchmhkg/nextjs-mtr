@@ -99,3 +99,18 @@ img {
 .animate-flash-soft {
   animation: flash-soft 0.6s ease-out;
 }
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(12px);
+    opacity: 0.85;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-sheet-in {
+  animation: sheet-in 180ms ease-out;
+}

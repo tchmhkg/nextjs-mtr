@@ -1,13 +1,12 @@
 'use client'
 
-import Alert from '@components/alert'
 import CurrLocation from '@components/curr-location'
 import ContextChip from '@components/picker/context-chip'
+import InterchangeDialog from '@components/picker/interchange-dialog'
 import LinePicker from '@components/picker/line-picker'
 import StationList from '@components/picker/station-list'
 import Result from '@components/train/result'
 import { useNearestStation } from '@hooks/useNearestStation'
-import type { MessageKey } from '@i18n/message-key'
 import { useRouter } from '@i18n/navigation'
 import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
 import {
@@ -185,10 +184,10 @@ const Home = ({
 
   const scheduleForResult =
     initialSchedule &&
-    initialLineFromUrl &&
-    initialStaFromUrl &&
-    selectedLine?.code === initialLineFromUrl &&
-    selectedStation?.code === initialStaFromUrl
+      initialLineFromUrl &&
+      initialStaFromUrl &&
+      selectedLine?.code === initialLineFromUrl &&
+      selectedStation?.code === initialStaFromUrl
       ? initialSchedule
       : undefined
 
@@ -207,9 +206,8 @@ const Home = ({
 
       <div className="flex flex-col gap-3 md:flex-row md:gap-0">
         <div
-          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${
-            pickerStep === 'station' ? 'hidden md:block' : 'block'
-          }`}
+          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${pickerStep === 'station' ? 'hidden md:block' : 'block'
+            }`}
         >
           <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
             {t('Select a line')}
@@ -232,9 +230,8 @@ const Home = ({
 
         {selectedLine ? (
           <div
-            className={`min-w-0 flex-1 md:pl-2 ${
-              pickerStep === 'line' ? 'hidden md:block' : 'block'
-            }`}
+            className={`min-w-0 flex-1 md:pl-2 ${pickerStep === 'line' ? 'hidden md:block' : 'block'
+              }`}
           >
             <div
               className="mb-1 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted"
@@ -306,26 +303,11 @@ const Home = ({
       ) : null}
 
       {interchangeFor ? (
-        <Alert onPressClose={() => setInterchangeFor(null)}>
-          <div className="flex flex-col gap-2">
-            <p className="mb-1 text-sm text-muted">
-              {interchangeFor.label[lang]}
-            </p>
-            {interchangeFor.related?.map((rStation) => (
-              <button
-                key={rStation.lineCode}
-                type="button"
-                className="rounded-lg px-4 py-3 text-left text-sm font-medium text-white"
-                style={{ backgroundColor: rStation.color }}
-                onClick={() =>
-                  switchLine(rStation.lineCode, rStation.stationCode)
-                }
-              >
-                {t(rStation.lineCode as MessageKey)}
-              </button>
-            ))}
-          </div>
-        </Alert>
+        <InterchangeDialog
+          station={interchangeFor}
+          onSelect={switchLine}
+          onClose={() => setInterchangeFor(null)}
+        />
       ) : null}
     </div>
   )
