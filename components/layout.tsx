@@ -1,6 +1,7 @@
 'use client'
 
 import Head from '@components/head'
+import OfflineBanner from '@components/offline-banner'
 import styles from '@components/layout.module.scss'
 import Navbar from '@components/navbar'
 import { Link } from '@i18n/navigation'
@@ -23,7 +24,10 @@ const BackButton = dynamic(import('@components/back'))
 const Container = styled.div`
   overflow-y: auto;
   padding: 15px;
-  padding-top: 50px;
+  padding-top: calc(50px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(15px + env(safe-area-inset-left, 0px));
+  padding-right: calc(15px + env(safe-area-inset-right, 0px));
   position: relative;
   color: ${(props) => props.theme.text};
   a {
@@ -43,6 +47,7 @@ const Layout = ({
 
   return (
     <>
+      <OfflineBanner />
       <Navbar />
       <Container>
         <Head />

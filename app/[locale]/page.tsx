@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 import { hasLocale } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
 type GenerateMetadataProps = Readonly<{
   params: Promise<{ locale: string }>
@@ -58,12 +59,14 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
 
   return (
     <Layout home>
-      <Home
-        heading={t('appTitle')}
-        initialLineFromUrl={sp.line ?? null}
-        initialStaFromUrl={sp.sta ?? null}
-        initialSchedule={initialSchedule}
-      />
+      <Suspense fallback={null}>
+        <Home
+          heading={t('appTitle')}
+          initialLineFromUrl={sp.line ?? null}
+          initialStaFromUrl={sp.sta ?? null}
+          initialSchedule={initialSchedule}
+        />
+      </Suspense>
     </Layout>
   )
 }

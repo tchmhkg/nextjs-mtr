@@ -117,3 +117,9 @@ export const ShowMoreButton = styled.button`
   outline: none;
   box-shadow: none;
 `
+
+export const LocationMessage = styled.p`
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: ${({ theme }) => theme.leaving};
+`

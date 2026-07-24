@@ -1,17 +1,20 @@
 'use client'
 
 import Alert from '@components/alert'
+import { useRouter } from '@i18n/navigation'
 import type { MessageKey } from '@i18n/message-key'
 import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
 import {
   getTrainState,
   ILine,
+  IStation,
   setLine,
   setStation,
 } from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
 import { DATA, ILineStation } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
+import { useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import CurrLocation from './curr-location'
 import {
@@ -21,6 +24,7 @@ import {
   Left,
   LineColor,
   LineOption,
+  LocationMessage,
   RelatedLine,
   RelatedLineWrapper,
   Right,
@@ -54,8 +58,12 @@ const Home = ({
     useSelector(getTrainState)
   const locale = useLocale()
   const t = useTranslations()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const rightListRef = useRef<HTMLDivElement>(null)
   const [gettingLocation, setGettingLocation] = useState(false)
+  const [locating, setLocating] = useState(false)
+  const [locationError, setLocationError] = useState<MessageKey | null>(null)
   const [showRelated, setShowRelated] = useState(false)
   const refs = React.useMemo(() => DATA.reduce((stationRef: Record<string, React.RefObject<HTMLDivElement | null>>, value) => {
     for (const station of value.stations) {
@@ -145,18 +153,28 @@ const Home = ({
   )
 
   const getPositionError = useCallback((err: GeolocationPositionError) => {
-    // Error handled by component - could show user notification here
+    setLocating(false)
+    setLocationError(
+      err.code === err.PERMISSION_DENIED
+        ? 'Location permission denied'
+        : 'Location unavailable'
+    )
   }, [])
 
   const getCurrLocation = useCallback(() => {
-    const options = {
-      enableHighAccuracy: true,
-      maximumAge: 0,
+    if (!navigator.geolocation) {
+      setLocationError('Location unavailable')
+      return
     }
+    setLocationError(null)
+    setLocating(true)
     navigator.geolocation.getCurrentPosition(
-      getPositionSuccess,
+      (pos) => {
+        getPositionSuccess(pos)
+        setLocating(false)
+      },
       getPositionError,
-      options
+      { enableHighAccuracy: true, maximumAge: 0 }
     )
   }, [getPositionError, getPositionSuccess])
 
@@ -168,11 +186,6 @@ const Home = ({
     })
   }, [selectedStation, refs])
 
-  useEffect(() => {
-    if (initialLineFromUrl && initialStaFromUrl) return
-    getCurrLocation()
-  }, [getCurrLocation, initialLineFromUrl, initialStaFromUrl])
-
   useLayoutEffect(() => {
     if (!initialLineFromUrl || !initialStaFromUrl) return
     const lineData = DATA.find((s) => s.line.code === initialLineFromUrl)
@@ -183,6 +196,20 @@ const Home = ({
       dispatch(setStation(station))
     }
   }, [dispatch, initialLineFromUrl, initialStaFromUrl])
+
+  useEffect(() => {
+    if (!selectedLine?.code || !selectedStation?.code) return
+    if (
+      searchParams.get('line') === selectedLine.code &&
+      searchParams.get('sta') === selectedStation.code
+    ) {
+      return
+    }
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('line', selectedLine.code)
+    params.set('sta', selectedStation.code)
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }, [selectedLine, selectedStation, router, searchParams])
 
   useEffect(() => {
     if (gettingLocation) {
@@ -197,9 +224,13 @@ const Home = ({
     }
   }, [selectedLine, selectedStation, scrollToStation])
 
-  const showMoreOptions = useCallback(() => {
-    setShowRelated(true)
-  }, [])
+  const showInterchangeOptions = useCallback(
+    (station: IStation) => {
+      dispatch(setStation(station))
+      setShowRelated(true)
+    },
+    [dispatch]
+  )
 
   const switchLine = useCallback(
     (lineCode: string, stationCode?: string) => {
@@ -226,12 +257,13 @@ const Home = ({
   }, [])
 
   const handleKeyDownShowMore = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: React.KeyboardEvent, station: IStation) => {
       if (e.key === 'Enter') {
-        showMoreOptions()
+        e.stopPropagation()
+        showInterchangeOptions(station)
       }
     },
-    [showMoreOptions]
+    [showInterchangeOptions]
   )
 
   const scheduleForResult =
@@ -250,8 +282,12 @@ const Home = ({
         <CurrLocation
           onClick={getCurrLocation}
           aria-label={t('Find nearest station')}
+          busy={locating}
         />
       </Header>
+      {locationError ? (
+        <LocationMessage role="alert">{t(locationError)}</LocationMessage>
+      ) : null}
       <SelectorWrapper role="tabpanel" aria-label={t('Train line and station selection')}>
         <Left role="tablist" aria-label={t('Select train line')}>
           {DATA.map((l) => (
@@ -292,11 +328,13 @@ const Home = ({
                   {(s.related?.length ?? 0) > 0 && (
                     <ShowMoreButton
                       className="more-option"
-                      onClick={showMoreOptions}
-                      onKeyDown={handleKeyDownShowMore}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        showInterchangeOptions(s)
+                      }}
+                      onKeyDown={(e) => handleKeyDownShowMore(e, s)}
                       aria-label={`${t('Show interchange options for')} ${s.label[getLanguage(locale)]}`}
-                      role="button"
-                      tabIndex={0}
                     >
                       {'>'}
                     </ShowMoreButton>
