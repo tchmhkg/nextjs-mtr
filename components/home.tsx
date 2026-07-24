@@ -33,12 +33,128 @@ type Language = 'en' | 'tc'
 const getLanguage = (lang: string): Language =>
   lang === 'tc' ? 'tc' : 'en'
 
-type HomeProps = {
+type HomeProps = Readonly<{
   heading?: string
   initialLineFromUrl?: string | null
   initialStaFromUrl?: string | null
   initialSchedule?: NextTrainDto | null
   initialScheduleFailed?: boolean
+}>
+
+type HomePickerBodyProps = Readonly<{
+  pickerStep: 'line' | 'station'
+  selectedLine: ILine | null
+  selectedStation: IStation | null
+  lineStations: ReturnType<typeof DATA.find>
+  stationListRef: React.RefObject<HTMLDivElement | null>
+  stationRefs: Record<string, React.RefObject<HTMLButtonElement | null>>
+  lang: Language
+  onChangeLine: (line: ILine) => void
+  onSelectStation: (station: IStation) => void
+  onInterchange: (station: IStation) => void
+  onBackToLines: () => void
+}>
+
+function HomePickerBody({
+  pickerStep,
+  selectedLine,
+  selectedStation,
+  lineStations,
+  stationListRef,
+  stationRefs,
+  lang,
+  onChangeLine,
+  onSelectStation,
+  onInterchange,
+  onBackToLines,
+}: HomePickerBodyProps) {
+  const t = useTranslations()
+
+  return (
+    <>
+      {pickerStep === 'station' && selectedLine ? (
+        <button
+          type="button"
+          onClick={onBackToLines}
+          className="mb-2 text-sm text-muted hover:text-ink md:hidden"
+          aria-label={t('Select a line')}
+        >
+          ← {t('Select a line')}
+        </button>
+      ) : null}
+
+      <div className="flex flex-col gap-3 md:flex-row md:gap-0">
+        <div
+          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${
+            pickerStep === 'station' ? 'hidden md:block' : 'block'
+          }`}
+        >
+          <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
+            {t('Select a line')}
+          </div>
+          <div className="md:hidden">
+            <LinePicker
+              selectedCode={selectedLine?.code}
+              onSelect={onChangeLine}
+              variant="chips"
+            />
+          </div>
+          <div className="hidden md:block">
+            <LinePicker
+              selectedCode={selectedLine?.code}
+              onSelect={onChangeLine}
+              variant="rail"
+            />
+          </div>
+        </div>
+
+        {selectedLine ? (
+          <div
+            className={`min-w-0 flex-1 md:pl-2 ${
+              pickerStep === 'line' ? 'hidden md:block' : 'block'
+            }`}
+          >
+            <div
+              className="mb-1 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted"
+              style={{ borderLeft: `3px solid ${selectedLine.color}` }}
+            >
+              <span className="pl-2">
+                {selectedLine.label[lang]} · {t('stations')}
+              </span>
+            </div>
+            <StationList
+              ref={stationListRef}
+              stations={lineStations?.stations ?? []}
+              selectedCode={selectedStation?.code}
+              lineColor={selectedLine.color}
+              onSelect={onSelectStation}
+              onInterchange={onInterchange}
+              stationRefs={stationRefs}
+            />
+          </div>
+        ) : null}
+      </div>
+    </>
+  )
+}
+
+function scheduleMatchesUrl(
+  initialSchedule: NextTrainDto | null | undefined,
+  initialLineFromUrl: string | null | undefined,
+  initialStaFromUrl: string | null | undefined,
+  lineCode?: string,
+  staCode?: string
+): NextTrainDto | undefined {
+  if (
+    !initialSchedule ||
+    !initialLineFromUrl ||
+    !initialStaFromUrl ||
+    lineCode !== initialLineFromUrl ||
+    staCode !== initialStaFromUrl
+  ) {
+    return undefined
+  }
+  return initialSchedule
 }
 
 const Home = ({
@@ -190,78 +306,12 @@ const Home = ({
   const showGlance = hasSelection && !editing
   const lang = getLanguage(locale)
 
-  const scheduleForResult =
-    initialSchedule &&
-      initialLineFromUrl &&
-      initialStaFromUrl &&
-      selectedLine?.code === initialLineFromUrl &&
-      selectedStation?.code === initialStaFromUrl
-      ? initialSchedule
-      : undefined
-
-  const pickerBody = (
-    <>
-      {pickerStep === 'station' && selectedLine ? (
-        <button
-          type="button"
-          onClick={() => setPickerStep('line')}
-          className="mb-2 text-sm text-muted hover:text-ink md:hidden"
-          aria-label={t('Select a line')}
-        >
-          ← {t('Select a line')}
-        </button>
-      ) : null}
-
-      <div className="flex flex-col gap-3 md:flex-row md:gap-0">
-        <div
-          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${pickerStep === 'station' ? 'hidden md:block' : 'block'
-            }`}
-        >
-          <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
-            {t('Select a line')}
-          </div>
-          <div className="md:hidden">
-            <LinePicker
-              selectedCode={selectedLine?.code}
-              onSelect={onChangeLine}
-              variant="chips"
-            />
-          </div>
-          <div className="hidden md:block">
-            <LinePicker
-              selectedCode={selectedLine?.code}
-              onSelect={onChangeLine}
-              variant="rail"
-            />
-          </div>
-        </div>
-
-        {selectedLine ? (
-          <div
-            className={`min-w-0 flex-1 md:pl-2 ${pickerStep === 'line' ? 'hidden md:block' : 'block'
-              }`}
-          >
-            <div
-              className="mb-1 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted"
-              style={{ borderLeft: `3px solid ${selectedLine.color}` }}
-            >
-              <span className="pl-2">
-                {selectedLine.label[lang]} · {t('stations')}
-              </span>
-            </div>
-            <StationList
-              ref={stationListRef}
-              stations={lineStations?.stations ?? []}
-              selectedCode={selectedStation?.code}
-              lineColor={selectedLine.color}
-              onSelect={onSelectStation}
-              onInterchange={showInterchangeOptions}
-              stationRefs={stationRefs}
-            />
-          </div>
-        ) : null}
-      </div>
-    </>
+  const scheduleForResult = scheduleMatchesUrl(
+    initialSchedule,
+    initialLineFromUrl,
+    initialStaFromUrl,
+    selectedLine?.code,
+    selectedStation?.code
   )
 
   return (
@@ -298,7 +348,19 @@ const Home = ({
           className="mb-4 rounded-xl border border-border bg-surface-alt/80 p-3"
           aria-label={t('Train line and station selection')}
         >
-          {pickerBody}
+          <HomePickerBody
+            pickerStep={pickerStep}
+            selectedLine={selectedLine}
+            selectedStation={selectedStation}
+            lineStations={lineStations}
+            stationListRef={stationListRef}
+            stationRefs={stationRefs}
+            lang={lang}
+            onChangeLine={onChangeLine}
+            onSelectStation={onSelectStation}
+            onInterchange={showInterchangeOptions}
+            onBackToLines={() => setPickerStep('line')}
+          />
         </section>
       )}
 

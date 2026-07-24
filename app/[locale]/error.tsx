@@ -9,7 +9,7 @@ type ErrorProps = Readonly<{
   reset: () => void
 }>
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function LocaleError({ error, reset }: ErrorProps) {
   const t = useTranslations()
 
   useEffect(() => {

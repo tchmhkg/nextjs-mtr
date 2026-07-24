@@ -10,12 +10,12 @@ function lang(locale: string): Language {
   return locale === 'tc' ? 'tc' : 'en'
 }
 
-type LinePickerProps = {
+type LinePickerProps = Readonly<{
   selectedCode?: string | null
   onSelect: (line: ILine) => void
   /** horizontal chips (mobile) vs vertical rail (desktop) */
   variant: 'chips' | 'rail'
-}
+}>
 
 export default function LinePicker({
   selectedCode,

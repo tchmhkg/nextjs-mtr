@@ -6,17 +6,40 @@ import { format, formatDuration, intervalToDuration } from 'date-fns'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 
-interface ResultItemProps {
+type ResultItemProps = Readonly<{
   times: TrainRouteRow
   lineColor: string
   currTime?: string
-}
+}>
 
 const isValidDate = (d: unknown): d is Date =>
   d instanceof Date && !Number.isNaN(d.getTime())
 
 const humanTime = (time: Date | string = new Date()) =>
   format(new Date(String(time).replace(' ', 'T')), 'HH:mm')
+
+/** Compact date-fns duration labels without ambiguous regex. */
+function compactDuration(duration: string, locale: string): string {
+  if (locale === 'tc') {
+    return duration
+      .replaceAll(' hours', '小時')
+      .replaceAll(' hour', '小時')
+      .replaceAll(' minutes', '分鐘')
+      .replaceAll(' minute', '分鐘')
+      .replaceAll(' seconds', '秒')
+      .replaceAll(' second', '秒')
+      .replaceAll(' ', '')
+  }
+  return duration
+    .replaceAll(' hours', 'h')
+    .replaceAll(' hour', 'h')
+    .replaceAll(' minutes', 'm')
+    .replaceAll(' minute', 'm')
+    .replaceAll(' seconds', 's')
+    .replaceAll(' second', 's')
+    .replaceAll('  ', ' ')
+    .trim()
+}
 
 function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
   const locale = useLocale()
@@ -39,20 +62,7 @@ function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
         intervalToDuration({ start: 0, end: diffMSeconds }),
         { format: ['hours', 'minutes'] }
       )
-      if (locale === 'tc') {
-        // Compact one-line: "4小時14分鐘"
-        return duration
-          .replace(/\s*hours?/g, '小時')
-          .replace(/\s*minutes?/g, '分鐘')
-          .replace(/\s*seconds?/g, '秒')
-          .replace(/\s+/g, '')
-      }
-      return duration
-        .replace(/\shours?/g, 'h')
-        .replace(/\sminutes?/g, 'm')
-        .replace(/\sseconds?/g, 's')
-        .replace(/\s+/g, ' ')
-        .trim()
+      return compactDuration(duration, locale)
     },
     [currTime, locale, t]
   )

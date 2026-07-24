@@ -29,9 +29,9 @@ const STATUS_BAR = { light: '#e2e8f0', dark: '#020617' } as const
 
 export default function ThemeProvider({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   const [mode, setModeStored] = useLocalStorage<ThemeMode>('mode', 'light')
 
   const setMode = useCallback(

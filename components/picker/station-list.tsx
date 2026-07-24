@@ -10,14 +10,14 @@ function lang(locale: string): Language {
   return locale === 'tc' ? 'tc' : 'en'
 }
 
-type StationListProps = {
+type StationListProps = Readonly<{
   stations: IStation[]
   selectedCode?: string | null
   lineColor: string
   onSelect: (station: IStation) => void
   onInterchange: (station: IStation) => void
   stationRefs: Record<string, React.RefObject<HTMLButtonElement | null>>
-}
+}>
 
 const StationList = forwardRef<HTMLDivElement, StationListProps>(
   function StationList(
@@ -39,7 +39,6 @@ const StationList = forwardRef<HTMLDivElement, StationListProps>(
       <div
         ref={ref}
         className="max-h-[min(36vh,260px)] overflow-y-auto md:max-h-[min(70vh,520px)]"
-        role="listbox"
         aria-label={t('Select a station')}
       >
         {stations.map((s) => {

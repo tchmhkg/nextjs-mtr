@@ -1,13 +1,12 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import React, { useState } from 'react'
 
-interface CurrLocationProps {
+type CurrLocationProps = Readonly<{
   onClick: () => void
   'aria-label': string
   busy?: boolean
-}
+}>
 
 function CurrLocation({
   onClick,

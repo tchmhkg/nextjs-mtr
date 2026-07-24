@@ -5,13 +5,13 @@ import { useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 import ResultItem from './result-item'
 
-interface ResultListProps {
+type ResultListProps = Readonly<{
   label?: string
   data?: TrainRouteRow[]
   lineColor?: string
   delay?: boolean
   currTime?: string
-}
+}>
 
 function ResultList({
   label = '',

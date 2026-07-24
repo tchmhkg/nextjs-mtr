@@ -5,7 +5,7 @@ import { localizedPath } from '@utils/locale-path'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 
-function BackButton({ backUrl = '' }: { backUrl?: string }) {
+function BackButton({ backUrl = '' }: Readonly<{ backUrl?: string }>) {
   const locale = useLocale()
   const t = useTranslations()
   const router = useRouter()

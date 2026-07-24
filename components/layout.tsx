@@ -7,14 +7,14 @@ import { useTranslations } from 'next-intl'
 import dynamic from 'next/dynamic'
 import React from 'react'
 
-interface LayoutProps {
+type LayoutProps = Readonly<{
   children: React.ReactNode
   home?: boolean
   showAvatar?: boolean
   back?: boolean
   showBackToHome?: boolean
   backUrl?: string
-}
+}>
 
 const BackButton = dynamic(() => import('@components/back'))
 

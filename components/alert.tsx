@@ -1,36 +1,42 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
-interface AlertProps {
+type AlertProps = Readonly<{
   children: React.ReactNode
   onPressClose: () => void
-}
+}>
 
 export default function Alert({ children, onPressClose }: AlertProps) {
   const t = useTranslations()
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onPressClose()
+    const el = dialogRef.current
+    if (!el) return
+    if (!el.open) el.showModal()
+    const onCancel = (e: Event) => {
+      e.preventDefault()
+      onPressClose()
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    el.addEventListener('cancel', onCancel)
+    return () => el.removeEventListener('cancel', onCancel)
   }, [onPressClose])
 
   return (
-    <div
-      className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/50 p-4"
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialogRef}
+      className="fixed inset-0 z-[1200] m-0 flex h-dvh max-h-none w-screen max-w-none items-center justify-center border-0 bg-transparent p-4 backdrop:bg-transparent open:flex"
       aria-labelledby="alert-title"
-      onClick={onPressClose}
     >
-      <div
-        className="flex w-full max-w-md flex-col rounded-xl bg-surface-alt p-5 text-ink shadow-lg"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/50"
+        aria-label={t('Close alert')}
+        onClick={onPressClose}
+      />
+      <div className="relative z-10 flex w-full max-w-md flex-col rounded-xl bg-surface-alt p-5 text-ink shadow-lg">
         <div id="alert-title" className="sr-only">
           {t('Alert')}
         </div>
@@ -44,6 +50,6 @@ export default function Alert({ children, onPressClose }: AlertProps) {
           {t('close')}
         </button>
       </div>
-    </div>
+    </dialog>
   )
 }

@@ -3,10 +3,10 @@
 import { useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 
-interface RefreshProps {
+type RefreshProps = Readonly<{
   onClick: () => void
   isRefreshing?: boolean
-}
+}>
 
 function Refresh({ onClick, isRefreshing = false }: RefreshProps) {
   const t = useTranslations()

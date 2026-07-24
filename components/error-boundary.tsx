@@ -4,9 +4,9 @@ import * as Sentry from '@sentry/nextjs'
 import { useTranslations } from 'next-intl'
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 
-interface Props {
+type Props = Readonly<{
   children: ReactNode
-}
+}>
 
 interface State {
   hasError: boolean
@@ -16,10 +16,10 @@ interface State {
 function ErrorFallback({
   error,
   onReload,
-}: {
+}: Readonly<{
   error?: Error
   onReload: () => void
-}) {
+}>) {
   const t = useTranslations()
   return (
     <div className="m-5 rounded-lg border border-border bg-surface-alt p-5 text-center text-ink">

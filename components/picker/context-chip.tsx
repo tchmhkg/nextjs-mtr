@@ -1,12 +1,12 @@
 'use client'
 
-type ContextChipProps = {
+type ContextChipProps = Readonly<{
   lineLabel: string
   stationLabel: string
   lineColor: string
   changeLabel: string
   onChange: () => void
-}
+}>
 
 export default function ContextChip({
   lineLabel,

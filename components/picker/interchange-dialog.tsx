@@ -4,7 +4,7 @@ import type { MessageKey } from '@i18n/message-key'
 import type { IRelatedLine, IStation } from '@utils/next-train-data'
 import { DATA } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
-import { useEffect, useId } from 'react'
+import { useEffect, useId, useRef } from 'react'
 
 type Language = 'en' | 'tc'
 
@@ -12,11 +12,11 @@ function lang(locale: string): Language {
   return locale === 'tc' ? 'tc' : 'en'
 }
 
-type InterchangeDialogProps = {
+type InterchangeDialogProps = Readonly<{
   station: IStation
   onSelect: (lineCode: string, stationCode?: string) => void
   onClose: () => void
-}
+}>
 
 export default function InterchangeDialog({
   station,
@@ -28,17 +28,22 @@ export default function InterchangeDialog({
   const l = lang(locale)
   const titleId = useId()
   const related = station.related ?? []
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+    const el = dialogRef.current
+    if (!el) return
+    if (!el.open) el.showModal()
+    const onCancel = (e: Event) => {
+      e.preventDefault()
+      onClose()
     }
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    window.addEventListener('keydown', onKey)
+    el.addEventListener('cancel', onCancel)
     return () => {
       document.body.style.overflow = prev
-      window.removeEventListener('keydown', onKey)
+      el.removeEventListener('cancel', onCancel)
     }
   }, [onClose])
 
@@ -49,10 +54,9 @@ export default function InterchangeDialog({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[1200] flex items-end justify-center md:items-center md:p-6"
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialogRef}
+      className="fixed inset-0 z-[1200] m-0 flex h-dvh max-h-none w-screen max-w-none items-end justify-center border-0 bg-transparent p-0 backdrop:bg-transparent open:flex md:items-center md:p-6"
       aria-labelledby={titleId}
     >
       <button
@@ -160,6 +164,6 @@ export default function InterchangeDialog({
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   )
 }

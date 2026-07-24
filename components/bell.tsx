@@ -3,9 +3,9 @@
 import { useTranslations } from 'next-intl'
 import React, { useCallback, useState } from 'react'
 
-interface BellProps {
+type BellProps = Readonly<{
   onClick: () => void
-}
+}>
 
 function Bell({ onClick }: BellProps) {
   const t = useTranslations()
