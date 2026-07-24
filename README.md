@@ -79,7 +79,7 @@ flowchart TB
 
   subgraph upstreamLayer [Upstream clients]
     MtrClient["lib/upstream/mtr/client.ts"]
-    LrClient["lib/upstream/lr/client.ts<br/>stub"]
+    LrClient["lib/upstream/lr/client.ts"]
   end
 
   GovApi["Hong Kong open-data API<br/>rt.data.gov.hk"]
@@ -111,7 +111,7 @@ lib/
 │   └── mappers/               # Upstream JSON → NextTrainDto
 └── upstream/                  # Raw fetch clients (server-only)
     ├── mtr/
-    └── lr/                    # stub (not yet implemented)
+    └── lr/                    # Light Rail upstream client
 
 components/                    # React UI (client)
 store/                         # Redux: line/station selection only
@@ -216,13 +216,19 @@ GET /api/next-train?mode=mtr&line=TWL&sta=CEN&lang=tc
 
 | Param | Required | Default | Values |
 | ----- | -------- | ------- | ------ |
-| `mode` | No | `mtr` | `mtr`, `lr` (lr not yet implemented) |
-| `line` | Yes | — | Line code, e.g. `TWL` |
-| `sta` | Yes | — | Station code, e.g. `CEN` |
+| `mode` | No | `mtr` | `mtr`, `lr` |
+| `line` | Yes for `mtr` | — | MTR line code, e.g. `TWL` |
+| `sta` | Yes | — | MTR station code, or LR `station_id` when `mode=lr` |
 | `lang` | No | `tc` | `tc`, `en` |
 | `fresh` | No | — | `1` or `true` bypasses server/CDN cache (manual refresh) |
 
-MTR schedule mapping follows the [Next Train API spec v1.7](https://data.gov.hk/) (`lib/schedules/mappers/mtr-schedule.mapper.ts`).
+MTR schedule mapping follows the [Next Train API spec v1.7](https://data.gov.hk/) (`lib/schedules/mappers/mtr-schedule.mapper.ts`). Light Rail uses `mode=lr&sta={station_id}` and maps `platform_list` into `data.platforms` (`lib/schedules/mappers/lr-schedule.mapper.ts`).
+
+Example LR request:
+
+```
+GET /api/next-train?mode=lr&sta=600&lang=tc
+```
 
 **Success response**
 
@@ -278,7 +284,7 @@ Copy `.env.local.example` to `.env.local`. Tunables (cache TTLs, poll interval, 
 | Variable | Default | Notes |
 | -------- | ------- | ----- |
 | `MTR_NEXT_TRAIN_API_URL` | gov HK schedule URL | Upstream MTR API |
-| `LR_NEXT_TRAIN_API_URL` | empty | Reserved for Light Rail |
+| `LR_NEXT_TRAIN_API_URL` | gov HK LRT schedule URL | Upstream Light Rail API |
 | `SCHEDULE_REVALIDATE_SECONDS` | `30` | Next.js fetch revalidate |
 | `SCHEDULE_S_MAXAGE_SECONDS` | `30` | API Cache-Control |
 | `SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS` | `60` | API Cache-Control |

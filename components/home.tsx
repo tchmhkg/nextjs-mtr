@@ -4,17 +4,22 @@ import CurrLocation from '@components/curr-location'
 import ContextChip from '@components/picker/context-chip'
 import InterchangeDialog from '@components/picker/interchange-dialog'
 import LinePicker from '@components/picker/line-picker'
+import LrStationList, { LR_COLOR } from '@components/picker/lr-station-list'
+import ModeToggle from '@components/picker/mode-toggle'
 import StationList from '@components/picker/station-list'
 import Result from '@components/train/result'
 import { useNearestStation } from '@hooks/useNearestStation'
 import { useRouter } from '@i18n/navigation'
 import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
+import type { TransportMode } from '@lib/schedules/contracts/transport-mode'
 import {
   getTrainState,
   setLine,
   setStation,
 } from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
+import type { LrStation } from '@utils/lr-stations'
+import { getLrStation } from '@utils/lr-stations'
 import type { ILine, IStation } from '@utils/next-train-data'
 import { DATA } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
@@ -35,6 +40,7 @@ const getLanguage = (lang: string): Language =>
 
 type HomeProps = Readonly<{
   heading?: string
+  initialModeFromUrl?: TransportMode
   initialLineFromUrl?: string | null
   initialStaFromUrl?: string | null
   initialSchedule?: NextTrainDto | null
@@ -85,8 +91,9 @@ function HomePickerBody({
 
       <div className="flex flex-col gap-3 md:flex-row md:gap-0">
         <div
-          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${pickerStep === 'station' ? 'hidden md:block' : 'block'
-            }`}
+          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${
+            pickerStep === 'station' ? 'hidden md:block' : 'block'
+          }`}
         >
           <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
             {t('Select a line')}
@@ -109,8 +116,9 @@ function HomePickerBody({
 
         {selectedLine ? (
           <div
-            className={`min-w-0 flex-1 md:pl-2 ${pickerStep === 'line' ? 'hidden md:block' : 'block'
-              }`}
+            className={`min-w-0 flex-1 md:pl-2 ${
+              pickerStep === 'line' ? 'hidden md:block' : 'block'
+            }`}
           >
             <div
               className="mb-1 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted"
@@ -136,17 +144,23 @@ function HomePickerBody({
   )
 }
 
-function scheduleMatchesUrl(
+function scheduleMatchesSelection(
   initialSchedule: NextTrainDto | null | undefined,
+  initialMode: TransportMode,
   initialLineFromUrl: string | null | undefined,
   initialStaFromUrl: string | null | undefined,
-  lineCode?: string,
-  staCode?: string
+  mode: TransportMode,
+  lineCode?: string | null,
+  staCode?: string | null
 ): NextTrainDto | undefined {
+  if (!initialSchedule || !initialStaFromUrl || mode !== initialMode) {
+    return undefined
+  }
+  if (mode === 'lr') {
+    return staCode === initialStaFromUrl ? initialSchedule : undefined
+  }
   if (
-    !initialSchedule ||
     !initialLineFromUrl ||
-    !initialStaFromUrl ||
     lineCode !== initialLineFromUrl ||
     staCode !== initialStaFromUrl
   ) {
@@ -157,6 +171,7 @@ function scheduleMatchesUrl(
 
 const Home = ({
   heading = 'MTR Next Train',
+  initialModeFromUrl = 'mtr',
   initialLineFromUrl = null,
   initialStaFromUrl = null,
   initialSchedule = null,
@@ -170,10 +185,16 @@ const Home = ({
   const router = useRouter()
   const searchParams = useSearchParams()
   const stationListRef = useRef<HTMLDivElement>(null)
-  const [interchangeFor, setInterchangeFor] = useState<IStation | null>(null)
-  const [editing, setEditing] = useState(
-    () => !(initialLineFromUrl && initialStaFromUrl)
+  const lrListRef = useRef<HTMLDivElement>(null)
+  const [mode, setMode] = useState<TransportMode>(initialModeFromUrl)
+  const [lrStationId, setLrStationId] = useState<string | null>(() =>
+    initialModeFromUrl === 'lr' ? initialStaFromUrl : null
   )
+  const [interchangeFor, setInterchangeFor] = useState<IStation | null>(null)
+  const [editing, setEditing] = useState(() => {
+    if (initialModeFromUrl === 'lr') return !initialStaFromUrl
+    return !(initialLineFromUrl && initialStaFromUrl)
+  })
   const [pickerStep, setPickerStep] = useState<'line' | 'station'>(() =>
     initialLineFromUrl && initialStaFromUrl ? 'station' : 'line'
   )
@@ -194,8 +215,10 @@ const Home = ({
 
   const onFoundNearest = useCallback(
     (line: ILine, station: IStation) => {
+      setMode('mtr')
       dispatch(setLine(line))
       dispatch(setStation(station))
+      setLrStationId(null)
       setEditing(false)
       setPickerStep('station')
     },
@@ -204,6 +227,24 @@ const Home = ({
 
   const { locating, locationError, getCurrLocation } =
     useNearestStation(onFoundNearest)
+
+  const onChangeMode = useCallback(
+    (next: TransportMode) => {
+      if (next === mode) return
+      setMode(next)
+      setEditing(true)
+      setInterchangeFor(null)
+      if (next === 'lr') {
+        dispatch(setLine(null))
+        dispatch(setStation(null))
+        setPickerStep('line')
+      } else {
+        setLrStationId(null)
+        setPickerStep('line')
+      }
+    },
+    [mode, dispatch]
+  )
 
   const onChangeLine = useCallback(
     (line: ILine) => {
@@ -221,7 +262,6 @@ const Home = ({
     (station: IStation) => {
       dispatch(setStation(station))
       setEditing(false)
-      // After pick, land on schedule (glance)
       queueMicrotask(() => {
         document
           .getElementById('schedule-panel')
@@ -231,12 +271,25 @@ const Home = ({
     [dispatch]
   )
 
+  const onSelectLrStation = useCallback((station: LrStation) => {
+    setLrStationId(station.id)
+    setEditing(false)
+    queueMicrotask(() => {
+      document
+        .getElementById('schedule-panel')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [])
+
   const lineStations = useMemo(() => {
     if (!selectedLine?.code) return undefined
     return DATA.find((s) => s.line.code === selectedLine.code)
   }, [selectedLine])
 
+  const lrStation = lrStationId ? getLrStation(lrStationId) : undefined
+
   useLayoutEffect(() => {
+    if (initialModeFromUrl === 'lr') return
     if (!initialLineFromUrl || !initialStaFromUrl) return
     const lineData = DATA.find((s) => s.line.code === initialLineFromUrl)
     const line = lineData?.line
@@ -247,37 +300,52 @@ const Home = ({
       dispatch(setLine(line))
       dispatch(setStation(station))
     }
-  }, [dispatch, initialLineFromUrl, initialStaFromUrl])
+  }, [dispatch, initialModeFromUrl, initialLineFromUrl, initialStaFromUrl])
 
   useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (mode === 'lr') {
+      if (!lrStationId) return
+      if (
+        searchParams.get('mode') === 'lr' &&
+        searchParams.get('sta') === lrStationId &&
+        !searchParams.get('line')
+      ) {
+        return
+      }
+      params.set('mode', 'lr')
+      params.set('sta', lrStationId)
+      params.delete('line')
+      router.replace(`?${params.toString()}`, { scroll: false })
+      return
+    }
+
     if (!selectedLine?.code || !selectedStation?.code) return
     if (
+      (searchParams.get('mode') === 'mtr' || !searchParams.get('mode')) &&
       searchParams.get('line') === selectedLine.code &&
       searchParams.get('sta') === selectedStation.code
     ) {
       return
     }
-    const params = new URLSearchParams(searchParams.toString())
+    params.set('mode', 'mtr')
     params.set('line', selectedLine.code)
     params.set('sta', selectedStation.code)
     router.replace(`?${params.toString()}`, { scroll: false })
-  }, [selectedLine, selectedStation, router, searchParams])
+  }, [mode, lrStationId, selectedLine, selectedStation, router, searchParams])
 
-  // List is only mounted while editing; scroll selected station into the list viewport.
   useLayoutEffect(() => {
-    if (!editing || !selectedStation?.code) return
+    if (mode !== 'mtr' || !editing || !selectedStation?.code) return
     const list = stationListRef.current
     const el = stationRefs[selectedStation.code]?.current
     if (!list || !el) return
-    // Scroll the list only — scrollIntoView also pans the page on iOS.
     const nextTop =
       list.scrollTop +
       (el.getBoundingClientRect().top - list.getBoundingClientRect().top) -
       (list.clientHeight / 2 - el.clientHeight / 2)
     list.scrollTo({ top: Math.max(0, nextTop), behavior: 'smooth' })
-  }, [editing, selectedLine, selectedStation, stationRefs])
+  }, [mode, editing, selectedLine, selectedStation, stationRefs])
 
-  // Open interchange without touching Redux/URL — avoids RSC remount wiping dialog state
   const showInterchangeOptions = useCallback((station: IStation) => {
     setInterchangeFor(station)
   }, [])
@@ -303,20 +371,24 @@ const Home = ({
 
   const startEditing = useCallback(() => {
     setEditing(true)
-    setPickerStep(selectedLine ? 'station' : 'line')
-  }, [selectedLine])
+    if (mode === 'mtr') setPickerStep(selectedLine ? 'station' : 'line')
+  }, [mode, selectedLine])
 
-  const hasSelection = Boolean(selectedLine?.code && selectedStation?.code)
+  const hasMtrSelection = Boolean(selectedLine?.code && selectedStation?.code)
+  const hasLrSelection = Boolean(lrStationId)
+  const hasSelection = mode === 'lr' ? hasLrSelection : hasMtrSelection
   const showGlance = hasSelection && !editing
   const hasInterchange = (selectedStation?.related?.length ?? 0) > 0
   const lang = getLanguage(locale)
 
-  const scheduleForResult = scheduleMatchesUrl(
+  const scheduleForResult = scheduleMatchesSelection(
     initialSchedule,
+    initialModeFromUrl,
     initialLineFromUrl,
     initialStaFromUrl,
-    selectedLine?.code,
-    selectedStation?.code
+    mode,
+    mode === 'lr' ? null : selectedLine?.code,
+    mode === 'lr' ? lrStationId : selectedStation?.code
   )
 
   return (
@@ -325,20 +397,24 @@ const Home = ({
         <h1 className="text-xl font-semibold tracking-tight text-ink md:text-2xl">
           {heading}
         </h1>
-        <CurrLocation
-          onClick={getCurrLocation}
-          aria-label={t('Find nearest station')}
-          busy={locating}
-        />
+        {mode === 'mtr' ? (
+          <CurrLocation
+            onClick={getCurrLocation}
+            aria-label={t('Find nearest station')}
+            busy={locating}
+          />
+        ) : null}
       </header>
 
-      {locationError ? (
+      <ModeToggle mode={mode} onChange={onChangeMode} />
+
+      {locationError && mode === 'mtr' ? (
         <p className="mb-2 text-sm text-red-600 dark:text-red-400" role="alert">
           {t(locationError)}
         </p>
       ) : null}
 
-      {showGlance && selectedLine && selectedStation ? (
+      {showGlance && mode === 'mtr' && selectedLine && selectedStation ? (
         <ContextChip
           lineLabel={selectedLine.label[lang]}
           stationLabel={selectedStation.label[lang]}
@@ -352,37 +428,79 @@ const Home = ({
               : undefined
           }
         />
-      ) : (
+      ) : null}
+
+      {showGlance && mode === 'lr' && lrStation ? (
+        <ContextChip
+          lineLabel={t('Light Rail')}
+          stationLabel={lrStation.label[lang]}
+          lineColor={LR_COLOR}
+          changeLabel={t('Change')}
+          onChange={startEditing}
+        />
+      ) : null}
+
+      {!showGlance ? (
         <section
           className="mb-4 rounded-xl border border-border bg-surface-alt/80 p-3"
           aria-label={t('Train line and station selection')}
         >
-          <HomePickerBody
-            pickerStep={pickerStep}
-            selectedLine={selectedLine}
-            selectedStation={selectedStation}
-            lineStations={lineStations}
-            stationListRef={stationListRef}
-            stationRefs={stationRefs}
-            lang={lang}
-            onChangeLine={onChangeLine}
-            onSelectStation={onSelectStation}
-            onInterchange={showInterchangeOptions}
-            onBackToLines={() => setPickerStep('line')}
-          />
+          {mode === 'mtr' ? (
+            <HomePickerBody
+              pickerStep={pickerStep}
+              selectedLine={selectedLine}
+              selectedStation={selectedStation}
+              lineStations={lineStations}
+              stationListRef={stationListRef}
+              stationRefs={stationRefs}
+              lang={lang}
+              onChangeLine={onChangeLine}
+              onSelectStation={onSelectStation}
+              onInterchange={showInterchangeOptions}
+              onBackToLines={() => setPickerStep('line')}
+            />
+          ) : (
+            <>
+              <div className="mb-1 px-1 text-xs font-medium uppercase tracking-wide text-muted">
+                {t('Select a station')}
+              </div>
+              <LrStationList
+                ref={lrListRef}
+                selectedId={lrStationId}
+                onSelect={onSelectLrStation}
+              />
+            </>
+          )}
         </section>
-      )}
+      ) : null}
 
-      {hasSelection && selectedLine && selectedStation ? (
+      {mode === 'mtr' && hasMtrSelection && selectedLine && selectedStation ? (
         <div id="schedule-panel">
           <Result
+            mode="mtr"
             line={selectedLine.code}
             sta={selectedStation.code}
             initialSchedule={scheduleForResult}
             initialScheduleFailed={
               initialScheduleFailed &&
+              initialModeFromUrl === 'mtr' &&
               selectedLine.code === initialLineFromUrl &&
               selectedStation.code === initialStaFromUrl
+            }
+          />
+        </div>
+      ) : null}
+
+      {mode === 'lr' && lrStationId ? (
+        <div id="schedule-panel">
+          <Result
+            mode="lr"
+            sta={lrStationId}
+            initialSchedule={scheduleForResult}
+            initialScheduleFailed={
+              initialScheduleFailed &&
+              initialModeFromUrl === 'lr' &&
+              lrStationId === initialStaFromUrl
             }
           />
         </div>

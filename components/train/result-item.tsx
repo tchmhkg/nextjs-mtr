@@ -15,6 +15,8 @@ type ResultItemProps = Readonly<{
 const isValidDate = (d: unknown): d is Date =>
   d instanceof Date && !Number.isNaN(d.getTime())
 
+const MTR_WALL_CLOCK = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/
+
 const humanTime = (time: Date | string = new Date()) =>
   format(new Date(String(time).replace(' ', 'T')), 'HH:mm')
 
@@ -44,6 +46,10 @@ function compactDuration(duration: string, locale: string): string {
 function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
   const locale = useLocale()
   const t = useTranslations()
+  const dest =
+    times.destLabel?.trim() ||
+    (times.dest ? t(times.dest as MessageKey) : '-')
+
   const humanDuration = useCallback(
     (time: string | null = null) => {
       if (!currTime) return '-'
@@ -68,16 +74,17 @@ function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
   )
 
   const metaBits: string[] = []
+  if (times.route && times.route !== 'RAC') metaBits.push(times.route)
   if (times.timeType === 'A') metaBits.push(t('Arrival'))
   if (times.timeType === 'D') metaBits.push(t('Departure'))
   if (times.route === 'RAC') metaBits.push(t('Via Racecourse'))
 
+  const relative = times.relativeEta || !MTR_WALL_CLOCK.test(times.time)
+
   return (
     <div className="flex min-h-11 items-center gap-2 py-2">
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium text-ink">
-          {t(times.dest as MessageKey)}
-        </div>
+        <div className="truncate text-sm font-medium text-ink">{dest}</div>
         {metaBits.length ? (
           <div className="truncate text-xs text-muted">
             {metaBits.join(' · ')}
@@ -93,12 +100,26 @@ function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
         </span>
       </div>
       <div className="min-w-[5.75rem] shrink-0 text-right">
-        <div className="whitespace-nowrap text-base font-semibold tabular-nums leading-tight text-ink">
-          {humanTime(times.time)}
-        </div>
-        <div className="whitespace-nowrap text-xs text-muted">
-          {humanDuration(times.time)}
-        </div>
+        {relative ? (
+          <div className="whitespace-nowrap text-base font-semibold leading-tight text-ink">
+            {times.time === '-' ? (
+              <span className="font-semibold text-emerald-500">
+                {t('arriving')}
+              </span>
+            ) : (
+              times.time
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="whitespace-nowrap text-base font-semibold tabular-nums leading-tight text-ink">
+              {humanTime(times.time)}
+            </div>
+            <div className="whitespace-nowrap text-xs text-muted">
+              {humanDuration(times.time)}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

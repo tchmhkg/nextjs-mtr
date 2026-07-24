@@ -15,7 +15,7 @@ const compat = new FlatCompat({
 
 export default defineConfig([
   {
-    ignores: ["public/workbox-*.js"],
+    ignores: ["public/workbox-*.js", "coverage/**"],
   },
   {
     extends: [...nextCoreWebVitals, ...compat.extends("prettier")],

@@ -31,7 +31,8 @@ import { toast } from 'sonner'
 import ResultList from './result-list'
 
 type ResultProps = Readonly<{
-  line: string
+  mode?: 'mtr' | 'lr'
+  line?: string
   sta: string
   initialSchedule?: NextTrainDto | null
   initialScheduleFailed?: boolean
@@ -73,6 +74,30 @@ function TrainLists({
   getRouteDestLabel,
 }: TrainListsProps) {
   const t = useTranslations()
+  const color = lineColor ?? '#999'
+
+  if (data.platforms?.length) {
+    return (
+      <>
+        {data.isDelayed ? (
+          <div className="mb-3 rounded-lg border border-amber-400/60 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+            {t('Service delayed')}
+          </div>
+        ) : null}
+        <div className="grid gap-4 md:grid-cols-2">
+          {data.platforms.map((platform) => (
+            <ResultList
+              key={platform.id}
+              label={`${t('Platform')} ${platform.id}`}
+              data={platform.trains}
+              lineColor={color}
+              delay={false}
+            />
+          ))}
+        </div>
+      </>
+    )
+  }
 
   if (!data.up && !data.down) {
     if (data.isDelayed) return <div>{t('Service delayed')}</div>
@@ -91,7 +116,7 @@ function TrainLists({
           <ResultList
             label={getRouteDestLabel(data.up)}
             data={data.up}
-            lineColor={lineColor}
+            lineColor={color}
             delay={false}
             currTime={effectiveNow}
           />
@@ -100,7 +125,7 @@ function TrainLists({
           <ResultList
             label={getRouteDestLabel(data.down)}
             data={data.down}
-            lineColor={lineColor}
+            lineColor={color}
             delay={false}
             currTime={effectiveNow}
           />
@@ -112,7 +137,7 @@ function TrainLists({
 
 function useLastUpdatedFlash(lastUpdated?: string | null) {
   const [flashUpdate, setFlashUpdate] = useState(false)
-  const receivedAtRef = useRef(Date.now())
+  const receivedAtRef = useRef(0)
   const lastUpdatedSeenRef = useRef<string | null>(null)
 
   useEffect(() => {
@@ -125,9 +150,12 @@ function useLastUpdatedFlash(lastUpdated?: string | null) {
     if (lastUpdatedSeenRef.current === lastUpdated) return
     lastUpdatedSeenRef.current = lastUpdated
     receivedAtRef.current = Date.now()
-    setFlashUpdate(true)
-    const id = window.setTimeout(() => setFlashUpdate(false), 600)
-    return () => window.clearTimeout(id)
+    const flashOn = window.setTimeout(() => setFlashUpdate(true), 0)
+    const flashOff = window.setTimeout(() => setFlashUpdate(false), 600)
+    return () => {
+      window.clearTimeout(flashOn)
+      window.clearTimeout(flashOff)
+    }
   }, [lastUpdated])
 
   return { flashUpdate, setFlashUpdate, receivedAtRef, lastUpdatedSeenRef }
@@ -182,6 +210,7 @@ async function refreshWithFallback(
 }
 
 function Result({
+  mode = 'mtr',
   line,
   sta,
   initialSchedule,
@@ -198,15 +227,17 @@ function Result({
 
   const lang = (locale || 'tc').toLowerCase()
   const queryKey = useMemo(
-    () => ['next-train', line, sta, lang] as const,
-    [line, sta, lang]
+    () => ['next-train', mode, line ?? '', sta, lang] as const,
+    [mode, line, sta, lang]
   )
 
   const apiUrl = useMemo(() => {
-    if (!line || !sta) return null
-    const q = new URLSearchParams({ mode: 'mtr', line, sta, lang })
+    if (!sta) return null
+    if (mode === 'mtr' && !line) return null
+    const q = new URLSearchParams({ mode, sta, lang })
+    if (line) q.set('line', line)
     return `/api/next-train?${q.toString()}`
-  }, [line, sta, lang])
+  }, [mode, line, sta, lang])
 
   const { data, error, isPending, isFetching, isError, refetch } = useQuery({
     queryKey,
@@ -226,29 +257,31 @@ function Result({
   }, [data])
 
   useEffect(() => {
-    if (!data?.lastUpdated || !isVisible) return
+    if (!data?.lastUpdated || !isVisible || mode === 'lr') return
     const id = window.setInterval(() => setNowMs(Date.now()), 1000)
     return () => window.clearInterval(id)
-  }, [data?.lastUpdated, isVisible])
+  }, [data?.lastUpdated, isVisible, mode])
 
   const effectiveNow = useMemo(() => {
-    if (!data?.lastUpdated) return undefined
+    if (mode === 'lr' || !data?.lastUpdated) return undefined
     return advanceMtrTimestamp(
       data.lastUpdated,
       nowMs - receivedAtRef.current
     )
-  }, [data?.lastUpdated, nowMs, receivedAtRef])
+  }, [mode, data?.lastUpdated, nowMs, receivedAtRef])
 
-  const lineColor = useMemo(
-    () => DATA.find((l) => l.line.code === line)?.line?.color,
-    [line]
-  )
+  const lineColor = useMemo(() => {
+    if (mode === 'lr') return '#D3A809'
+    return DATA.find((l) => l.line.code === line)?.line?.color
+  }, [mode, line])
 
   const getRouteDestLabel = useCallback(
     (routes: TrainRouteRow[] = []) => {
       if (!routes.length) return '-'
       const dests = Array.from(
-        new Set(routes.map((r) => t(r.dest as MessageKey)))
+        new Set(
+          routes.map((r) => r.destLabel?.trim() || t(r.dest as MessageKey))
+        )
       )
       return dests.join(t('/'))
     },
@@ -286,7 +319,7 @@ function Result({
     onManualRefresh().catch(() => {})
   }, [onManualRefresh])
 
-  if (!line || !sta) return null
+  if (!sta || (mode === 'mtr' && !line)) return null
   if (isPending && !data) {
     return <div className="text-muted">{t('loading')}</div>
   }
