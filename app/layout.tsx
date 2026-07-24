@@ -44,7 +44,6 @@ export const metadata: Metadata = {
     title: 'NextMTRTrain',
     description: 'Get MTR Schedule',
     images: [`${siteUrl}/assets/icon-192x192.png`],
-    creator: '@trumancheung',
   },
   openGraph: {
     type: 'website',
