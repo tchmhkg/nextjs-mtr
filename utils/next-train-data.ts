@@ -773,7 +773,7 @@ export const DATA: ILineStation[] = [
   {
     line: {
       code: 'DRL',
-      label: { en: 'Disneyland Rosort Line', tc: '迪士尼綫' },
+      label: { en: 'Disneyland Resort Line', tc: '迪士尼綫' },
       color: DRL_COLOR,
     },
     stations: [
