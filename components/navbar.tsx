@@ -1,8 +1,8 @@
 'use client'
 
-import { CLIENT_GITHUB_URL } from '@lib/public-env'
 import LanguageSwitcher from '@components/language-switcher'
 import ThemeSwitcher from '@components/theme-switcher'
+import { CLIENT_GITHUB_URL } from '@lib/public-env'
 import Image from 'next/image'
 import { memo } from 'react'
 

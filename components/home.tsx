@@ -1,14 +1,14 @@
 'use client'
 
 import Alert from '@components/alert'
+import CurrLocation from '@components/curr-location'
 import ContextChip from '@components/picker/context-chip'
 import LinePicker from '@components/picker/line-picker'
 import StationList from '@components/picker/station-list'
-import CurrLocation from '@components/curr-location'
 import Result from '@components/train/result'
 import { useNearestStation } from '@hooks/useNearestStation'
-import { useRouter } from '@i18n/navigation'
 import type { MessageKey } from '@i18n/message-key'
+import { useRouter } from '@i18n/navigation'
 import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
 import {
   getTrainState,
@@ -55,8 +55,7 @@ const Home = ({
   const router = useRouter()
   const searchParams = useSearchParams()
   const stationListRef = useRef<HTMLDivElement>(null)
-  const [showRelated, setShowRelated] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const [interchangeFor, setInterchangeFor] = useState<IStation | null>(null)
   const [editing, setEditing] = useState(
     () => !(initialLineFromUrl && initialStaFromUrl)
   )
@@ -98,9 +97,9 @@ const Home = ({
         dispatch(setStation(null))
         stationListRef.current?.scrollTo({ top: 0 })
       }
-      if (isMobile) setPickerStep('station')
+      setPickerStep('station')
     },
-    [selectedLine, dispatch, isMobile]
+    [selectedLine, dispatch]
   )
 
   const onSelectStation = useCallback(
@@ -130,14 +129,6 @@ const Home = ({
   }, [dispatch, initialLineFromUrl, initialStaFromUrl])
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 768px)')
-    const sync = () => setIsMobile(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
-
-  useEffect(() => {
     if (!selectedLine?.code || !selectedStation?.code) return
     if (
       searchParams.get('line') === selectedLine.code &&
@@ -159,13 +150,10 @@ const Home = ({
     })
   }, [selectedLine, selectedStation, stationRefs, editing])
 
-  const showInterchangeOptions = useCallback(
-    (station: IStation) => {
-      dispatch(setStation(station))
-      setShowRelated(true)
-    },
-    [dispatch]
-  )
+  // Open interchange without touching Redux/URL — avoids RSC remount wiping dialog state
+  const showInterchangeOptions = useCallback((station: IStation) => {
+    setInterchangeFor(station)
+  }, [])
 
   const switchLine = useCallback(
     (lineCode: string, stationCode?: string) => {
@@ -173,17 +161,17 @@ const Home = ({
       const line = lineData?.line
       if (line) {
         dispatch(setLine(line))
-        if (stationCode) {
-          const station = lineData?.stations?.find(
-            (sta) => sta.code === stationCode
-          )
+        const code = stationCode ?? interchangeFor?.code
+        if (code) {
+          const station = lineData?.stations?.find((sta) => sta.code === code)
           if (station) dispatch(setStation(station))
+          else dispatch(setStation(null))
         }
       }
-      setShowRelated(false)
+      setInterchangeFor(null)
       setEditing(false)
     },
-    [dispatch]
+    [dispatch, interchangeFor]
   )
 
   const startEditing = useCallback(() => {
@@ -203,6 +191,73 @@ const Home = ({
     selectedStation?.code === initialStaFromUrl
       ? initialSchedule
       : undefined
+
+  const pickerBody = (
+    <>
+      {pickerStep === 'station' && selectedLine ? (
+        <button
+          type="button"
+          onClick={() => setPickerStep('line')}
+          className="mb-2 text-sm text-muted hover:text-ink md:hidden"
+          aria-label={t('Select a line')}
+        >
+          ← {t('Select a line')}
+        </button>
+      ) : null}
+
+      <div className="flex flex-col gap-3 md:flex-row md:gap-0">
+        <div
+          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${
+            pickerStep === 'station' ? 'hidden md:block' : 'block'
+          }`}
+        >
+          <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
+            {t('Select a line')}
+          </div>
+          <div className="md:hidden">
+            <LinePicker
+              selectedCode={selectedLine?.code}
+              onSelect={onChangeLine}
+              variant="chips"
+            />
+          </div>
+          <div className="hidden md:block">
+            <LinePicker
+              selectedCode={selectedLine?.code}
+              onSelect={onChangeLine}
+              variant="rail"
+            />
+          </div>
+        </div>
+
+        {selectedLine ? (
+          <div
+            className={`min-w-0 flex-1 md:pl-2 ${
+              pickerStep === 'line' ? 'hidden md:block' : 'block'
+            }`}
+          >
+            <div
+              className="mb-1 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted"
+              style={{ borderLeft: `3px solid ${selectedLine.color}` }}
+            >
+              <span className="pl-2">
+                {selectedLine.label[lang]} · {t('stations')}
+              </span>
+            </div>
+            <StationList
+              ref={stationListRef}
+              stations={lineStations?.stations ?? []}
+              selectedCode={selectedStation?.code}
+              lineColor={selectedLine.color}
+              onSelect={onSelectStation}
+              onInterchange={showInterchangeOptions}
+              stationRefs={stationRefs}
+            />
+          </div>
+        ) : null}
+      </div>
+    </>
+  )
 
   return (
     <div className="mx-auto w-full max-w-5xl">
@@ -238,59 +293,7 @@ const Home = ({
           className="mb-4 rounded-xl border border-border bg-surface-alt/80 p-3"
           aria-label={t('Train line and station selection')}
         >
-          {isMobile && pickerStep === 'station' && selectedLine ? (
-            <button
-              type="button"
-              onClick={() => setPickerStep('line')}
-              className="mb-2 text-sm text-muted hover:text-ink"
-              aria-label={t('Select a line')}
-            >
-              ← {t('Select a line')}
-            </button>
-          ) : null}
-
-          <div className="flex flex-col gap-3 md:flex-row md:gap-0">
-            {(!isMobile || pickerStep === 'line') && (
-              <div
-                className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${
-                  isMobile ? '' : ''
-                }`}
-              >
-                {!isMobile ? (
-                  <div className="mb-1 px-2 text-xs font-medium uppercase tracking-wide text-muted">
-                    {t('Select a line')}
-                  </div>
-                ) : null}
-                <LinePicker
-                  selectedCode={selectedLine?.code}
-                  onSelect={onChangeLine}
-                  variant={isMobile ? 'chips' : 'rail'}
-                />
-              </div>
-            )}
-
-            {(!isMobile || pickerStep === 'station') && selectedLine ? (
-              <div className="min-w-0 flex-1 md:pl-2">
-                <div
-                  className="mb-1 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted"
-                  style={{ borderLeft: `3px solid ${selectedLine.color}` }}
-                >
-                  <span className="pl-2">
-                    {selectedLine.label[lang]} · {t('stations')}
-                  </span>
-                </div>
-                <StationList
-                  ref={stationListRef}
-                  stations={lineStations?.stations ?? []}
-                  selectedCode={selectedStation?.code}
-                  lineColor={selectedLine.color}
-                  onSelect={onSelectStation}
-                  onInterchange={showInterchangeOptions}
-                  stationRefs={stationRefs}
-                />
-              </div>
-            ) : null}
-          </div>
+          {pickerBody}
         </section>
       )}
 
@@ -302,10 +305,13 @@ const Home = ({
         />
       ) : null}
 
-      {showRelated && selectedStation ? (
-        <Alert onPressClose={() => setShowRelated(false)}>
+      {interchangeFor ? (
+        <Alert onPressClose={() => setInterchangeFor(null)}>
           <div className="flex flex-col gap-2">
-            {selectedStation.related?.map((rStation) => (
+            <p className="mb-1 text-sm text-muted">
+              {interchangeFor.label[lang]}
+            </p>
+            {interchangeFor.related?.map((rStation) => (
               <button
                 key={rStation.lineCode}
                 type="button"
