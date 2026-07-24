@@ -21,10 +21,13 @@ export default defineConfig({
         'lib/schedules/client-error.ts',
         'lib/schedules/sanitize-alert-url.ts',
         'lib/schedules/mappers/mtr-schedule.mapper.ts',
+        'lib/schedules/mappers/lr-schedule.mapper.ts',
         'lib/schedules/errors/api-error.ts',
         'lib/schedules/http/respond.ts',
         'lib/schedules/http/fresh-guard.ts',
         'lib/schedules/contracts/next-train.query.ts',
+        'lib/upstream/lr/client.ts',
+        'utils/lr-stations.ts',
       ],
       thresholds: {
         lines: 80,

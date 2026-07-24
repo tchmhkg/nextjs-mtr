@@ -19,7 +19,18 @@ export async function GET(request: Request) {
     fresh: searchParams.get('fresh') ?? undefined,
   }
 
-  if (!raw.line || !raw.sta) {
+  if (!raw.sta) {
+    return toErrorResponse(
+      new ApiError(
+        'MISSING_PARAMS',
+        'Station not available',
+        400
+      )
+    )
+  }
+
+  const mode = raw.mode ?? 'mtr'
+  if (mode !== 'lr' && !raw.line) {
     return toErrorResponse(
       new ApiError(
         'MISSING_PARAMS',
