@@ -1,4 +1,5 @@
 import StyledComponentsRegistry from '@components/styled-components-registry'
+import { env } from '@lib/env'
 import '@styles/global.scss'
 import NextTopLoader from 'nextjs-toploader'
 import type { Metadata, Viewport } from 'next'
@@ -19,8 +20,10 @@ const notoSansTc = Noto_Sans_TC({
   variable: '--font-noto-sans-tc',
 })
 
+const siteUrl = env.NEXT_PUBLIC_SITE_URL
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nextjs-mtr.vercel.app'),
+  metadataBase: new URL(siteUrl),
   applicationName: 'NextMTRTrain',
   description: 'Get MTR Schedule',
   manifest: '/manifest.json',
@@ -41,7 +44,7 @@ export const metadata: Metadata = {
     card: 'summary',
     title: 'NextMTRTrain',
     description: 'Get MTR Schedule',
-    images: ['https://nextjs-mtr.vercel.app/assets/icon-192x192.png'],
+    images: [`${siteUrl}/assets/icon-192x192.png`],
     creator: '@trumancheung',
   },
   openGraph: {
@@ -49,8 +52,8 @@ export const metadata: Metadata = {
     title: 'NextMTRTrain',
     description: 'Get MTR Schedule',
     siteName: 'NextMTRTrain',
-    url: 'https://nextjs-mtr.vercel.app',
-    images: ['https://nextjs-mtr.vercel.app/assets/icon-192x192.png'],
+    url: siteUrl,
+    images: [`${siteUrl}/assets/icon-192x192.png`],
   },
 }
 

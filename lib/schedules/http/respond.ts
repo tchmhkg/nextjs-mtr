@@ -1,9 +1,13 @@
+import { env } from '@lib/env'
 import { NextResponse } from 'next/server'
 
 import type { ApiMeta, ApiResponse } from '../contracts/api-response'
 import type { ApiError } from '../errors/api-error'
 
-const CACHE_CONTROL_POLL = 'public, s-maxage=30, stale-while-revalidate=60'
+function pollCacheControl(): string {
+  return `public, s-maxage=${env.SCHEDULE_S_MAXAGE_SECONDS}, stale-while-revalidate=${env.SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS}`
+}
+
 const CACHE_CONTROL_FRESH = 'private, no-store'
 
 export function toSuccessResponse<T>(
@@ -11,7 +15,7 @@ export function toSuccessResponse<T>(
   meta: ApiMeta,
   options?: { fresh?: boolean }
 ): NextResponse<ApiResponse<T>> {
-  const cacheControl = options?.fresh ? CACHE_CONTROL_FRESH : CACHE_CONTROL_POLL
+  const cacheControl = options?.fresh ? CACHE_CONTROL_FRESH : pollCacheControl()
   return NextResponse.json(
     { success: true, data, meta },
     { headers: { 'Cache-Control': cacheControl } }

@@ -1,3 +1,4 @@
+import { env } from '@lib/env'
 import { MTR_NEXT_TRAIN_API } from '@utils/api-urls'
 
 import type { MtrLangCode } from './types'
@@ -9,7 +10,7 @@ export function normalizeMtrLang(input: string | null | undefined): MtrLangCode 
 
 /**
  * Fetches raw next-train JSON from the MTR open-data API.
- * Default: 30s ISR-style cache. Pass `fresh: true` to bypass the Data Cache.
+ * Default: ISR-style cache. Pass `fresh: true` to bypass the Data Cache.
  */
 export async function fetchMtrSchedule(options: {
   line: string
@@ -26,7 +27,9 @@ export async function fetchMtrSchedule(options: {
 
   const res = await fetch(
     url.toString(),
-    fresh ? { cache: 'no-store' } : { next: { revalidate: 30 } }
+    fresh
+      ? { cache: 'no-store' }
+      : { next: { revalidate: env.SCHEDULE_REVALIDATE_SECONDS } }
   )
 
   if (!res.ok) {

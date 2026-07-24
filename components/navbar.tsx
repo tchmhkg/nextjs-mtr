@@ -2,6 +2,7 @@
 
 import LanguageSwitcher from '@components/language-switcher'
 import ThemeSwitcher from '@components/theme-switcher'
+import { CLIENT_GITHUB_URL } from '@lib/public-env'
 import Image from 'next/image'
 import { memo } from 'react'
 import styled from 'styled-components'
@@ -43,25 +44,22 @@ const GitHubIconWrapper = styled.div`
   }
 `
 
-const GitHubButton = memo(() => (
-  <GitHubIconWrapper>
-    <a
-      href="https://github.com/tchmhkg/nextjs-mtr"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <Image
-        src="/images/github.png"
-        width={25}
-        height={25}
-        alt="GitHub Icon"
-        priority
-      />
-    </a>
-  </GitHubIconWrapper>
-))
-
-GitHubButton.displayName = 'GitHubButton'
+const GitHubButton = memo(function GitHubButton() {
+  if (!CLIENT_GITHUB_URL) return null
+  return (
+    <GitHubIconWrapper>
+      <a href={CLIENT_GITHUB_URL} rel="noopener noreferrer" target="_blank">
+        <Image
+          src="/images/github.png"
+          width={25}
+          height={25}
+          alt="GitHub Icon"
+          priority
+        />
+      </a>
+    </GitHubIconWrapper>
+  )
+})
 
 const Header = () => {
   return (

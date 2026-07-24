@@ -250,4 +250,20 @@ SSR and API both call `getNextTrain()`, so Next.js fetch cache deduplicates upst
 
 ## Environment variables
 
-Copy `.env.local.example` to `.env.local`. For local Sentry source maps or error reporting, set the `SENTRY_*` and `NEXT_PUBLIC_SENTRY_*` values as needed; they can stay empty if you are not using Sentry.
+Copy `.env.local.example` to `.env.local`. Tunables (cache TTLs, poll interval, cooldown) have defaults when unset. Invalid values fail at startup via Zod in `lib/env.ts`.
+
+| Variable | Default | Notes |
+| -------- | ------- | ----- |
+| `MTR_NEXT_TRAIN_API_URL` | gov HK schedule URL | Upstream MTR API |
+| `LR_NEXT_TRAIN_API_URL` | empty | Reserved for Light Rail |
+| `SCHEDULE_REVALIDATE_SECONDS` | `30` | Next.js fetch revalidate |
+| `SCHEDULE_S_MAXAGE_SECONDS` | `30` | API Cache-Control |
+| `SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS` | `60` | API Cache-Control |
+| `ALERT_URL_ALLOWED_HOSTS` | `mtr.com.hk` | Comma-separated host suffixes |
+| `FRESH_COOLDOWN_MS` | `10000` | Per-IP cooldown for `fresh=1` |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | metadataBase / OG |
+| `NEXT_PUBLIC_SCHEDULE_POLL_MS` | `30000` | Client poll; set at build for client |
+| `NEXT_PUBLIC_GITHUB_URL` | unset | Navbar GitHub button hidden if empty |
+| `UPSTASH_*` / `RATE_LIMIT_*` / `SW_*` | see example | Rate limit + service worker (when wired) |
+
+Sentry (`SENTRY_*`, `NEXT_PUBLIC_SENTRY_*`) is optional and can stay empty.

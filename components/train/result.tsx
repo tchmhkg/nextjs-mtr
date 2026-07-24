@@ -8,6 +8,7 @@ import type { MessageKey } from '@i18n/message-key'
 import type { ApiSuccessResponse } from '@lib/schedules/contracts/api-response'
 import type { NextTrainDto, TrainRouteRow } from '@lib/schedules/contracts/next-train.dto'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { CLIENT_SCHEDULE_POLL_MS } from '@lib/public-env'
 import { advanceMtrTimestamp } from '@utils/mtr-time'
 import { DATA } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
@@ -63,7 +64,7 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
     queryFn: () => fetchNextTrain(apiUrl!),
     enabled: Boolean(apiUrl),
     initialData: initialSchedule ?? undefined,
-    refetchInterval: isVisible ? 30_000 : false,
+    refetchInterval: isVisible ? CLIENT_SCHEDULE_POLL_MS : false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   })
