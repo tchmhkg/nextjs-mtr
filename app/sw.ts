@@ -2,7 +2,7 @@
 /// <reference lib="webworker" />
 import { defaultCache } from '@serwist/turbopack/worker'
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist'
-import { NetworkFirst, Serwist } from 'serwist'
+import { ExpirationPlugin, NetworkFirst, Serwist } from 'serwist'
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -12,6 +12,18 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope
 
+/** Build-time constants (redeploy to change). Keep in sync with lib/env defaults. */
+const SW_NETWORK_TIMEOUT_MS = Number(
+  process.env.SW_NETWORK_TIMEOUT_MS || 8000
+)
+const SW_MAX_ENTRIES = Number(process.env.SW_MAX_ENTRIES || 64)
+const SW_MAX_AGE_SECONDS = Number(process.env.SW_MAX_AGE_SECONDS || 86_400)
+
+function isFreshNextTrain(url: URL): boolean {
+  const fresh = url.searchParams.get('fresh')
+  return fresh === '1' || fresh === 'true'
+}
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
@@ -19,11 +31,23 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: [
     {
-      matcher: ({ url }) => url.pathname.startsWith('/api/next-train'),
+      matcher: ({ url }) => {
+        if (url.pathname.startsWith('/monitoring')) return false
+        if (!url.pathname.startsWith('/api/next-train')) return false
+        if (isFreshNextTrain(url)) return false
+        return true
+      },
       handler: new NetworkFirst({
         cacheName: 'next-train-api',
-        networkTimeoutSeconds: 8,
+        networkTimeoutSeconds: Math.max(
+          1,
+          Math.ceil(SW_NETWORK_TIMEOUT_MS / 1000)
+        ),
         plugins: [
+          new ExpirationPlugin({
+            maxEntries: SW_MAX_ENTRIES,
+            maxAgeSeconds: SW_MAX_AGE_SECONDS,
+          }),
           {
             cacheWillUpdate: async ({ response }) =>
               response?.ok ? response : null,
