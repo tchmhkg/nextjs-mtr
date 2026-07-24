@@ -1,4 +1,26 @@
-import { ILine, IStation } from '@store/slices/trainSlice'
+export interface IRelatedLine {
+  lineCode: string
+  color: string
+  stationCode?: string
+}
+
+export interface ILine {
+  code: string
+  label: { en: string; tc: string }
+  color: string
+}
+
+export interface IStation {
+  code: string
+  label: { en: string; tc: string }
+  location: { lat: number; lng: number }
+  related?: IRelatedLine[]
+}
+
+export interface ILineStation {
+  line: ILine
+  stations: IStation[]
+}
 
 const AEL_COLOR = '#1c7670'
 const TCL_COLOR = '#fe7f1d'
@@ -10,11 +32,6 @@ const TWL_COLOR = '#FF0000'
 const ISL_COLOR = '#0860a8'
 const KTL_COLOR = '#1a9431'
 const DRL_COLOR = '#f550a6'
-
-export interface ILineStation {
-  line: ILine
-  stations: IStation[]
-}
 
 export const DATA: ILineStation[] = [
   {
@@ -773,7 +790,7 @@ export const DATA: ILineStation[] = [
   {
     line: {
       code: 'DRL',
-      label: { en: 'Disneyland Rosort Line', tc: '迪士尼綫' },
+      label: { en: 'Disneyland Resort Line', tc: '迪士尼綫' },
       color: DRL_COLOR,
     },
     stations: [
@@ -793,3 +810,14 @@ export const DATA: ILineStation[] = [
     ],
   },
 ]
+
+/** Known MTR line+station pairs from DATA (for API validation). */
+export const KNOWN_LINE_STA = new Set(
+  DATA.flatMap(({ line, stations }) =>
+    stations.map((s) => `${line.code}-${s.code}`)
+  )
+)
+
+export function isKnownLineSta(line: string, sta: string): boolean {
+  return KNOWN_LINE_STA.has(`${line}-${sta}`)
+}

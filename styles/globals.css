@@ -1,0 +1,116 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: var(--font-outfit), var(--font-noto-sans-tc), system-ui, sans-serif;
+  --font-tc: var(--font-noto-sans-tc), var(--font-outfit), system-ui, sans-serif;
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+}
+
+:root {
+  --surface: #f1f5f9;
+  --surface-alt: #ffffff;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #cbd5e1;
+  --accent: #0f766e;
+  --page-bg: linear-gradient(180deg, #e2e8f0 0%, #f1f5f9 45%, #f8fafc 100%);
+  --alert-bg: #fffbeb;
+  --alert-border: #fcd34d;
+  --alert-ink: #78350f;
+}
+
+.dark {
+  --surface: #0f172a;
+  --surface-alt: #1e293b;
+  --ink: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #334155;
+  --accent: #2dd4bf;
+  --page-bg: linear-gradient(180deg, #020617 0%, #0f172a 50%, #1e293b 100%);
+  --alert-bg: #78350f;
+  --alert-border: #f59e0b;
+  --alert-ink: #fffbeb;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--page-bg);
+  background-attachment: fixed;
+}
+
+html[lang='tc'],
+html[lang='tc'] body {
+  font-family: var(--font-tc);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  word-break: word-break;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes flash-soft {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  40% {
+    background-color: color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 0.7s linear infinite;
+}
+
+.animate-flash-soft {
+  animation: flash-soft 0.6s ease-out;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(12px);
+    opacity: 0.85;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-sheet-in {
+  animation: sheet-in 180ms ease-out;
+}

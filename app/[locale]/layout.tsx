@@ -1,4 +1,5 @@
 import AppProviders from '@components/app-providers'
+import SerwistProviderWrapper from '@components/serwist-provider'
 import { routing } from '@i18n/routing'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
@@ -24,7 +25,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <AppProviders>{children}</AppProviders>
+      <SerwistProviderWrapper>
+        <AppProviders>{children}</AppProviders>
+      </SerwistProviderWrapper>
     </NextIntlClientProvider>
   )
 }

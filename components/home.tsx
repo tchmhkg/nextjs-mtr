@@ -1,46 +1,158 @@
 'use client'
 
-import Alert from '@components/alert'
-import type { MessageKey } from '@i18n/message-key'
+import CurrLocation from '@components/curr-location'
+import ContextChip from '@components/picker/context-chip'
+import InterchangeDialog from '@components/picker/interchange-dialog'
+import LinePicker from '@components/picker/line-picker'
+import StationList from '@components/picker/station-list'
+import Result from '@components/train/result'
+import { useNearestStation } from '@hooks/useNearestStation'
+import { useRouter } from '@i18n/navigation'
 import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
 import {
   getTrainState,
-  ILine,
   setLine,
   setStation,
 } from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
-import { DATA, ILineStation } from '@utils/next-train-data'
+import type { ILine, IStation } from '@utils/next-train-data'
+import { DATA } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import CurrLocation from './curr-location'
-import {
-  Container,
-  Header,
-  Heading,
-  Left,
-  LineColor,
-  LineOption,
-  RelatedLine,
-  RelatedLineWrapper,
-  Right,
-  SelectorWrapper,
-  ShowMoreButton,
-  StationOption,
-} from './home.style'
-import Result from './train/result'
+import { useSearchParams } from 'next/navigation'
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 type Language = 'en' | 'tc'
 
-const getLanguage = (lang: string): Language => {
-  return lang === 'tc' ? 'tc' : 'en'
-}
+const getLanguage = (lang: string): Language =>
+  lang === 'tc' ? 'tc' : 'en'
 
-type HomeProps = {
+type HomeProps = Readonly<{
   heading?: string
   initialLineFromUrl?: string | null
   initialStaFromUrl?: string | null
   initialSchedule?: NextTrainDto | null
+  initialScheduleFailed?: boolean
+}>
+
+type HomePickerBodyProps = Readonly<{
+  pickerStep: 'line' | 'station'
+  selectedLine: ILine | null
+  selectedStation: IStation | null
+  lineStations: ReturnType<typeof DATA.find>
+  stationListRef: React.RefObject<HTMLDivElement | null>
+  stationRefs: Record<string, React.RefObject<HTMLButtonElement | null>>
+  lang: Language
+  onChangeLine: (line: ILine) => void
+  onSelectStation: (station: IStation) => void
+  onInterchange: (station: IStation) => void
+  onBackToLines: () => void
+}>
+
+function HomePickerBody({
+  pickerStep,
+  selectedLine,
+  selectedStation,
+  lineStations,
+  stationListRef,
+  stationRefs,
+  lang,
+  onChangeLine,
+  onSelectStation,
+  onInterchange,
+  onBackToLines,
+}: HomePickerBodyProps) {
+  const t = useTranslations()
+
+  return (
+    <>
+      {pickerStep === 'station' && selectedLine ? (
+        <button
+          type="button"
+          onClick={onBackToLines}
+          className="mb-2 text-sm text-muted hover:text-ink md:hidden"
+          aria-label={t('Select a line')}
+        >
+          ← {t('Select a line')}
+        </button>
+      ) : null}
+
+      <div className="flex flex-col gap-3 md:flex-row md:gap-0">
+        <div
+          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${pickerStep === 'station' ? 'hidden md:block' : 'block'
+            }`}
+        >
+          <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
+            {t('Select a line')}
+          </div>
+          <div className="md:hidden">
+            <LinePicker
+              selectedCode={selectedLine?.code}
+              onSelect={onChangeLine}
+              variant="chips"
+            />
+          </div>
+          <div className="hidden md:block">
+            <LinePicker
+              selectedCode={selectedLine?.code}
+              onSelect={onChangeLine}
+              variant="rail"
+            />
+          </div>
+        </div>
+
+        {selectedLine ? (
+          <div
+            className={`min-w-0 flex-1 md:pl-2 ${pickerStep === 'line' ? 'hidden md:block' : 'block'
+              }`}
+          >
+            <div
+              className="mb-1 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted"
+              style={{ borderLeft: `3px solid ${selectedLine.color}` }}
+            >
+              <span className="pl-2">
+                {selectedLine.label[lang]} · {t('stations')}
+              </span>
+            </div>
+            <StationList
+              ref={stationListRef}
+              stations={lineStations?.stations ?? []}
+              selectedCode={selectedStation?.code}
+              lineColor={selectedLine.color}
+              onSelect={onSelectStation}
+              onInterchange={onInterchange}
+              stationRefs={stationRefs}
+            />
+          </div>
+        ) : null}
+      </div>
+    </>
+  )
+}
+
+function scheduleMatchesUrl(
+  initialSchedule: NextTrainDto | null | undefined,
+  initialLineFromUrl: string | null | undefined,
+  initialStaFromUrl: string | null | undefined,
+  lineCode?: string,
+  staCode?: string
+): NextTrainDto | undefined {
+  if (
+    !initialSchedule ||
+    !initialLineFromUrl ||
+    !initialStaFromUrl ||
+    lineCode !== initialLineFromUrl ||
+    staCode !== initialStaFromUrl
+  ) {
+    return undefined
+  }
+  return initialSchedule
 }
 
 const Home = ({
@@ -48,136 +160,89 @@ const Home = ({
   initialLineFromUrl = null,
   initialStaFromUrl = null,
   initialSchedule = null,
+  initialScheduleFailed = false,
 }: HomeProps) => {
   const dispatch = useDispatch()
   const { line: selectedLine, station: selectedStation } =
     useSelector(getTrainState)
   const locale = useLocale()
   const t = useTranslations()
-  const rightListRef = useRef<HTMLDivElement>(null)
-  const [gettingLocation, setGettingLocation] = useState(false)
-  const [showRelated, setShowRelated] = useState(false)
-  const refs = React.useMemo(() => DATA.reduce((stationRef: Record<string, React.RefObject<HTMLDivElement | null>>, value) => {
-    for (const station of value.stations) {
-      stationRef[station.code] = React.createRef<HTMLDivElement | null>()
-    }
-    return stationRef
-  }, {} as Record<string, React.RefObject<HTMLDivElement | null>>), [])
-
-  const onChangeLine = useCallback(
-    (line: ILine) => {
-      if (line.code === selectedLine?.code) return
-      dispatch(setLine(line))
-      dispatch(setStation(null))
-      rightListRef?.current?.scrollTo({ top: 0 })
-    },
-    [selectedLine, dispatch]
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const stationListRef = useRef<HTMLDivElement>(null)
+  const [interchangeFor, setInterchangeFor] = useState<IStation | null>(null)
+  const [editing, setEditing] = useState(
+    () => !(initialLineFromUrl && initialStaFromUrl)
   )
-  const filterStations = useCallback((): ILineStation | undefined => {
-    if (!selectedLine?.code) return undefined
-    return DATA.find((s) => s.line.code === selectedLine.code)
-  }, [selectedLine])
+  const [pickerStep, setPickerStep] = useState<'line' | 'station'>(() =>
+    initialLineFromUrl && initialStaFromUrl ? 'station' : 'line'
+  )
 
-  const calcDistance = useCallback(
-    (lat1: number, lon1: number, lat2: number, lon2: number, unit: string) => {
-      const radLat1 = (Math.PI * lat1) / 180
-      const radLat2 = (Math.PI * lat2) / 180
-      const theta = lon1 - lon2
-      const radTheta = (Math.PI * theta) / 180
-      let dist =
-        Math.sin(radLat1) * Math.sin(radLat2) +
-        Math.cos(radLat1) * Math.cos(radLat2) * Math.cos(radTheta)
-      if (dist > 1) {
-        dist = 1
-      }
-      dist = Math.acos(dist)
-      dist = (dist * 180) / Math.PI
-      dist = dist * 60 * 1.1515
-      if (unit == 'K') {
-        dist = dist * 1.609344
-      }
-      if (unit == 'N') {
-        dist = dist * 0.8684
-      }
-      return dist
-    },
+  const stationRefs = useMemo(
+    () =>
+      DATA.reduce(
+        (acc, value) => {
+          for (const station of value.stations) {
+            acc[station.code] = React.createRef<HTMLButtonElement | null>()
+          }
+          return acc
+        },
+        {} as Record<string, React.RefObject<HTMLButtonElement | null>>
+      ),
     []
   )
 
-  const findNearestStation = useCallback(
-    (lat: number, lng: number) => {
-      if (!lat || !lng) return
-      let closestStation = null
-      let closestLine: ILine | null = null
-      let closestDistance: number | null = null
-
-      for (const lineStation of DATA) {
-        for (const station of lineStation.stations) {
-          const distance = calcDistance(
-            lat,
-            lng,
-            station.location.lat,
-            station.location.lng,
-            'K'
-          )
-          if (!closestStation || closestDistance === null || distance < closestDistance) {
-            closestDistance = distance
-            closestLine = lineStation.line
-            closestStation = station
-          }
-        }
-      }
-      if (closestLine && closestStation) {
-        dispatch(setLine(closestLine))
-        dispatch(setStation(closestStation))
-        setGettingLocation(true)
-      }
+  const onFoundNearest = useCallback(
+    (line: ILine, station: IStation) => {
+      dispatch(setLine(line))
+      dispatch(setStation(station))
+      setEditing(false)
+      setPickerStep('station')
     },
-    [calcDistance, dispatch]
+    [dispatch]
   )
 
-  const getPositionSuccess = useCallback(
-    (pos: { coords: { latitude: number; longitude: number } }) => {
-      const crd = pos.coords
-      findNearestStation(crd.latitude, crd.longitude)
+  const { locating, locationError, getCurrLocation } =
+    useNearestStation(onFoundNearest)
+
+  const onChangeLine = useCallback(
+    (line: ILine) => {
+      if (line.code !== selectedLine?.code) {
+        dispatch(setLine(line))
+        dispatch(setStation(null))
+        stationListRef.current?.scrollTo({ top: 0 })
+      }
+      setPickerStep('station')
     },
-    [findNearestStation]
+    [selectedLine, dispatch]
   )
 
-  const getPositionError = useCallback((err: GeolocationPositionError) => {
-    // Error handled by component - could show user notification here
-  }, [])
+  const onSelectStation = useCallback(
+    (station: IStation) => {
+      dispatch(setStation(station))
+      setEditing(false)
+      // After pick, land on schedule (glance)
+      queueMicrotask(() => {
+        document
+          .getElementById('schedule-panel')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    },
+    [dispatch]
+  )
 
-  const getCurrLocation = useCallback(() => {
-    const options = {
-      enableHighAccuracy: true,
-      maximumAge: 0,
-    }
-    navigator.geolocation.getCurrentPosition(
-      getPositionSuccess,
-      getPositionError,
-      options
-    )
-  }, [getPositionError, getPositionSuccess])
-
-  const scrollToStation = useCallback(() => {
-    if (!selectedStation?.code) return
-    refs[selectedStation.code]?.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    })
-  }, [selectedStation, refs])
-
-  useEffect(() => {
-    if (initialLineFromUrl && initialStaFromUrl) return
-    getCurrLocation()
-  }, [getCurrLocation, initialLineFromUrl, initialStaFromUrl])
+  const lineStations = useMemo(() => {
+    if (!selectedLine?.code) return undefined
+    return DATA.find((s) => s.line.code === selectedLine.code)
+  }, [selectedLine])
 
   useLayoutEffect(() => {
     if (!initialLineFromUrl || !initialStaFromUrl) return
     const lineData = DATA.find((s) => s.line.code === initialLineFromUrl)
     const line = lineData?.line
-    const station = lineData?.stations?.find((s) => s.code === initialStaFromUrl)
+    const station = lineData?.stations?.find(
+      (s) => s.code === initialStaFromUrl
+    )
     if (line && station) {
       dispatch(setLine(line))
       dispatch(setStation(station))
@@ -185,20 +250,30 @@ const Home = ({
   }, [dispatch, initialLineFromUrl, initialStaFromUrl])
 
   useEffect(() => {
-    if (gettingLocation) {
-      scrollToStation()
-      queueMicrotask(() => setGettingLocation(false))
+    if (!selectedLine?.code || !selectedStation?.code) return
+    if (
+      searchParams.get('line') === selectedLine.code &&
+      searchParams.get('sta') === selectedStation.code
+    ) {
+      return
     }
-  }, [selectedStation, gettingLocation, scrollToStation])
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('line', selectedLine.code)
+    params.set('sta', selectedStation.code)
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }, [selectedLine, selectedStation, router, searchParams])
 
   useEffect(() => {
-    if (selectedStation?.code) {
-      scrollToStation()
-    }
-  }, [selectedLine, selectedStation, scrollToStation])
+    if (!selectedStation?.code || editing) return
+    stationRefs[selectedStation.code]?.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    })
+  }, [selectedLine, selectedStation, stationRefs, editing])
 
-  const showMoreOptions = useCallback(() => {
-    setShowRelated(true)
+  // Open interchange without touching Redux/URL — avoids RSC remount wiping dialog state
+  const showInterchangeOptions = useCallback((station: IStation) => {
+    setInterchangeFor(station)
   }, [])
 
   const switchLine = useCallback(
@@ -207,131 +282,108 @@ const Home = ({
       const line = lineData?.line
       if (line) {
         dispatch(setLine(line))
-        if (stationCode) {
-          const station = lineData?.stations?.find(
-            (sta) => sta.code === stationCode
-          )
-          if (station) {
-            dispatch(setStation(station))
-          }
+        const code = stationCode ?? interchangeFor?.code
+        if (code) {
+          const station = lineData?.stations?.find((sta) => sta.code === code)
+          if (station) dispatch(setStation(station))
+          else dispatch(setStation(null))
         }
       }
-      setShowRelated(false)
+      setInterchangeFor(null)
+      setEditing(false)
     },
-    [dispatch]
+    [dispatch, interchangeFor]
   )
 
-  const onCloseAlert = useCallback(() => {
-    setShowRelated(false)
-  }, [])
+  const startEditing = useCallback(() => {
+    setEditing(true)
+    setPickerStep(selectedLine ? 'station' : 'line')
+  }, [selectedLine])
 
-  const handleKeyDownShowMore = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        showMoreOptions()
-      }
-    },
-    [showMoreOptions]
+  const hasSelection = Boolean(selectedLine?.code && selectedStation?.code)
+  const showGlance = hasSelection && !editing
+  const lang = getLanguage(locale)
+
+  const scheduleForResult = scheduleMatchesUrl(
+    initialSchedule,
+    initialLineFromUrl,
+    initialStaFromUrl,
+    selectedLine?.code,
+    selectedStation?.code
   )
-
-  const scheduleForResult =
-    initialSchedule &&
-      initialLineFromUrl &&
-      initialStaFromUrl &&
-      selectedLine?.code === initialLineFromUrl &&
-      selectedStation?.code === initialStaFromUrl
-      ? initialSchedule
-      : undefined
 
   return (
-    <Container>
-      <Header>
-        <Heading>{heading}</Heading>
+    <div className="mx-auto w-full max-w-5xl">
+      <header className="mb-3 flex items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold tracking-tight text-ink md:text-2xl">
+          {heading}
+        </h1>
         <CurrLocation
           onClick={getCurrLocation}
           aria-label={t('Find nearest station')}
+          busy={locating}
         />
-      </Header>
-      <SelectorWrapper role="tabpanel" aria-label={t('Train line and station selection')}>
-        <Left role="tablist" aria-label={t('Select train line')}>
-          {DATA.map((l) => (
-            <LineOption
-              key={l.line.code}
-              onClick={() => onChangeLine(l.line)}
-              $selected={l.line.code === selectedLine?.code}
-              $color={l.line.color}
-              role="tab"
-              aria-selected={l.line.code === selectedLine?.code}
-              aria-label={`${t('Select')} ${l.line.label[getLanguage(locale)]}`}
-              tabIndex={l.line.code === selectedLine?.code ? 0 : -1}
-            >
-              <LineColor $color={l.line.color} aria-hidden="true" />
-              <div className="option-name">{l.line.label[getLanguage(locale)]}</div>
-            </LineOption>
-          ))}
-        </Left>
-        <Right
-          ref={rightListRef}
-          $bgColor={filterStations()?.line?.color || undefined}
-          role="tabpanel"
-          aria-label={`${selectedLine ? selectedLine.label[getLanguage(locale)] : ''} ${t('stations')}`}
+      </header>
+
+      {locationError ? (
+        <p className="mb-2 text-sm text-red-600 dark:text-red-400" role="alert">
+          {t(locationError)}
+        </p>
+      ) : null}
+
+      {showGlance && selectedLine && selectedStation ? (
+        <ContextChip
+          lineLabel={selectedLine.label[lang]}
+          stationLabel={selectedStation.label[lang]}
+          lineColor={selectedLine.color}
+          changeLabel={t('Change')}
+          onChange={startEditing}
+        />
+      ) : (
+        <section
+          className="mb-4 rounded-xl border border-border bg-surface-alt/80 p-3"
+          aria-label={t('Train line and station selection')}
         >
-          {filterStations()?.stations?.map((s) => {
-            return (
-              <StationOption
-                ref={refs[s.code]}
-                key={s.code}
-                onClick={() => dispatch(setStation(s))}
-                $selected={s.code === selectedStation?.code}
-                role="button"
-                tabIndex={0}
-                aria-label={`${t('Select station')} ${s.label[getLanguage(locale)]}`}
-              >
-                <div className="option-name station">
-                  {s.label[getLanguage(locale)]}
-                  {(s.related?.length ?? 0) > 0 && (
-                    <ShowMoreButton
-                      className="more-option"
-                      onClick={showMoreOptions}
-                      onKeyDown={handleKeyDownShowMore}
-                      aria-label={`${t('Show interchange options for')} ${s.label[getLanguage(locale)]}`}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      {'>'}
-                    </ShowMoreButton>
-                  )}
-                </div>
-              </StationOption>
-            )
-          })}
-        </Right>
-      </SelectorWrapper>
-      {selectedLine?.code && selectedStation?.code && (
-        <Result
-          line={selectedLine.code}
-          sta={selectedStation.code}
-          initialSchedule={scheduleForResult}
+          <HomePickerBody
+            pickerStep={pickerStep}
+            selectedLine={selectedLine}
+            selectedStation={selectedStation}
+            lineStations={lineStations}
+            stationListRef={stationListRef}
+            stationRefs={stationRefs}
+            lang={lang}
+            onChangeLine={onChangeLine}
+            onSelectStation={onSelectStation}
+            onInterchange={showInterchangeOptions}
+            onBackToLines={() => setPickerStep('line')}
+          />
+        </section>
+      )}
+
+      {hasSelection && selectedLine && selectedStation ? (
+        <div id="schedule-panel">
+          <Result
+            line={selectedLine.code}
+            sta={selectedStation.code}
+            initialSchedule={scheduleForResult}
+            initialScheduleFailed={
+              initialScheduleFailed &&
+              selectedLine.code === initialLineFromUrl &&
+              selectedStation.code === initialStaFromUrl
+            }
+          />
+        </div>
+      ) : null}
+
+      {interchangeFor ? (
+        <InterchangeDialog
+          station={interchangeFor}
+          onSelect={switchLine}
+          onClose={() => setInterchangeFor(null)}
         />
-      )}
-      {showRelated && selectedStation && (
-        <Alert onPressClose={onCloseAlert}>
-          <RelatedLineWrapper>
-            {selectedStation.related?.map((rStation) => (
-              <RelatedLine
-                key={rStation.lineCode}
-                $lineColor={rStation.color}
-                onClick={() =>
-                  switchLine(rStation.lineCode, rStation.stationCode)
-                }
-              >
-                {t(rStation.lineCode as MessageKey)}
-              </RelatedLine>
-            ))}
-          </RelatedLineWrapper>
-        </Alert>
-      )}
-    </Container>
+      ) : null}
+    </div>
   )
 }
+
 export default React.memo(Home)

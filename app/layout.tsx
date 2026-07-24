@@ -1,24 +1,28 @@
-import StyledComponentsRegistry from '@components/styled-components-registry'
-import '@styles/global.scss'
+import { env } from '@lib/env'
+import '@styles/globals.css'
 import NextTopLoader from 'nextjs-toploader'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Poppins } from 'next/font/google'
+import { Noto_Sans_TC, Outfit } from 'next/font/google'
 import { headers } from 'next/headers'
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
+  variable: '--font-outfit',
 })
 
-const poppins = Poppins({
+const notoSansTc = Noto_Sans_TC({
   subsets: ['latin'],
-  weight: ['500', '700'],
+  weight: ['400', '500', '700'],
   display: 'swap',
+  variable: '--font-noto-sans-tc',
 })
+
+const siteUrl = env.NEXT_PUBLIC_SITE_URL
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nextjs-mtr.vercel.app'),
+  metadataBase: new URL(siteUrl),
   applicationName: 'NextMTRTrain',
   description: 'Get MTR Schedule',
   manifest: '/manifest.json',
@@ -39,25 +43,22 @@ export const metadata: Metadata = {
     card: 'summary',
     title: 'NextMTRTrain',
     description: 'Get MTR Schedule',
-    images: ['https://nextjs-mtr.vercel.app/assets/icon-192x192.png'],
-    creator: '@trumancheung',
+    images: [`${siteUrl}/assets/icon-192x192.png`],
   },
   openGraph: {
     type: 'website',
     title: 'NextMTRTrain',
     description: 'Get MTR Schedule',
     siteName: 'NextMTRTrain',
-    url: 'https://nextjs-mtr.vercel.app',
-    images: ['https://nextjs-mtr.vercel.app/assets/icon-192x192.png'],
+    url: siteUrl,
+    images: [`${siteUrl}/assets/icon-192x192.png`],
   },
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  minimumScale: 1,
   viewportFit: 'cover',
-  userScalable: false,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
     { media: '(prefers-color-scheme: dark)', color: '#000000' },
@@ -73,7 +74,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const lang = hdr.get('x-next-intl-locale') ?? 'tc'
 
   return (
-    <html lang={lang} dir="ltr" className={`${inter.className} ${poppins.className}`}>
+    <html
+      lang={lang}
+      dir="ltr"
+      className={`${outfit.variable} ${notoSansTc.variable}`}
+    >
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -132,7 +137,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body>
         <NextTopLoader color="#333333" showSpinner={false} height={2} />
-        <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+        {children}
       </body>
     </html>
   )

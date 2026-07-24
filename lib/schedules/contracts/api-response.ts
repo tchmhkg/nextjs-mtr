@@ -6,6 +6,8 @@ export type ApiErrorCode =
   | 'UPSTREAM_ERROR'
   | 'NOT_FOUND'
   | 'NOT_IMPLEMENTED'
+  | 'FORBIDDEN'
+  | 'RATE_LIMITED'
 
 export interface ApiErrorBody {
   code: ApiErrorCode

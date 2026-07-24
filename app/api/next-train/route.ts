@@ -1,6 +1,11 @@
 import { nextTrainQuerySchema } from '@lib/schedules/contracts/next-train.query'
 import { ApiError, isApiError } from '@lib/schedules/errors/api-error'
 import { getNextTrain } from '@lib/schedules/get-next-train'
+import {
+  assertFreshAllowed,
+  clientIpFromRequest,
+} from '@lib/schedules/http/fresh-guard'
+import { assertGeneralRateLimit } from '@lib/schedules/http/rate-limit'
 import { toErrorResponse, toSuccessResponse } from '@lib/schedules/http/respond'
 import { NextResponse } from 'next/server'
 
@@ -11,24 +16,45 @@ export async function GET(request: Request) {
     line: searchParams.get('line') ?? undefined,
     sta: searchParams.get('sta') ?? undefined,
     lang: searchParams.get('lang') ?? undefined,
+    fresh: searchParams.get('fresh') ?? undefined,
   }
 
   if (!raw.line || !raw.sta) {
     return toErrorResponse(
-      new ApiError('MISSING_PARAMS', 'Missing required parameters: line and sta', 400)
+      new ApiError(
+        'MISSING_PARAMS',
+        'Station not available',
+        400
+      )
     )
   }
 
   const parsed = nextTrainQuerySchema.safeParse(raw)
   if (!parsed.success) {
     return toErrorResponse(
-      new ApiError('VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid parameters', 400)
+      new ApiError(
+        'VALIDATION_ERROR',
+        'Station not available',
+        400
+      )
     )
   }
 
   try {
+    await assertGeneralRateLimit(clientIpFromRequest(request))
+    if (parsed.data.fresh) {
+      await assertFreshAllowed(request)
+    }
+  } catch (error) {
+    if (isApiError(error)) return toErrorResponse(error)
+    throw error
+  }
+
+  try {
     const result = await getNextTrain(parsed.data)
-    return toSuccessResponse(result.data, result.meta)
+    return toSuccessResponse(result.data, result.meta, {
+      fresh: Boolean(parsed.data.fresh),
+    })
   } catch (error) {
     console.error('Next train API error:', error)
     if (isApiError(error)) {

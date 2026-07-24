@@ -6,7 +6,7 @@ Live deployment: [nextjs-mtr.vercel.app](https://nextjs-mtr.vercel.app)
 
 ## Requirements
 
-- **Node.js** 20.9 or newer (see `engines` in `package.json`)
+- **Node.js** 22 or newer (see `engines` / `.nvmrc`)
 
 ## Setup
 
@@ -21,20 +21,36 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command            | Description                              |
-| ------------------ | ---------------------------------------- |
-| `yarn dev`         | Development server                       |
-| `yarn build`       | Production build                         |
-| `yarn start`       | Run production server                    |
-| `yarn lint`        | ESLint                                   |
-| `yarn check:mapper`| Runnable check for MTR schedule mapper   |
+| Command              | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `yarn dev`           | Development server                               |
+| `yarn build`         | Production build                                 |
+| `yarn start`         | Run production server                            |
+| `yarn lint`          | ESLint                                           |
+| `yarn test`          | Unit tests (Vitest)                              |
+| `yarn test:coverage` | Unit tests + scoped ≥80% coverage gate           |
+| `yarn verify`        | Alias for `yarn test:coverage`                   |
+
+Coverage is **scoped** to pure schedules/utils modules listed in
+`vitest.config.ts` (`coverage.include`). Components and pages are out of
+scope on purpose — raise coverage by adding logic files + tests there, not
+by chasing a repo-wide percentage.
+
+## Docker
+
+Multi-stage image uses Node 22 Alpine and Next.js `output: 'standalone'`.
+
+```bash
+docker build -t nextjs-mtr .
+docker run --rm -p 3000:3000 nextjs-mtr
+```
 
 ## Stack
 
 - **Framework:** Next.js (App Router), React, TypeScript
-- **UI:** styled-components, Sass modules where used
+- **UI:** Tailwind CSS v4, dark mode via `html.dark` class
 - **State:** Redux Toolkit + react-redux (line/station selection)
-- **Data:** SWR for client polling; BFF route at `/api/next-train`
+- **Data:** TanStack Query for client polling; BFF route at `/api/next-train`
 - **i18n:** next-intl
 - **Validation:** Zod at the API route boundary
 - **Monitoring (optional):** Sentry (`@sentry/nextjs`)
@@ -49,7 +65,7 @@ The app uses a **Backend-for-Frontend (BFF)** pattern. The browser never calls t
 ```mermaid
 flowchart TB
   subgraph browser [Browser]
-    Result["components/train/result.tsx<br/>SWR 30s refresh"]
+    Result["components/train/result.tsx<br/>TanStack Query 30s refresh"]
   end
 
   subgraph apiLayer [API adapter]
@@ -106,7 +122,7 @@ utils/next-train-data.ts       # Static line/station metadata
 
 | Layer | Location | Responsibility |
 | ----- | -------- | -------------- |
-| **UI** | `components/`, `app/[locale]/` | Render schedules; poll API via SWR |
+| **UI** | `components/`, `app/[locale]/` | Render schedules; poll API via TanStack Query |
 | **API adapter** | `app/api/next-train/` | Parse/validate HTTP input; return `ApiResponse<T>` |
 | **Schedules service** | `lib/schedules/` | Orchestrate fetch → map → DTO; map errors |
 | **Upstream** | `lib/upstream/` | Raw `fetch` to external APIs (30s revalidation) |
@@ -124,12 +140,12 @@ flowchart LR
     direction TB
     User1[User] --> Page["app/[locale]/page.tsx"]
     Page -->|"getNextTrain() direct"| Service1[getNextTrain]
-    Service1 --> Home["Home · Result fallbackData"]
+    Service1 --> Home["Home · Result initialData"]
   end
 
   subgraph clientPath [Client path — polling]
     direction TB
-    Result["Result.tsx SWR"] -->|"GET /api/next-train"| Route[route.ts]
+    Result["Result.tsx TanStack Query"] -->|"GET /api/next-train"| Route[route.ts]
     Route -->|"getNextTrain()"| Service2[getNextTrain]
     Service2 --> ApiResp["ApiResponse NextTrainDto"]
     ApiResp --> Result
@@ -162,12 +178,12 @@ sequenceDiagram
   Mapper-->>Service: NextTrainDto
   Service-->>Page: data + meta
   Page->>Home: initialSchedule prop
-  Home->>Result: SWR fallbackData
+  Home->>Result: initialData
 ```
 
-### Client refresh (SWR)
+### Client refresh (TanStack Query)
 
-After hydration, SWR polls the BFF route every 30 seconds (aligned with upstream cache TTL).
+After hydration, TanStack Query polls the BFF route every 30 seconds (aligned with upstream cache TTL). Manual refresh passes `fresh=1` to bypass server/CDN caches.
 
 ```mermaid
 sequenceDiagram
@@ -204,6 +220,9 @@ GET /api/next-train?mode=mtr&line=TWL&sta=CEN&lang=tc
 | `line` | Yes | — | Line code, e.g. `TWL` |
 | `sta` | Yes | — | Station code, e.g. `CEN` |
 | `lang` | No | `tc` | `tc`, `en` |
+| `fresh` | No | — | `1` or `true` bypasses server/CDN cache (manual refresh) |
+
+MTR schedule mapping follows the [Next Train API spec v1.7](https://data.gov.hk/) (`lib/schedules/mappers/mtr-schedule.mapper.ts`).
 
 **Success response**
 
@@ -229,21 +248,49 @@ GET /api/next-train?mode=mtr&line=TWL&sta=CEN&lang=tc
 ```json
 {
   "success": false,
-  "error": { "code": "VALIDATION_ERROR", "message": "Invalid parameters" },
+  "error": { "code": "VALIDATION_ERROR", "message": "Station not available" },
   "data": null
 }
 ```
 
+`error.code` is the stable contract for clients. Map codes to UI copy (see `lib/schedules/client-error.ts`); do not display `error.message` as user-facing text — it is an English fallback for logs and API consumers only.
+
+| Code | Typical HTTP | Client message key |
+| ---- | ------------ | ------------------ |
+| `RATE_LIMITED` | 429 | Please wait before refreshing again |
+| `FORBIDDEN` | 403 | Refresh is unavailable |
+| `NOT_FOUND` / `VALIDATION_ERROR` / `MISSING_PARAMS` | 400/404 | Station not available |
+| `UPSTREAM_ERROR` | 5xx | Failed to load schedule |
 ### Caching
 
 | Layer | Mechanism | TTL |
 | ----- | --------- | --- |
 | Upstream fetch | `fetch(..., { next: { revalidate: 30 } })` | 30s |
 | API response | `Cache-Control: public, s-maxage=30, stale-while-revalidate=60` | 30s |
-| Client | SWR `refreshInterval: 30000`, `dedupeInterval: 10000` | 30s / 10s |
+| Client | TanStack Query `refetchInterval: 30000`, live ETA tick 1s | 30s / 1s |
 
 SSR and API both call `getNextTrain()`, so Next.js fetch cache deduplicates upstream requests within the 30s window.
 
 ## Environment variables
 
-Copy `.env.local.example` to `.env.local`. For local Sentry source maps or error reporting, set the `SENTRY_*` and `NEXT_PUBLIC_SENTRY_*` values as needed; they can stay empty if you are not using Sentry.
+Copy `.env.local.example` to `.env.local`. Tunables (cache TTLs, poll interval, cooldown) have defaults when unset. Invalid values fail at startup via Zod in `lib/env.ts`.
+
+| Variable | Default | Notes |
+| -------- | ------- | ----- |
+| `MTR_NEXT_TRAIN_API_URL` | gov HK schedule URL | Upstream MTR API |
+| `LR_NEXT_TRAIN_API_URL` | empty | Reserved for Light Rail |
+| `SCHEDULE_REVALIDATE_SECONDS` | `30` | Next.js fetch revalidate |
+| `SCHEDULE_S_MAXAGE_SECONDS` | `30` | API Cache-Control |
+| `SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS` | `60` | API Cache-Control |
+| `ALERT_URL_ALLOWED_HOSTS` | `mtr.com.hk` | Comma-separated host suffixes |
+| `FRESH_COOLDOWN_MS` | `500` | Per-IP cooldown for `fresh=1` (no Upstash) |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | metadataBase / OG |
+| `NEXT_PUBLIC_SCHEDULE_POLL_MS` | `30000` | Client poll; set at build for client |
+| `NEXT_PUBLIC_GITHUB_URL` | unset | Navbar GitHub button hidden if empty |
+| `UPSTASH_*` / `RATE_LIMIT_*` / `SW_*` | see example | Upstash rate limits + service worker cache policy |
+
+Without Upstash, `fresh=1` uses a per-instance memory cooldown (`FRESH_COOLDOWN_MS`). With Upstash configured, general and fresh request limits apply across instances.
+
+The API is public (no end-user auth). Forced refresh (`fresh=1`) requires same-origin `Sec-Fetch-Site`.
+
+Sentry (`SENTRY_*`, `NEXT_PUBLIC_SENTRY_*`) is optional and can stay empty.

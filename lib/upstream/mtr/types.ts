@@ -4,6 +4,8 @@ export type MtrLangCode = 'TC' | 'EN'
 export interface MtrStationSchedule {
   UP?: MtrTrainRouteRow[]
   DOWN?: MtrTrainRouteRow[]
+  curr_time?: string
+  sys_time?: string
 }
 
 export interface MtrTrainRouteRow {
@@ -11,12 +13,19 @@ export interface MtrTrainRouteRow {
   dest: string
   plat: string
   time: string
-  [key: string]: unknown
+  ttnt?: string
+  valid?: string
+  source?: string
+  /** EAL only */
+  timetype?: string
+  /** EAL only: `""` or `"RAC"` */
+  route?: string
 }
 
 export interface MtrScheduleParsed {
   schedule: MtrStationSchedule | null
   isdelay: boolean
   curr_time: string | null
+  sys_time: string | null
   alert: { message: string; url: string | null } | null
 }

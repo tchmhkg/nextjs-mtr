@@ -1,73 +1,55 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import styled from 'styled-components'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 
-interface AlertProps {
+type AlertProps = Readonly<{
   children: React.ReactNode
   onPressClose: () => void
-}
+}>
 
-const AlertButton = styled.button`
-  appearance: none;
-  border: none;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 16px;
-  cursor: pointer;
-  text-align: center;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-top: 16px;
-  width: max-content;
-  align-self: center;
-  &:hover: {
-    opacity: 0.7;
-  }
-`
-
-const AlertContent = styled.div`
-  max-width: 400px;
-  width: 90%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 20px;
-  position: fixed;
-  top: 50vh;
-  left: 50vw;
-  transform: translate(-50%, -50%);
-  background-color: ${({ theme }) => theme.backgroundAlt};
-  border-radius: 12px;
-  z-index: 1000;
-`
-
-const AlertContainer = styled.div`
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-`
-
-const Alert = ({ children, onPressClose }: AlertProps) => {
+export default function Alert({ children, onPressClose }: AlertProps) {
   const t = useTranslations()
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    const el = dialogRef.current
+    if (!el) return
+    if (!el.open) el.showModal()
+    const onCancel = (e: Event) => {
+      e.preventDefault()
+      onPressClose()
+    }
+    el.addEventListener('cancel', onCancel)
+    return () => el.removeEventListener('cancel', onCancel)
+  }, [onPressClose])
+
   return (
-    <AlertContainer role="dialog" aria-modal="true" aria-labelledby="alert-title">
-      <AlertContent>
-        <div id="alert-title" className="sr-only">{t('Alert')}</div>
+    <dialog
+      ref={dialogRef}
+      className="fixed inset-0 z-[1200] m-0 flex h-dvh max-h-none w-screen max-w-none items-center justify-center border-0 bg-transparent p-4 backdrop:bg-transparent open:flex"
+      aria-labelledby="alert-title"
+    >
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/50"
+        aria-label={t('Close alert')}
+        onClick={onPressClose}
+      />
+      <div className="relative z-10 flex w-full max-w-md flex-col rounded-xl bg-surface-alt p-5 text-ink shadow-lg">
+        <div id="alert-title" className="sr-only">
+          {t('Alert')}
+        </div>
         {children}
-        <AlertButton onClick={onPressClose} aria-label={t('Close alert')}>
+        <button
+          type="button"
+          onClick={onPressClose}
+          aria-label={t('Close alert')}
+          className="mt-4 self-center rounded-lg px-4 py-2 text-sm hover:opacity-70"
+        >
           {t('close')}
-        </AlertButton>
-      </AlertContent>
-    </AlertContainer>
+        </button>
+      </div>
+    </dialog>
   )
 }
-
-export default Alert

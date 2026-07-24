@@ -11,6 +11,7 @@ export type GetNextTrainInput = {
   line: string
   sta: string
   lang: string
+  fresh?: boolean
 }
 
 export type GetNextTrainResult = {
@@ -25,12 +26,15 @@ function buildMeta(source: TransportMode): ApiMeta {
   }
 }
 
-async function getMtrNextTrain(input: GetNextTrainInput): Promise<GetNextTrainResult> {
+async function getMtrNextTrain(
+  input: GetNextTrainInput
+): Promise<GetNextTrainResult> {
   try {
     const raw = await fetchMtrSchedule({
       line: input.line,
       sta: input.sta,
       lang: input.lang,
+      fresh: input.fresh,
     })
     const data = mapMtrUpstreamToDto(raw, input.line, input.sta)
     return { data, meta: buildMeta('mtr') }
@@ -39,22 +43,31 @@ async function getMtrNextTrain(input: GetNextTrainInput): Promise<GetNextTrainRe
 
     const status = getUpstreamStatus(error)
     if (status === 404) {
-      throw new ApiError('NOT_FOUND', 'Schedule not found', 404)
+      throw new ApiError('NOT_FOUND', 'Station not available', 404)
+    }
+    if (status === 429) {
+      throw new ApiError('RATE_LIMITED', 'Please wait before refreshing again', 429)
     }
     if (status && status >= 400 && status < 500) {
-      throw new ApiError('UPSTREAM_ERROR', 'MTR API returned an error', status)
+      throw new ApiError('UPSTREAM_ERROR', 'Failed to load schedule', status)
     }
-    throw new ApiError('UPSTREAM_ERROR', 'Failed to fetch train data', 503)
+    throw new ApiError('UPSTREAM_ERROR', 'Failed to load schedule', 503)
   }
 }
 
-async function getLrNextTrain(input: GetNextTrainInput): Promise<GetNextTrainResult> {
+async function getLrNextTrain(
+  input: GetNextTrainInput
+): Promise<GetNextTrainResult> {
   await fetchLrSchedule({
     line: input.line,
     sta: input.sta,
     lang: input.lang,
   })
-  throw new ApiError('NOT_IMPLEMENTED', 'Light Rail schedule is not yet supported', 501)
+  throw new ApiError(
+    'NOT_IMPLEMENTED',
+    'Light Rail schedule is not yet supported',
+    501
+  )
 }
 
 export async function getNextTrain(
