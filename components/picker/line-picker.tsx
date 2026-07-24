@@ -43,7 +43,7 @@ export default function LinePicker({
               aria-selected={selected}
               aria-label={`${t('Select')} ${line.label[l]}`}
               onClick={() => onSelect(line)}
-              className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-sm transition-colors ${
                 selected
                   ? 'border-ink bg-surface-alt text-ink shadow-sm'
                   : 'border-border bg-surface-alt/60 text-muted hover:border-ink/40 hover:text-ink'
@@ -78,7 +78,7 @@ export default function LinePicker({
             aria-selected={selected}
             aria-label={`${t('Select')} ${line.label[l]}`}
             onClick={() => onSelect(line)}
-            className={`flex min-h-10 items-center gap-2 border-l-[3px] px-2 py-2 text-left text-sm transition-colors ${
+            className={`flex min-h-9 items-center gap-2 border-l-[3px] px-2 py-1.5 text-left text-sm transition-colors ${
               selected
                 ? 'border-l-[color:var(--line)] bg-surface-alt text-ink'
                 : 'border-l-transparent text-muted hover:bg-surface-alt/70 hover:text-ink'

@@ -38,7 +38,7 @@ const StationList = forwardRef<HTMLDivElement, StationListProps>(
     return (
       <div
         ref={ref}
-        className="max-h-[min(38vh,280px)] overflow-y-auto md:max-h-[min(70vh,520px)]"
+        className="max-h-[min(36vh,260px)] overflow-y-auto md:max-h-[min(70vh,520px)]"
         role="listbox"
         aria-label={t('Select a station')}
       >
@@ -47,7 +47,7 @@ const StationList = forwardRef<HTMLDivElement, StationListProps>(
           return (
             <div
               key={s.code}
-              className={`flex min-h-10 items-stretch border-b border-border/60 last:border-b-0 ${
+              className={`flex min-h-9 items-stretch border-b border-border/60 last:border-b-0 ${
                 selected ? 'bg-surface-alt' : ''
               }`}
             >
@@ -58,7 +58,7 @@ const StationList = forwardRef<HTMLDivElement, StationListProps>(
                 aria-selected={selected}
                 aria-label={`${t('Select station')} ${s.label[l]}`}
                 onClick={() => onSelect(s)}
-                className="flex min-h-10 flex-1 items-center gap-2 px-2 py-2 text-left text-sm"
+                className="flex min-h-9 flex-1 items-center gap-2 px-2 py-1.5 text-left text-sm"
               >
                 <span
                   className="w-1 self-stretch rounded-full"
@@ -78,7 +78,7 @@ const StationList = forwardRef<HTMLDivElement, StationListProps>(
               {(s.related?.length ?? 0) > 0 ? (
                 <button
                   type="button"
-                  className="min-h-10 shrink-0 px-3 text-xs font-medium text-muted hover:text-ink"
+                  className="min-h-9 shrink-0 px-2.5 text-xs font-medium text-muted hover:text-ink"
                   onClick={() => onInterchange(s)}
                   aria-label={`${t('Show interchange options for')} ${s.label[l]}`}
                 >

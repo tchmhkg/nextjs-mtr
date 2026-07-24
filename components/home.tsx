@@ -107,6 +107,12 @@ const Home = ({
     (station: IStation) => {
       dispatch(setStation(station))
       setEditing(false)
+      // After pick, land on schedule (glance)
+      queueMicrotask(() => {
+        document
+          .getElementById('schedule-panel')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
     },
     [dispatch]
   )
@@ -297,16 +303,18 @@ const Home = ({
       )}
 
       {hasSelection && selectedLine && selectedStation ? (
-        <Result
-          line={selectedLine.code}
-          sta={selectedStation.code}
-          initialSchedule={scheduleForResult}
-          initialScheduleFailed={
-            initialScheduleFailed &&
-            selectedLine.code === initialLineFromUrl &&
-            selectedStation.code === initialStaFromUrl
-          }
-        />
+        <div id="schedule-panel">
+          <Result
+            line={selectedLine.code}
+            sta={selectedStation.code}
+            initialSchedule={scheduleForResult}
+            initialScheduleFailed={
+              initialScheduleFailed &&
+              selectedLine.code === initialLineFromUrl &&
+              selectedStation.code === initialStaFromUrl
+            }
+          />
+        </div>
       ) : null}
 
       {interchangeFor ? (

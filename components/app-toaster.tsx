@@ -8,9 +8,10 @@ export default function AppToaster() {
   return (
     <Toaster
       theme={mode === 'dark' ? 'dark' : 'light'}
-      position="top-center"
+      position="bottom-center"
       richColors
       closeButton
+      offset={24}
       toastOptions={{ duration: 4000 }}
     />
   )

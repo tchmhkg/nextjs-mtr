@@ -19,13 +19,13 @@ function ThemeSwitcher() {
       onClick={onClick}
       aria-label={t('Toggle theme')}
       aria-pressed={isDark}
-      className={`relative mx-1 h-6 w-11 shrink-0 rounded-full border border-border transition-colors ${
+      className={`relative mx-1 h-6 w-10 shrink-0 rounded-full border border-border transition-colors ${
         isDark ? 'bg-slate-600' : 'bg-slate-300'
       }`}
     >
       <span
-        className={`absolute top-0.5 left-0.5 size-4 rounded-full bg-white shadow transition-transform duration-150 ${
-          isDark ? 'translate-x-5' : 'translate-x-0'
+        className={`pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 rounded-full bg-white shadow transition-[left] duration-150 ${
+          isDark ? 'left-[calc(100%-1.125rem)]' : 'left-0.5'
         }`}
         aria-hidden
       />

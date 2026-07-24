@@ -40,17 +40,19 @@ function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
         { format: ['hours', 'minutes'] }
       )
       if (locale === 'tc') {
+        // Compact one-line: "4小時14分鐘"
         return duration
-          .replace(/\shours|\shour/g, '小時')
-          .replace(/\sminutes|\sminute/g, '分鐘')
-          .replace(/\sseconds|\ssecond/g, '秒')
+          .replace(/\s*hours?/g, '小時')
+          .replace(/\s*minutes?/g, '分鐘')
+          .replace(/\s*seconds?/g, '秒')
+          .replace(/\s+/g, '')
       }
       return duration
-        .replace(/hours/g, 'hrs')
-        .replace(/hour/g, 'hr')
-        .replace(/minutes/g, 'mins')
-        .replace(/minute/g, 'min')
-        .replace(/seconds/g, 'secs')
+        .replace(/\shours?/g, 'h')
+        .replace(/\sminutes?/g, 'm')
+        .replace(/\sseconds?/g, 's')
+        .replace(/\s+/g, ' ')
+        .trim()
     },
     [currTime, locale, t]
   )
@@ -72,7 +74,7 @@ function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
           </div>
         ) : null}
       </div>
-      <div className="flex w-10 shrink-0 justify-center">
+      <div className="flex w-9 shrink-0 justify-center">
         <span
           className="inline-flex min-w-7 items-center justify-center rounded px-1.5 py-0.5 text-xs font-semibold text-white"
           style={{ backgroundColor: lineColor }}
@@ -80,9 +82,9 @@ function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
           {times.plat}
         </span>
       </div>
-      <div className="w-[5.5rem] shrink-0 text-right">
+      <div className="min-w-[5.75rem] shrink-0 text-right">
         <div className="text-xs text-muted">{humanTime(times.time)}</div>
-        <div className="text-base font-semibold leading-tight text-ink">
+        <div className="whitespace-nowrap text-base font-semibold leading-tight text-ink">
           {humanDuration(times.time)}
         </div>
       </div>
