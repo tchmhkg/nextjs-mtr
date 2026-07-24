@@ -6,7 +6,7 @@ Live deployment: [nextjs-mtr.vercel.app](https://nextjs-mtr.vercel.app)
 
 ## Requirements
 
-- **Node.js** 20.9 or newer (see `engines` in `package.json`)
+- **Node.js** 22 or newer (see `engines` / `.nvmrc`)
 
 ## Setup
 
@@ -21,14 +21,29 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command            | Description                              |
-| ------------------ | ---------------------------------------- |
-| `yarn dev`         | Development server                       |
-| `yarn build`       | Production build                         |
-| `yarn start`       | Run production server                    |
-| `yarn lint`        | ESLint                                   |
-| `yarn verify`      | Mapper + MTR time self-checks            |
-| `yarn check:mapper`| Runnable check for MTR schedule mapper   |
+| Command              | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `yarn dev`           | Development server                               |
+| `yarn build`         | Production build                                 |
+| `yarn start`         | Run production server                            |
+| `yarn lint`          | ESLint                                           |
+| `yarn test`          | Unit tests (Vitest)                              |
+| `yarn test:coverage` | Unit tests + scoped ≥80% coverage gate           |
+| `yarn verify`        | Alias for `yarn test:coverage`                   |
+
+Coverage is **scoped** to pure schedules/utils modules listed in
+`vitest.config.ts` (`coverage.include`). Components and pages are out of
+scope on purpose — raise coverage by adding logic files + tests there, not
+by chasing a repo-wide percentage.
+
+## Docker
+
+Multi-stage image uses Node 22 Alpine and Next.js `output: 'standalone'`.
+
+```bash
+docker build -t nextjs-mtr .
+docker run --rm -p 3000:3000 nextjs-mtr
+```
 
 ## Stack
 

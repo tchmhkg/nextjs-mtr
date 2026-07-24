@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "check:mapper": "tsx lib/schedules/mappers/mtr-schedule.mapper.check.ts",
-    "check:mtr-time": "tsx utils/mtr-time.check.ts",
-    "verify": "yarn check:mapper && yarn check:mtr-time"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "verify": "yarn test:coverage"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
@@ -35,6 +35,7 @@
     "@serwist/turbopack": "^9.5.12",
     "@types/node": "^25.9.5",
     "@types/react": "19.2.17",
+    "@vitest/coverage-v8": "^3.2.4",
     "esbuild": "^0.28.1",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.2.11",
@@ -43,11 +44,11 @@
     "eslint-plugin-import": "^2.32.0",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "serwist": "^9.5.12",
-    "tsx": "^4.23.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=22"
   },
   "resolutions": {
     "@types/react": "19.2.17"
