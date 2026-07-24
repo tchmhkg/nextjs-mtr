@@ -1,6 +1,7 @@
 import { nextTrainQuerySchema } from '@lib/schedules/contracts/next-train.query'
 import { ApiError, isApiError } from '@lib/schedules/errors/api-error'
 import { getNextTrain } from '@lib/schedules/get-next-train'
+import { assertFreshAllowed } from '@lib/schedules/http/fresh-guard'
 import { toErrorResponse, toSuccessResponse } from '@lib/schedules/http/respond'
 import { NextResponse } from 'next/server'
 
@@ -33,6 +34,15 @@ export async function GET(request: Request) {
         400
       )
     )
+  }
+
+  if (parsed.data.fresh) {
+    try {
+      assertFreshAllowed(request)
+    } catch (error) {
+      if (isApiError(error)) return toErrorResponse(error)
+      throw error
+    }
   }
 
   try {
