@@ -85,9 +85,8 @@ function HomePickerBody({
 
       <div className="flex flex-col gap-3 md:flex-row md:gap-0">
         <div
-          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${
-            pickerStep === 'station' ? 'hidden md:block' : 'block'
-          }`}
+          className={`md:w-52 md:shrink-0 md:border-r md:border-border md:pr-2 ${pickerStep === 'station' ? 'hidden md:block' : 'block'
+            }`}
         >
           <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
             {t('Select a line')}
@@ -110,9 +109,8 @@ function HomePickerBody({
 
         {selectedLine ? (
           <div
-            className={`min-w-0 flex-1 md:pl-2 ${
-              pickerStep === 'line' ? 'hidden md:block' : 'block'
-            }`}
+            className={`min-w-0 flex-1 md:pl-2 ${pickerStep === 'line' ? 'hidden md:block' : 'block'
+              }`}
           >
             <div
               className="mb-1 flex items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-muted"
@@ -320,13 +318,11 @@ const Home = ({
         <h1 className="text-xl font-semibold tracking-tight text-ink md:text-2xl">
           {heading}
         </h1>
-        {(editing || !hasSelection) && (
-          <CurrLocation
-            onClick={getCurrLocation}
-            aria-label={t('Find nearest station')}
-            busy={locating}
-          />
-        )}
+        <CurrLocation
+          onClick={getCurrLocation}
+          aria-label={t('Find nearest station')}
+          busy={locating}
+        />
       </header>
 
       {locationError ? (
