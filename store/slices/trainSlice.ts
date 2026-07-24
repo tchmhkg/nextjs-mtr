@@ -1,23 +1,8 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
+import type { ILine, IStation } from '@utils/next-train-data'
 
-export interface IRelatedLine {
-  lineCode: string
-  color: string
-  stationCode?: string
-}
+export type { ILine, IStation, IRelatedLine } from '@utils/next-train-data'
 
-export interface ILine {
-  code: string
-  label: { en: string; tc: string }
-  color: string
-}
-
-export interface IStation {
-  code: string
-  label: { en: string; tc: string }
-  location: { lat: number; lng: number }
-  related?: IRelatedLine[]
-}
 export interface TrainState {
   line: ILine | null
   station: IStation | null
@@ -33,9 +18,6 @@ const initialState: TrainState = {
 
 /**
  * Create a slice as a reducer containing actions.
- *
- * In this example actions are included in the slice. It is fine and can be
- * changed based on your needs.
  */
 export const trainSlice = createSlice({
   name: 'train',
