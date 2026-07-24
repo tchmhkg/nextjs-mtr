@@ -11,24 +11,35 @@ export async function GET(request: Request) {
     line: searchParams.get('line') ?? undefined,
     sta: searchParams.get('sta') ?? undefined,
     lang: searchParams.get('lang') ?? undefined,
+    fresh: searchParams.get('fresh') ?? undefined,
   }
 
   if (!raw.line || !raw.sta) {
     return toErrorResponse(
-      new ApiError('MISSING_PARAMS', 'Missing required parameters: line and sta', 400)
+      new ApiError(
+        'MISSING_PARAMS',
+        'Missing required parameters: line and sta',
+        400
+      )
     )
   }
 
   const parsed = nextTrainQuerySchema.safeParse(raw)
   if (!parsed.success) {
     return toErrorResponse(
-      new ApiError('VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid parameters', 400)
+      new ApiError(
+        'VALIDATION_ERROR',
+        parsed.error.issues[0]?.message ?? 'Invalid parameters',
+        400
+      )
     )
   }
 
   try {
     const result = await getNextTrain(parsed.data)
-    return toSuccessResponse(result.data, result.meta)
+    return toSuccessResponse(result.data, result.meta, {
+      fresh: Boolean(parsed.data.fresh),
+    })
   } catch (error) {
     console.error('Next train API error:', error)
     if (isApiError(error)) {
