@@ -268,7 +268,7 @@ Copy `.env.local.example` to `.env.local`. Tunables (cache TTLs, poll interval, 
 | `SCHEDULE_S_MAXAGE_SECONDS` | `30` | API Cache-Control |
 | `SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS` | `60` | API Cache-Control |
 | `ALERT_URL_ALLOWED_HOSTS` | `mtr.com.hk` | Comma-separated host suffixes |
-| `FRESH_COOLDOWN_MS` | `10000` | Per-IP cooldown for `fresh=1` |
+| `FRESH_COOLDOWN_MS` | `3000` | Per-IP cooldown for `fresh=1` (no Upstash) |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | metadataBase / OG |
 | `NEXT_PUBLIC_SCHEDULE_POLL_MS` | `30000` | Client poll; set at build for client |
 | `NEXT_PUBLIC_GITHUB_URL` | unset | Navbar GitHub button hidden if empty |
