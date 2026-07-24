@@ -7,7 +7,7 @@ interface IWrapper {
 
 export const ListWrapper = styled.div`
   overflow: auto;
-  padding: 5px 0;
+  padding: 8px 0;
 
   .list-item {
     display: flex;
@@ -15,11 +15,14 @@ export const ListWrapper = styled.div`
     justify-content: space-between;
     margin: 8px 0;
     background: ${({ theme }) => theme.backgroundAlt};
-    border-radius: 8px;
-    padding: 4px 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid ${({ theme }) => theme.border};
+    border-radius: 10px;
+    padding: 10px 12px;
+    min-height: 48px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.15s ease;
     &:hover {
-      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     .item-dest {
       flex: 0.7;

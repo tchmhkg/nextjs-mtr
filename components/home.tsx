@@ -25,6 +25,9 @@ import {
   LineColor,
   LineOption,
   LocationMessage,
+  MobileBackButton,
+  PickerPanel,
+  PickerRow,
   RelatedLine,
   RelatedLineWrapper,
   Right,
@@ -65,6 +68,8 @@ const Home = ({
   const [locating, setLocating] = useState(false)
   const [locationError, setLocationError] = useState<MessageKey | null>(null)
   const [showRelated, setShowRelated] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [pickerStep, setPickerStep] = useState<'line' | 'station'>('line')
   const refs = React.useMemo(() => DATA.reduce((stationRef: Record<string, React.RefObject<HTMLDivElement | null>>, value) => {
     for (const station of value.stations) {
       stationRef[station.code] = React.createRef<HTMLDivElement | null>()
@@ -74,12 +79,16 @@ const Home = ({
 
   const onChangeLine = useCallback(
     (line: ILine) => {
-      if (line.code === selectedLine?.code) return
+      if (line.code === selectedLine?.code) {
+        if (isMobile) setPickerStep('station')
+        return
+      }
       dispatch(setLine(line))
       dispatch(setStation(null))
       rightListRef?.current?.scrollTo({ top: 0 })
+      if (isMobile) setPickerStep('station')
     },
-    [selectedLine, dispatch]
+    [selectedLine, dispatch, isMobile]
   )
   const filterStations = useCallback((): ILineStation | undefined => {
     if (!selectedLine?.code) return undefined
@@ -194,8 +203,17 @@ const Home = ({
     if (line && station) {
       dispatch(setLine(line))
       dispatch(setStation(station))
+      setPickerStep('station')
     }
   }, [dispatch, initialLineFromUrl, initialStaFromUrl])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)')
+    const sync = () => setIsMobile(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
 
   useEffect(() => {
     if (!selectedLine?.code || !selectedStation?.code) return
@@ -289,61 +307,80 @@ const Home = ({
         <LocationMessage role="alert">{t(locationError)}</LocationMessage>
       ) : null}
       <SelectorWrapper role="tabpanel" aria-label={t('Train line and station selection')}>
-        <Left role="tablist" aria-label={t('Select train line')}>
-          {DATA.map((l) => (
-            <LineOption
-              key={l.line.code}
-              onClick={() => onChangeLine(l.line)}
-              $selected={l.line.code === selectedLine?.code}
-              $color={l.line.color}
-              role="tab"
-              aria-selected={l.line.code === selectedLine?.code}
-              aria-label={`${t('Select')} ${l.line.label[getLanguage(locale)]}`}
-              tabIndex={l.line.code === selectedLine?.code ? 0 : -1}
+        {isMobile && pickerStep === 'station' && selectedLine ? (
+          <MobileBackButton
+            type="button"
+            onClick={() => setPickerStep('line')}
+            aria-label={t('Select a line')}
+          >
+            ← {t('Select a line')}
+          </MobileBackButton>
+        ) : null}
+        <PickerRow>
+          {(!isMobile || pickerStep === 'line') && (
+            <PickerPanel>
+              <Left role="tablist" aria-label={t('Select train line')}>
+              {DATA.map((l) => (
+                <LineOption
+                  key={l.line.code}
+                  onClick={() => onChangeLine(l.line)}
+                  $selected={l.line.code === selectedLine?.code}
+                  $color={l.line.color}
+                  role="tab"
+                  aria-selected={l.line.code === selectedLine?.code}
+                  aria-label={`${t('Select')} ${l.line.label[getLanguage(locale)]}`}
+                  tabIndex={l.line.code === selectedLine?.code ? 0 : -1}
+                >
+                  <LineColor $color={l.line.color} aria-hidden="true" />
+                  <div className="option-name">{l.line.label[getLanguage(locale)]}</div>
+                </LineOption>
+              ))}
+            </Left>
+          </PickerPanel>
+          )}
+          {(!isMobile || pickerStep === 'station') && selectedLine ? (
+            <PickerPanel>
+              <Right
+              ref={rightListRef}
+              $bgColor={filterStations()?.line?.color || undefined}
+              role="tabpanel"
+              aria-label={`${selectedLine.label[getLanguage(locale)]} ${t('stations')}`}
             >
-              <LineColor $color={l.line.color} aria-hidden="true" />
-              <div className="option-name">{l.line.label[getLanguage(locale)]}</div>
-            </LineOption>
-          ))}
-        </Left>
-        <Right
-          ref={rightListRef}
-          $bgColor={filterStations()?.line?.color || undefined}
-          role="tabpanel"
-          aria-label={`${selectedLine ? selectedLine.label[getLanguage(locale)] : ''} ${t('stations')}`}
-        >
-          {filterStations()?.stations?.map((s) => {
-            return (
-              <StationOption
-                ref={refs[s.code]}
-                key={s.code}
-                onClick={() => dispatch(setStation(s))}
-                $selected={s.code === selectedStation?.code}
-                role="button"
-                tabIndex={0}
-                aria-label={`${t('Select station')} ${s.label[getLanguage(locale)]}`}
-              >
-                <div className="option-name station">
-                  {s.label[getLanguage(locale)]}
-                  {(s.related?.length ?? 0) > 0 && (
-                    <ShowMoreButton
-                      className="more-option"
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        showInterchangeOptions(s)
-                      }}
-                      onKeyDown={(e) => handleKeyDownShowMore(e, s)}
-                      aria-label={`${t('Show interchange options for')} ${s.label[getLanguage(locale)]}`}
-                    >
-                      {'>'}
-                    </ShowMoreButton>
-                  )}
-                </div>
-              </StationOption>
-            )
-          })}
-        </Right>
+              {filterStations()?.stations?.map((s) => {
+                return (
+                  <StationOption
+                    ref={refs[s.code]}
+                    key={s.code}
+                    onClick={() => dispatch(setStation(s))}
+                    $selected={s.code === selectedStation?.code}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${t('Select station')} ${s.label[getLanguage(locale)]}`}
+                  >
+                    <div className="option-name station">
+                      {s.label[getLanguage(locale)]}
+                      {(s.related?.length ?? 0) > 0 && (
+                        <ShowMoreButton
+                          className="more-option"
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            showInterchangeOptions(s)
+                          }}
+                          onKeyDown={(e) => handleKeyDownShowMore(e, s)}
+                          aria-label={`${t('Show interchange options for')} ${s.label[getLanguage(locale)]}`}
+                        >
+                          {'>'}
+                        </ShowMoreButton>
+                      )}
+                    </div>
+                  </StationOption>
+                )
+              })}
+            </Right>
+          </PickerPanel>
+          ) : null}
+        </PickerRow>
       </SelectorWrapper>
       {selectedLine?.code && selectedStation?.code && (
         <Result
@@ -358,6 +395,7 @@ const Home = ({
             {selectedStation.related?.map((rStation) => (
               <RelatedLine
                 key={rStation.lineCode}
+                type="button"
                 $lineColor={rStation.color}
                 onClick={() =>
                   switchLine(rStation.lineCode, rStation.stationCode)

@@ -4,7 +4,7 @@ import baseTheme from './base';
 const dark = {
   theme: {
     ...baseTheme.theme,
-    background: 'linear-gradient(180deg, #1a1a1a 0%, #2c2c2c 100%)',
+    background: 'linear-gradient(180deg, #0c1117 0%, #141c26 45%, #1a2430 100%)',
     border: '#4a4a4a',
     backgroundAlt: '#333333',
     borderAlt: '#8f8f8f',
@@ -19,7 +19,7 @@ const dark = {
     alertBackground: '#613400',
     alertBorder: '#faad14',
     alertText: '#fffbe6',
-    statusBar: '#1a1a1a',
+    statusBar: '#0c1117',
   },
 };
 

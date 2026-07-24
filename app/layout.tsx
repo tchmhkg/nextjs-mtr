@@ -2,19 +2,21 @@ import StyledComponentsRegistry from '@components/styled-components-registry'
 import '@styles/global.scss'
 import NextTopLoader from 'nextjs-toploader'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Poppins } from 'next/font/google'
+import { Noto_Sans_TC, Outfit } from 'next/font/google'
 import { headers } from 'next/headers'
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
+  variable: '--font-outfit',
 })
 
-const poppins = Poppins({
+const notoSansTc = Noto_Sans_TC({
   subsets: ['latin'],
-  weight: ['500', '700'],
+  weight: ['400', '500', '700'],
   display: 'swap',
+  variable: '--font-noto-sans-tc',
 })
 
 export const metadata: Metadata = {
@@ -71,7 +73,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const lang = hdr.get('x-next-intl-locale') ?? 'tc'
 
   return (
-    <html lang={lang} dir="ltr" className={`${inter.className} ${poppins.className}`}>
+    <html
+      lang={lang}
+      dir="ltr"
+      className={`${outfit.variable} ${notoSansTc.variable}`}
+    >
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
