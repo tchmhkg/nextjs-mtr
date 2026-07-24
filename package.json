@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "check:mapper": "tsx lib/schedules/mappers/mtr-schedule.mapper.check.ts"
+    "check:mapper": "tsx lib/schedules/mappers/mtr-schedule.mapper.check.ts",
+    "check:mtr-time": "tsx utils/mtr-time.check.ts",
+    "verify": "yarn check:mapper && yarn check:mtr-time"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
     "@sentry/nextjs": "^10.49.0",
+    "@tanstack/react-query": "^5.101.4",
     "date-fns": "^4.1.0",
     "next": "^16.2.4",
     "next-intl": "^4.9.1",
@@ -21,7 +24,6 @@
     "react-redux": "^9.2.0",
     "sass": "^1.99.0",
     "styled-components": "^6.4.0",
-    "swr": "^2.4.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

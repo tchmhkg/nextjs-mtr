@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react'
 
-export function getIsDocumentHidden() {
+export function getIsDocumentVisible() {
   if (typeof document === 'undefined') {
-    return false
+    return true
   }
-  return !document['hidden']
+  return !document.hidden
 }
 
 export function usePageVisibility() {
-  const [isVisible, setIsVisible] = useState(getIsDocumentHidden())
-  const onVisibilityChange = () => setIsVisible(getIsDocumentHidden())
+  const [isVisible, setIsVisible] = useState(getIsDocumentVisible)
   useEffect(() => {
-    document.addEventListener('visibilitychange', onVisibilityChange, false)
+    const onVisibilityChange = () => setIsVisible(getIsDocumentVisible())
+    document.addEventListener('visibilitychange', onVisibilityChange)
     return () => {
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  })
+  }, [])
   return isVisible
 }

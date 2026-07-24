@@ -23,6 +23,11 @@ export const ListWrapper = styled.div`
     }
     .item-dest {
       flex: 0.7;
+      .item-meta {
+        font-size: 12px;
+        opacity: 0.75;
+        font-weight: normal;
+      }
       @media (max-width: 374px) {
         flex: 0.6;
       }
