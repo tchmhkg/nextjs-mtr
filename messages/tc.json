@@ -152,5 +152,7 @@
   "DRL": "迪士尼綫",
   "MTR": "港鐵",
   "Light Rail": "輕鐵",
-  "Transport mode": "交通模式"
+  "Transport mode": "交通模式",
+  "Select a route": "選擇路綫",
+  "Direction": "方向"
 }

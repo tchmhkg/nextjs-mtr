@@ -152,5 +152,7 @@
   "DRL": "Disneyland Resort Line",
   "MTR": "MTR",
   "Light Rail": "Light Rail",
-  "Transport mode": "Transport mode"
+  "Transport mode": "Transport mode",
+  "Select a route": "Select a route",
+  "Direction": "Direction"
 }
