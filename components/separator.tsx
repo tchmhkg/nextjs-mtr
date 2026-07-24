@@ -1,9 +1,7 @@
-import { memo } from "react";
-import styled from "styled-components";
+import { memo } from 'react'
 
-const Container = styled.div`
-  border-bottom: 1px solid ${(props) => props.theme.border};
-`;
+function Separator() {
+  return <div className="border-b border-border" />
+}
 
-const Separator = () => <Container />;
-export default memo(Separator);
+export default memo(Separator)

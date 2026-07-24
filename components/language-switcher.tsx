@@ -5,38 +5,10 @@ import { routing } from '@i18n/routing'
 import { SUPPORTED_LOCALES } from '@utils/locale-path'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
-import styled from 'styled-components'
-
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const LocaleButton = styled.button<{ $selected: boolean }>`
-  cursor: pointer;
-  color: ${(props) => (props.$selected ? '#ffffff' : props.theme.text)};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 44px;
-  min-height: 44px;
-  margin: 0 2px;
-  border: none;
-  border-radius: 20px;
-  padding: 4px 8px;
-  font-size: 14px;
-  background: ${({ $selected, theme }) =>
-    $selected
-      ? `linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
-      : 'transparent'};
-  @media (max-width: 374px) {
-    font-size: 12px;
-  }
-`
 
 type AppLocale = (typeof routing.locales)[number]
 
-const LanguageSwitcher = () => {
+function LanguageSwitcher() {
   const router = useRouter()
   const pathname = usePathname()
   const currentLocale = useLocale()
@@ -51,20 +23,27 @@ const LanguageSwitcher = () => {
   )
 
   return (
-    <Wrapper role="group" aria-label={t('Language')}>
-      {SUPPORTED_LOCALES.map((lng) => (
-        <LocaleButton
-          key={lng}
-          type="button"
-          $selected={lng === currentLocale}
-          onClick={() => handleLocaleChange(lng)}
-          aria-label={`${t('Language')}: ${t(lng)}`}
-          aria-pressed={lng === currentLocale}
-        >
-          {t(lng)}
-        </LocaleButton>
-      ))}
-    </Wrapper>
+    <div className="flex items-center" role="group" aria-label={t('Language')}>
+      {SUPPORTED_LOCALES.map((lng) => {
+        const selected = lng === currentLocale
+        return (
+          <button
+            key={lng}
+            type="button"
+            onClick={() => handleLocaleChange(lng)}
+            aria-label={`${t('Language')}: ${t(lng)}`}
+            aria-pressed={selected}
+            className={`mx-0.5 flex min-h-11 min-w-11 items-center justify-center rounded-full px-2 text-sm ${
+              selected
+                ? 'bg-gradient-to-r from-sky-500 to-sky-400 text-white'
+                : 'bg-transparent text-ink'
+            }`}
+          >
+            {t(lng)}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 

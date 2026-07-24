@@ -1,84 +1,42 @@
 'use client'
 
-import { useTheme } from '@theme/theme'
 import { useTranslations } from 'next-intl'
 import React, { useCallback, useState } from 'react'
-import styled, { css, keyframes } from 'styled-components'
 
 interface BellProps {
   onClick: () => void
 }
 
-const tapPulse = keyframes`
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.12);
-  }
-  100% {
-    transform: scale(1);
-  }
-`
-
-const Button = styled.button`
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: scale(1.1);
-  transition: transform 0.12s ease-out;
-  &:hover {
-    transform: scale(1.25);
-  }
-  &:active {
-    transform: scale(1);
-  }
-`
-
-const IconSvg = styled.svg<{ $animate: boolean }>`
-  ${(p) =>
-    p.$animate &&
-    css`
-      animation: ${tapPulse} 0.35s ease-out;
-    `}
-`
-
-const Bell = ({ onClick }: BellProps) => {
-  const { colors } = useTheme()
+function Bell({ onClick }: BellProps) {
   const t = useTranslations()
-  const [count, setCount] = useState(0)
+  const [pulse, setPulse] = useState(false)
   const onClickButton = useCallback(() => {
     onClick()
-    setCount((prev) => prev + 1)
+    setPulse(true)
+    window.setTimeout(() => setPulse(false), 350)
   }, [onClick])
 
   return (
-    <Button
+    <button
       type="button"
       onClick={onClickButton}
       aria-label={t('Alert')}
+      className="flex size-11 items-center justify-center text-ink transition-transform hover:scale-110"
     >
-      <IconSvg
-        key={count}
-        $animate={count > 0}
+      <svg
         width="18"
         height="18"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
-        fill={colors.text}
+        fill="currentColor"
         fillRule="nonzero"
-        aria-hidden="true"
+        aria-hidden
+        className={pulse ? 'scale-110 transition-transform' : ''}
       >
         <path d="M0 0h24v24H0V0z" fill="none" />
         <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6zM7.58 4.08L6.15 2.65C3.75 4.48 2.17 7.3 2.03 10.5h2c.15-2.65 1.51-4.97 3.55-6.42zm12.39 6.42h2c-.15-3.2-1.73-6.02-4.12-7.85l-1.42 1.43c2.02 1.45 3.39 3.77 3.54 6.42z" />
-      </IconSvg>
-    </Button>
+      </svg>
+    </button>
   )
 }
 

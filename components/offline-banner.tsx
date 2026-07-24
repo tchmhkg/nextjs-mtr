@@ -2,22 +2,6 @@
 
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
-import styled from 'styled-components'
-
-const Banner = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1200;
-  padding: 8px 16px;
-  padding-top: calc(8px + env(safe-area-inset-top, 0px));
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  background: ${({ theme }) => theme.primary};
-`
 
 export default function OfflineBanner() {
   const t = useTranslations()
@@ -36,5 +20,12 @@ export default function OfflineBanner() {
 
   if (!offline) return null
 
-  return <Banner role="status">{t('Offline')}</Banner>
+  return (
+    <div
+      role="status"
+      className="fixed left-0 right-0 top-0 z-[1200] bg-red-500 px-4 py-2 pt-[calc(8px+env(safe-area-inset-top,0px))] text-center text-sm font-semibold text-white"
+    >
+      {t('Offline')}
+    </div>
+  )
 }

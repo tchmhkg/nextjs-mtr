@@ -5,7 +5,6 @@ import type { TrainRouteRow } from '@lib/schedules/contracts/next-train.dto'
 import { format, formatDuration, intervalToDuration } from 'date-fns'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
-import { PlatForm, PlatFormWrapper } from './result-item.style'
 
 interface ResultItemProps {
   times: TrainRouteRow
@@ -16,11 +15,10 @@ interface ResultItemProps {
 const isValidDate = (d: unknown): d is Date =>
   d instanceof Date && !Number.isNaN(d.getTime())
 
-const humanTime = (time: Date | string = new Date()) => {
-  return format(new Date(String(time).replace(' ', 'T')), 'HH:mm')
-}
+const humanTime = (time: Date | string = new Date()) =>
+  format(new Date(String(time).replace(' ', 'T')), 'HH:mm')
 
-const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
+function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
   const locale = useLocale()
   const t = useTranslations()
   const humanDuration = useCallback(
@@ -32,9 +30,11 @@ const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
       const diffMSeconds = start.getTime() - end.getTime()
       const diffSeconds = diffMSeconds / 1000
       if (diffSeconds <= 0)
-        return <span className="time-leaving">{t('leaving')}</span>
+        return <span className="font-semibold text-red-500">{t('leaving')}</span>
       if (diffSeconds <= 60)
-        return <span className="time-arriving">{t('arriving')}</span>
+        return (
+          <span className="font-semibold text-emerald-500">{t('arriving')}</span>
+        )
       const duration = formatDuration(
         intervalToDuration({ start: 0, end: diffMSeconds }),
         { format: ['hours', 'minutes'] }
@@ -61,19 +61,30 @@ const ResultItem = ({ times, lineColor, currTime }: ResultItemProps) => {
   if (times.route === 'RAC') metaBits.push(t('Via Racecourse'))
 
   return (
-    <div className="list-item" key={times.seq}>
-      <div className="item-dest">
-        {t(times.dest as MessageKey)}
+    <div className="flex min-h-11 items-center gap-2 py-2">
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium text-ink">
+          {t(times.dest as MessageKey)}
+        </div>
         {metaBits.length ? (
-          <div className="item-meta">{metaBits.join(' · ')}</div>
+          <div className="truncate text-xs text-muted">
+            {metaBits.join(' · ')}
+          </div>
         ) : null}
       </div>
-      <PlatFormWrapper>
-        <PlatForm $lineColor={lineColor}>{times.plat}</PlatForm>
-      </PlatFormWrapper>
-      <div className="item-time">
-        <div className="time-text">{humanTime(times.time)}</div>
-        <div className="time-diff">{humanDuration(times.time)}</div>
+      <div className="flex w-10 shrink-0 justify-center">
+        <span
+          className="inline-flex min-w-7 items-center justify-center rounded px-1.5 py-0.5 text-xs font-semibold text-white"
+          style={{ backgroundColor: lineColor }}
+        >
+          {times.plat}
+        </span>
+      </div>
+      <div className="w-[5.5rem] shrink-0 text-right">
+        <div className="text-xs text-muted">{humanTime(times.time)}</div>
+        <div className="text-base font-semibold leading-tight text-ink">
+          {humanDuration(times.time)}
+        </div>
       </div>
     </div>
   )

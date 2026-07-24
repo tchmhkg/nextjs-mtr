@@ -1,6 +1,5 @@
-import StyledComponentsRegistry from '@components/styled-components-registry'
 import { env } from '@lib/env'
-import '@styles/global.scss'
+import '@styles/globals.css'
 import NextTopLoader from 'nextjs-toploader'
 import type { Metadata, Viewport } from 'next'
 import { Noto_Sans_TC, Outfit } from 'next/font/google'
@@ -139,7 +138,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body>
         <NextTopLoader color="#333333" showSpinner={false} height={2} />
-        <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+        {children}
       </body>
     </html>
   )

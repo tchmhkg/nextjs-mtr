@@ -4,11 +4,8 @@ import type { TrainRouteRow } from '@lib/schedules/contracts/next-train.dto'
 import { useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 import ResultItem from './result-item'
-import { ListWrapper, Wrapper } from './result-list.style'
 
 interface ResultListProps {
-  left?: boolean
-  right?: boolean
   label?: string
   data?: TrainRouteRow[]
   lineColor?: string
@@ -16,20 +13,19 @@ interface ResultListProps {
   currTime?: string
 }
 
-const ResultList = ({
-  left = false,
-  right = false,
+function ResultList({
   label = '',
   data = [],
   lineColor = '#999',
   delay = false,
   currTime,
-}: ResultListProps) => {
+}: ResultListProps) {
   const t = useTranslations()
 
   const renderResult = useCallback(() => {
-    if (delay) return <div>{t('Service not available')}</div>
-    if (!data?.length) return <div>{t('End Service')}</div>
+    if (delay) return <div className="text-sm text-muted">{t('Service not available')}</div>
+    if (!data?.length)
+      return <div className="text-sm text-muted">{t('End Service')}</div>
     return data.map((times) => (
       <ResultItem
         key={times.seq}
@@ -41,10 +37,12 @@ const ResultList = ({
   }, [currTime, data, delay, lineColor, t])
 
   return (
-    <Wrapper $left={left} $right={right}>
-      <div className="label">{label && `${t('To')}: ${label}`}</div>
-      <ListWrapper>{renderResult()}</ListWrapper>
-    </Wrapper>
+    <div>
+      <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
+        {label ? `${t('To')}: ${label}` : null}
+      </div>
+      <div className="divide-y divide-border/70">{renderResult()}</div>
+    </div>
   )
 }
 

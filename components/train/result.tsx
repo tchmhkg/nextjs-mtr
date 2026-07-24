@@ -6,15 +6,17 @@ import Refresh from '@components/refresh'
 import { usePageVisibility } from '@hooks/usePageVisibility'
 import type { MessageKey } from '@i18n/message-key'
 import type { ApiSuccessResponse } from '@lib/schedules/contracts/api-response'
-import type { NextTrainDto, TrainRouteRow } from '@lib/schedules/contracts/next-train.dto'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type {
+  NextTrainDto,
+  TrainRouteRow,
+} from '@lib/schedules/contracts/next-train.dto'
 import { CLIENT_SCHEDULE_POLL_MS } from '@lib/public-env'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { advanceMtrTimestamp } from '@utils/mtr-time'
 import { DATA } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ResultList from './result-list'
-import { Header, LastUpdate, ResultWrapper, Wrapper } from './result.style'
 
 interface ResultProps {
   line: string
@@ -35,7 +37,7 @@ async function fetchNextTrain(url: string): Promise<NextTrainDto> {
   return json.data
 }
 
-const Result = ({ line, sta, initialSchedule }: ResultProps) => {
+function Result({ line, sta, initialSchedule }: ResultProps) {
   const locale = useLocale()
   const t = useTranslations()
   const queryClient = useQueryClient()
@@ -85,7 +87,6 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
     }
   }, [data?.lastUpdated])
 
-  // ponytail: 1s interval for live ETA; ceiling is timer drift when backgrounded
   useEffect(() => {
     if (!data?.lastUpdated || !isVisible) return
     const id = window.setInterval(() => setTick((n) => n + 1), 1000)
@@ -134,9 +135,6 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
     }
   }, [apiUrl, manualRefreshing, queryClient, queryKey, refetch])
 
-  const onClickShowAlert = useCallback(() => setShowAlert(true), [])
-  const onClickCloseAlert = useCallback(() => setShowAlert(false), [])
-
   const renderTrainLists = useCallback(() => {
     if (!data?.up && !data?.down) {
       if (data?.isDelayed) return <div>{t('Service delayed')}</div>
@@ -146,103 +144,121 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
     return (
       <>
         {data?.isDelayed ? (
-          <div className="delay-banner">{t('Service delayed')}</div>
+          <div className="mb-3 rounded-lg border border-amber-400/60 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+            {t('Service delayed')}
+          </div>
         ) : null}
-        {data?.up && effectiveNow ? (
-          <ResultList
-            left
-            label={getRouteDestLabel(data.up)}
-            data={data.up}
-            lineColor={lineColor}
-            delay={false}
-            currTime={effectiveNow}
-          />
-        ) : null}
-        {data?.down && effectiveNow ? (
-          <ResultList
-            right
-            label={getRouteDestLabel(data.down)}
-            data={data.down}
-            lineColor={lineColor}
-            delay={false}
-            currTime={effectiveNow}
-          />
-        ) : null}
+        <div className="grid gap-4 md:grid-cols-2">
+          {data?.up && effectiveNow ? (
+            <ResultList
+              label={getRouteDestLabel(data.up)}
+              data={data.up}
+              lineColor={lineColor}
+              delay={false}
+              currTime={effectiveNow}
+            />
+          ) : null}
+          {data?.down && effectiveNow ? (
+            <ResultList
+              label={getRouteDestLabel(data.down)}
+              data={data.down}
+              lineColor={lineColor}
+              delay={false}
+              currTime={effectiveNow}
+            />
+          ) : null}
+        </div>
       </>
     )
   }, [data, effectiveNow, getRouteDestLabel, lineColor, t])
 
   if (!line || !sta) return null
 
-  if (isPending && !data) return <div>{t('loading')}</div>
+  if (isPending && !data) {
+    return <div className="text-muted">{t('loading')}</div>
+  }
 
   const refreshing = manualRefreshing || isFetching
 
   if (isError && !data) {
     return (
-      <Wrapper>
-        <Header>
-          <LastUpdate>
-            <div className="last-update-time">{t('Failed to load schedule')}</div>
-          </LastUpdate>
+      <section className="rounded-xl border border-border bg-surface-alt/80 p-4">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="text-sm text-muted">{t('Failed to load schedule')}</div>
           <Refresh onClick={onManualRefresh} isRefreshing={manualRefreshing} />
-        </Header>
-        <ResultWrapper>
-          <div>
-            {error instanceof Error
-              ? error.message
-              : t('Service not available')}
-          </div>
-          <button type="button" onClick={() => void onManualRefresh()}>
-            {t('Retry')}
-          </button>
-        </ResultWrapper>
-      </Wrapper>
+        </div>
+        <div className="text-sm">
+          {error instanceof Error
+            ? error.message
+            : t('Service not available')}
+        </div>
+        <button
+          type="button"
+          onClick={() => void onManualRefresh()}
+          className="mt-3 text-sm text-accent underline"
+        >
+          {t('Retry')}
+        </button>
+      </section>
     )
   }
 
   return (
-    <Wrapper>
-      <Header>
-        <LastUpdate $flash={flashUpdate}>
+    <section className="rounded-xl border border-border bg-surface-alt/80 p-4">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div
+          className={`flex min-w-0 flex-1 items-center gap-1 rounded-md px-1 text-sm text-muted ${
+            flashUpdate ? 'animate-flash-soft' : ''
+          }`}
+        >
           {data?.lastUpdated ? (
-            <div className="last-update-time">
+            <span className="truncate">
               {t('last update')}: {data.lastUpdated}
               {refreshing ? (
-                <span className="refreshing-hint"> · {t('Refreshing')}</span>
+                <span className="text-accent"> · {t('Refreshing')}</span>
               ) : null}
-            </div>
+            </span>
           ) : (
-            <div className="last-update-time">{t('last update')}: —</div>
+            <span>
+              {t('last update')}: —
+            </span>
           )}
-          {data?.alert ? <Bell onClick={onClickShowAlert} /> : null}
-        </LastUpdate>
+          {data?.alert ? <Bell onClick={() => setShowAlert(true)} /> : null}
+        </div>
         <Refresh onClick={onManualRefresh} isRefreshing={refreshing} />
-      </Header>
+      </div>
+
       {showAlert ? (
-        <Alert onPressClose={onClickCloseAlert}>
+        <Alert onPressClose={() => setShowAlert(false)}>
           {data?.alert?.message}
           {data?.alert?.url ? (
             <a
               href={data.alert.url}
               target="_blank"
               rel="noopener noreferrer"
+              className="mt-2 block text-accent underline"
             >
               {t('more Info')}
             </a>
           ) : null}
         </Alert>
       ) : null}
+
       {isError && data ? (
-        <div className="stale-error">
+        <div className="mb-3 text-sm text-amber-700 dark:text-amber-300">
           {t('Failed to load schedule')}{' '}
-          <button type="button" onClick={() => void onManualRefresh()}>
+          <button
+            type="button"
+            onClick={() => void onManualRefresh()}
+            className="underline"
+          >
             {t('Retry')}
           </button>
         </div>
       ) : null}
-      <ResultWrapper>{renderTrainLists()}</ResultWrapper>
-    </Wrapper>
+
+      {renderTrainLists()}
+    </section>
   )
 }
 
