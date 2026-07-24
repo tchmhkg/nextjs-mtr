@@ -1,7 +1,7 @@
 'use client'
 
 import ErrorBoundary from '@components/error-boundary'
-import ThemeManager from '@theme/theme'
+import ThemeProvider from '@components/theme-provider'
 import { store } from '@store/store'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -28,9 +28,9 @@ export default function AppProviders({ children }: AppProvidersProps) {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <ThemeManager>
+        <ThemeProvider>
           <ErrorBoundary>{children}</ErrorBoundary>
-        </ThemeManager>
+        </ThemeProvider>
       </QueryClientProvider>
     </Provider>
   )

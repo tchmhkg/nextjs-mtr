@@ -1,30 +1,34 @@
 'use client'
 
+import { useTheme } from '@components/theme-provider'
+import { useTranslations } from 'next-intl'
 import { memo, useCallback } from 'react'
 
-import styles from '@components/theme-switcher.module.scss'
-import { useTheme } from '@theme/theme'
-import { useTranslations } from 'next-intl'
-
-const ThemeSwitcher = () => {
-  const { mode, setMode } = useTheme()
+function ThemeSwitcher() {
+  const { mode, toggle } = useTheme()
   const t = useTranslations()
-  const isOn = mode === 'dark'
-  const onChangeTheme = useCallback(() => {
-    setMode(isOn ? 'light' : 'dark')
-  }, [isOn, setMode])
+  const isDark = mode === 'dark'
+
+  const onClick = useCallback(() => {
+    toggle()
+  }, [toggle])
 
   return (
     <button
       type="button"
-      className={styles.switch}
-      data-enabled={isOn ? 'true' : 'false'}
-      data-on="🌜"
-      data-off="🌞"
-      onClick={onChangeTheme}
+      onClick={onClick}
       aria-label={t('Toggle theme')}
+      aria-pressed={isDark}
+      className={`relative mx-1.5 h-7 w-12 rounded-full border border-border transition-colors ${
+        isDark ? 'bg-slate-600' : 'bg-slate-200'
+      }`}
     >
-      <span className={styles.handle} aria-hidden="true" />
+      <span
+        className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-transform ${
+          isDark ? 'translate-x-6' : 'translate-x-0.5'
+        }`}
+        aria-hidden
+      />
     </button>
   )
 }
