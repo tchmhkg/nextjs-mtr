@@ -1,7 +1,11 @@
 import { nextTrainQuerySchema } from '@lib/schedules/contracts/next-train.query'
 import { ApiError, isApiError } from '@lib/schedules/errors/api-error'
 import { getNextTrain } from '@lib/schedules/get-next-train'
-import { assertFreshAllowed } from '@lib/schedules/http/fresh-guard'
+import {
+  assertFreshAllowed,
+  clientIpFromRequest,
+} from '@lib/schedules/http/fresh-guard'
+import { assertGeneralRateLimit } from '@lib/schedules/http/rate-limit'
 import { toErrorResponse, toSuccessResponse } from '@lib/schedules/http/respond'
 import { NextResponse } from 'next/server'
 
@@ -36,13 +40,14 @@ export async function GET(request: Request) {
     )
   }
 
-  if (parsed.data.fresh) {
-    try {
-      assertFreshAllowed(request)
-    } catch (error) {
-      if (isApiError(error)) return toErrorResponse(error)
-      throw error
+  try {
+    await assertGeneralRateLimit(clientIpFromRequest(request))
+    if (parsed.data.fresh) {
+      await assertFreshAllowed(request)
     }
+  } catch (error) {
+    if (isApiError(error)) return toErrorResponse(error)
+    throw error
   }
 
   try {
