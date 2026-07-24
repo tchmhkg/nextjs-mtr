@@ -39,10 +39,10 @@ const envSchema = z.object({
     emptyToUndefined,
     z.string().default('mtr.com.hk')
   ),
-  FRESH_COOLDOWN_MS: nonNegInt(3_000),
+  FRESH_COOLDOWN_MS: nonNegInt(500),
   RATE_LIMIT_REQUESTS: positiveInt(60),
   RATE_LIMIT_WINDOW_MS: positiveInt(60_000),
-  FRESH_RATE_LIMIT_REQUESTS: positiveInt(20),
+  FRESH_RATE_LIMIT_REQUESTS: positiveInt(30),
   FRESH_RATE_LIMIT_WINDOW_MS: positiveInt(60_000),
   SW_NETWORK_TIMEOUT_MS: positiveInt(8_000),
   SW_MAX_ENTRIES: positiveInt(64),

@@ -64,7 +64,7 @@ html[lang='tc'] body {
 a {
   color: inherit;
   text-decoration: none;
-  word-break: break-word;
+  word-break: word-break;
 }
 
 a:hover {
