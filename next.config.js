@@ -3,7 +3,7 @@ const { withSerwist } = require('@serwist/turbopack')
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
-/** Slightly loose for styled-components until Tailwind migration retunes CSP. */
+/** Tighter CSP after removing styled-components. */
 const ContentSecurityPolicy = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -21,9 +21,8 @@ const ContentSecurityPolicy = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compiler: {
-    styledComponents: true,
     removeConsole: {
-      exclude: ['error'], // Keep console.error
+      exclude: ['error'],
     },
   },
   async headers() {

@@ -33,7 +33,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Stack
 
 - **Framework:** Next.js (App Router), React, TypeScript
-- **UI:** styled-components, Sass modules where used
+- **UI:** Tailwind CSS v4, dark mode via `html.dark` class
 - **State:** Redux Toolkit + react-redux (line/station selection)
 - **Data:** TanStack Query for client polling; BFF route at `/api/next-train`
 - **i18n:** next-intl
