@@ -83,8 +83,10 @@ function ResultItem({ times, lineColor, currTime }: ResultItemProps) {
         </span>
       </div>
       <div className="min-w-[5.75rem] shrink-0 text-right">
-        <div className="text-xs text-muted">{humanTime(times.time)}</div>
-        <div className="whitespace-nowrap text-base font-semibold leading-tight text-ink">
+        <div className="whitespace-nowrap text-base font-semibold tabular-nums leading-tight text-ink">
+          {humanTime(times.time)}
+        </div>
+        <div className="whitespace-nowrap text-xs text-muted">
           {humanDuration(times.time)}
         </div>
       </div>
