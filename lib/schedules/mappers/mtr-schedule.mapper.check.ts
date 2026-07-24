@@ -23,6 +23,17 @@ assert.equal(alertResult.lastUpdated, '2026-07-11 01:00:05')
 assert.equal(alertResult.sysTime, '2026-07-11 01:00:00')
 assert.equal(alertResult.up?.[0]?.dest, 'TSW')
 assert.equal(alertResult.alert?.message, 'Test alert')
+assert.equal(alertResult.alert?.url, null) // example.com not allowlisted
+
+const mtrAlertFixture = {
+  ...alertFixture,
+  url: 'https://www.mtr.com.hk/alert/alert_title_wap.html',
+}
+const mtrAlert = mapMtrUpstreamToDto(mtrAlertFixture, 'TWL', 'CEN')
+assert.equal(
+  mtrAlert.alert?.url,
+  'https://www.mtr.com.hk/alert/alert_title_wap.html'
+)
 
 const successFixture = {
   sys_time: '2022-04-25 15:19:59',
@@ -72,6 +83,10 @@ const specialFixture = {
 const special = mapMtrUpstreamToDto(specialFixture, 'TKL', 'TKO')
 assert.equal(special.lastUpdated, '2019-06-13 17:34:58')
 assert.equal(special.up, null)
+assert.equal(
+  special.alert?.url,
+  'https://www.mtr.com.hk/alert/alert_title_wap.html'
+)
 
 const absenceFixture = {
   sys_time: '-',

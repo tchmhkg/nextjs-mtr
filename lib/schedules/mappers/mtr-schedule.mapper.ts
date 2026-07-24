@@ -1,3 +1,4 @@
+import { sanitizeAlertUrl } from '../sanitize-alert-url'
 import type {
   MtrScheduleParsed,
   MtrStationSchedule,
@@ -90,11 +91,13 @@ export function parseMtrUpstreamRaw(
     nullableTime(station?.sys_time) ?? nullableTime(r?.sys_time)
   const messageStr = stringFromUnknown(r.message)
   const urlRaw = r.url == null ? '' : stringFromUnknown(r.url)
+  const alertUrl =
+    urlRaw === '' ? null : sanitizeAlertUrl(decodeUriSafe(urlRaw))
   const alert =
     r?.status === 0 && messageStr
       ? {
           message: messageStr,
-          url: urlRaw === '' ? null : decodeUriSafe(urlRaw),
+          url: alertUrl,
         }
       : null
   return {

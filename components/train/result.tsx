@@ -223,7 +223,11 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
         <Alert onPressClose={onClickCloseAlert}>
           {data?.alert?.message}
           {data?.alert?.url ? (
-            <a href={data.alert.url} target="_blank" rel="noreferrer">
+            <a
+              href={data.alert.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {t('more Info')}
             </a>
           ) : null}
