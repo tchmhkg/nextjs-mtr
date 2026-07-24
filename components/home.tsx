@@ -263,13 +263,19 @@ const Home = ({
     router.replace(`?${params.toString()}`, { scroll: false })
   }, [selectedLine, selectedStation, router, searchParams])
 
-  useEffect(() => {
-    if (!selectedStation?.code || editing) return
-    stationRefs[selectedStation.code]?.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-    })
-  }, [selectedLine, selectedStation, stationRefs, editing])
+  // List is only mounted while editing; scroll selected station into the list viewport.
+  useLayoutEffect(() => {
+    if (!editing || !selectedStation?.code) return
+    const list = stationListRef.current
+    const el = stationRefs[selectedStation.code]?.current
+    if (!list || !el) return
+    // Scroll the list only — scrollIntoView also pans the page on iOS.
+    const nextTop =
+      list.scrollTop +
+      (el.getBoundingClientRect().top - list.getBoundingClientRect().top) -
+      (list.clientHeight / 2 - el.clientHeight / 2)
+    list.scrollTo({ top: Math.max(0, nextTop), behavior: 'smooth' })
+  }, [editing, selectedLine, selectedStation, stationRefs])
 
   // Open interchange without touching Redux/URL — avoids RSC remount wiping dialog state
   const showInterchangeOptions = useCallback((station: IStation) => {
@@ -302,6 +308,7 @@ const Home = ({
 
   const hasSelection = Boolean(selectedLine?.code && selectedStation?.code)
   const showGlance = hasSelection && !editing
+  const hasInterchange = (selectedStation?.related?.length ?? 0) > 0
   const lang = getLanguage(locale)
 
   const scheduleForResult = scheduleMatchesUrl(
@@ -338,6 +345,12 @@ const Home = ({
           lineColor={selectedLine.color}
           changeLabel={t('Change')}
           onChange={startEditing}
+          interchangeLabel={hasInterchange ? t('Interchange') : undefined}
+          onInterchange={
+            hasInterchange
+              ? () => showInterchangeOptions(selectedStation)
+              : undefined
+          }
         />
       ) : (
         <section
