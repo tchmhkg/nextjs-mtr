@@ -27,6 +27,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `yarn build`       | Production build                         |
 | `yarn start`       | Run production server                    |
 | `yarn lint`        | ESLint                                   |
+| `yarn verify`      | Mapper + MTR time self-checks            |
 | `yarn check:mapper`| Runnable check for MTR schedule mapper   |
 
 ## Stack
@@ -34,7 +35,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - **Framework:** Next.js (App Router), React, TypeScript
 - **UI:** styled-components, Sass modules where used
 - **State:** Redux Toolkit + react-redux (line/station selection)
-- **Data:** SWR for client polling; BFF route at `/api/next-train`
+- **Data:** TanStack Query for client polling; BFF route at `/api/next-train`
 - **i18n:** next-intl
 - **Validation:** Zod at the API route boundary
 - **Monitoring (optional):** Sentry (`@sentry/nextjs`)
@@ -49,7 +50,7 @@ The app uses a **Backend-for-Frontend (BFF)** pattern. The browser never calls t
 ```mermaid
 flowchart TB
   subgraph browser [Browser]
-    Result["components/train/result.tsx<br/>SWR 30s refresh"]
+    Result["components/train/result.tsx<br/>TanStack Query 30s refresh"]
   end
 
   subgraph apiLayer [API adapter]
@@ -106,7 +107,7 @@ utils/next-train-data.ts       # Static line/station metadata
 
 | Layer | Location | Responsibility |
 | ----- | -------- | -------------- |
-| **UI** | `components/`, `app/[locale]/` | Render schedules; poll API via SWR |
+| **UI** | `components/`, `app/[locale]/` | Render schedules; poll API via TanStack Query |
 | **API adapter** | `app/api/next-train/` | Parse/validate HTTP input; return `ApiResponse<T>` |
 | **Schedules service** | `lib/schedules/` | Orchestrate fetch → map → DTO; map errors |
 | **Upstream** | `lib/upstream/` | Raw `fetch` to external APIs (30s revalidation) |
@@ -124,12 +125,12 @@ flowchart LR
     direction TB
     User1[User] --> Page["app/[locale]/page.tsx"]
     Page -->|"getNextTrain() direct"| Service1[getNextTrain]
-    Service1 --> Home["Home · Result fallbackData"]
+    Service1 --> Home["Home · Result initialData"]
   end
 
   subgraph clientPath [Client path — polling]
     direction TB
-    Result["Result.tsx SWR"] -->|"GET /api/next-train"| Route[route.ts]
+    Result["Result.tsx TanStack Query"] -->|"GET /api/next-train"| Route[route.ts]
     Route -->|"getNextTrain()"| Service2[getNextTrain]
     Service2 --> ApiResp["ApiResponse NextTrainDto"]
     ApiResp --> Result
@@ -162,12 +163,12 @@ sequenceDiagram
   Mapper-->>Service: NextTrainDto
   Service-->>Page: data + meta
   Page->>Home: initialSchedule prop
-  Home->>Result: SWR fallbackData
+  Home->>Result: initialData
 ```
 
-### Client refresh (SWR)
+### Client refresh (TanStack Query)
 
-After hydration, SWR polls the BFF route every 30 seconds (aligned with upstream cache TTL).
+After hydration, TanStack Query polls the BFF route every 30 seconds (aligned with upstream cache TTL). Manual refresh passes `fresh=1` to bypass server/CDN caches.
 
 ```mermaid
 sequenceDiagram
@@ -204,6 +205,9 @@ GET /api/next-train?mode=mtr&line=TWL&sta=CEN&lang=tc
 | `line` | Yes | — | Line code, e.g. `TWL` |
 | `sta` | Yes | — | Station code, e.g. `CEN` |
 | `lang` | No | `tc` | `tc`, `en` |
+| `fresh` | No | — | `1` or `true` bypasses server/CDN cache (manual refresh) |
+
+MTR schedule mapping follows the [Next Train API spec v1.7](https://data.gov.hk/) (`lib/schedules/mappers/mtr-schedule.mapper.ts`).
 
 **Success response**
 
@@ -240,7 +244,7 @@ GET /api/next-train?mode=mtr&line=TWL&sta=CEN&lang=tc
 | ----- | --------- | --- |
 | Upstream fetch | `fetch(..., { next: { revalidate: 30 } })` | 30s |
 | API response | `Cache-Control: public, s-maxage=30, stale-while-revalidate=60` | 30s |
-| Client | SWR `refreshInterval: 30000`, `dedupeInterval: 10000` | 30s / 10s |
+| Client | TanStack Query `refetchInterval: 30000`, live ETA tick 1s | 30s / 1s |
 
 SSR and API both call `getNextTrain()`, so Next.js fetch cache deduplicates upstream requests within the 30s window.
 
