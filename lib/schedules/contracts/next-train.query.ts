@@ -1,4 +1,4 @@
-import { isKnownLrStation } from '@utils/lr-stations'
+import { isKnownLrRoute, isKnownLrStation } from '@utils/lr-data'
 import { isKnownLineSta } from '@utils/next-train-data'
 import { z } from 'zod'
 
@@ -8,6 +8,8 @@ export const nextTrainQuerySchema = z
     line: z.string().min(1).optional(),
     sta: z.string().min(1),
     lang: z.enum(['tc', 'en']).default('tc'),
+    /** LR UI-only route direction; ignored by upstream. */
+    dir: z.enum(['1', '2']).optional(),
     /** Bypass server/CDN caches and hit upstream fresh. */
     fresh: z
       .enum(['0', '1', 'true', 'false'])
@@ -39,6 +41,13 @@ export const nextTrainQuerySchema = z
         code: 'custom',
         message: `Unknown Light Rail station: ${data.sta}`,
         path: ['sta'],
+      })
+    }
+    if (data.line && !isKnownLrRoute(data.line)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Unknown Light Rail route: ${data.line}`,
+        path: ['line'],
       })
     }
   })

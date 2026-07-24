@@ -39,18 +39,30 @@ describe('nextTrainQuerySchema', () => {
     )
   })
 
-  it('accepts known LR station without line', () => {
+  it('accepts known LR station with route and dir', () => {
     const parsed = nextTrainQuerySchema.parse({
       mode: 'lr',
-      sta: '600',
-      lang: 'en',
+      line: '505',
+      sta: '100',
+      dir: '1',
     })
-    expect(parsed).toMatchObject({ mode: 'lr', sta: '600', lang: 'en' })
+    expect(parsed).toMatchObject({
+      mode: 'lr',
+      line: '505',
+      sta: '100',
+      dir: '1',
+    })
   })
 
   it('rejects unknown LR stations', () => {
     expect(() =>
       nextTrainQuerySchema.parse({ mode: 'lr', sta: '9999' })
     ).toThrow(/Unknown Light Rail station/)
+  })
+
+  it('rejects unknown LR routes', () => {
+    expect(() =>
+      nextTrainQuerySchema.parse({ mode: 'lr', line: '999', sta: '600' })
+    ).toThrow(/Unknown Light Rail route/)
   })
 })

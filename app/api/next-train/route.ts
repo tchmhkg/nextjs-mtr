@@ -16,6 +16,7 @@ export async function GET(request: Request) {
     line: searchParams.get('line') ?? undefined,
     sta: searchParams.get('sta') ?? undefined,
     lang: searchParams.get('lang') ?? undefined,
+    dir: searchParams.get('dir') ?? undefined,
     fresh: searchParams.get('fresh') ?? undefined,
   }
 
@@ -62,7 +63,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await getNextTrain(parsed.data)
+    const { dir: _dir, ...input } = parsed.data
+    const result = await getNextTrain(input)
     return toSuccessResponse(result.data, result.meta, {
       fresh: Boolean(parsed.data.fresh),
     })

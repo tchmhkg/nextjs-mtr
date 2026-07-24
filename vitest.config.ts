@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
 import path from 'node:path'
+import { defineConfig } from 'vitest/config'
 
 /**
  * Coverage policy: gate ≥80% only on pure/schedules logic listed in
@@ -27,7 +27,7 @@ export default defineConfig({
         'lib/schedules/http/fresh-guard.ts',
         'lib/schedules/contracts/next-train.query.ts',
         'lib/upstream/lr/client.ts',
-        'utils/lr-stations.ts',
+        'utils/lr-data.ts',
       ],
       thresholds: {
         lines: 80,

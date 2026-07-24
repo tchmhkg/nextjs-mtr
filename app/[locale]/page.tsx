@@ -3,7 +3,7 @@ import Layout from '@components/layout'
 import { routing } from '@i18n/routing'
 import type { TransportMode } from '@lib/schedules/contracts/transport-mode'
 import { getNextTrain } from '@lib/schedules/get-next-train'
-import { isKnownLrStation } from '@utils/lr-stations'
+import { isKnownLrStation } from '@utils/lr-data'
 import type { Metadata } from 'next'
 import { hasLocale } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
@@ -31,7 +31,12 @@ export async function generateMetadata({
 
 type HomePageProps = Readonly<{
   params: Promise<{ locale: string }>
-  searchParams: Promise<{ mode?: string; line?: string; sta?: string }>
+  searchParams: Promise<{
+    mode?: string
+    line?: string
+    dir?: string
+    sta?: string
+  }>
 }>
 
 function parseMode(raw: string | undefined): TransportMode {
@@ -85,6 +90,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           heading={t('appTitle')}
           initialModeFromUrl={mode}
           initialLineFromUrl={sp.line ?? null}
+          initialDirFromUrl={sp.dir ?? null}
           initialStaFromUrl={sp.sta ?? null}
           initialSchedule={initialSchedule}
           initialScheduleFailed={initialScheduleFailed}
