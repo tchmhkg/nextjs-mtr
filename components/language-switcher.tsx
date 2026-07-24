@@ -12,21 +12,19 @@ const Wrapper = styled.div`
   align-items: center;
 `
 
-const LocaleButton = styled.div<{ $selected: boolean }>`
+const LocaleButton = styled.button<{ $selected: boolean }>`
   cursor: pointer;
   color: ${(props) => (props.$selected ? '#ffffff' : props.theme.text)};
   display: flex;
   justify-content: center;
-  margin: 0 5px;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0 2px;
+  border: none;
   border-radius: 20px;
   padding: 4px 8px;
   font-size: 14px;
-  background: ${({ $selected, theme }) =>
-    $selected ? theme.primary1 : 'transparent'};
-  background: ${({ $selected, theme }) =>
-    $selected
-      ? `-webkit-linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
-      : 'transparent'};
   background: ${({ $selected, theme }) =>
     $selected
       ? `linear-gradient(to right, ${theme.primary2}, ${theme.primary1})`
@@ -53,12 +51,15 @@ const LanguageSwitcher = () => {
   )
 
   return (
-    <Wrapper>
+    <Wrapper role="group" aria-label={t('Language')}>
       {SUPPORTED_LOCALES.map((lng) => (
         <LocaleButton
           key={lng}
+          type="button"
           $selected={lng === currentLocale}
           onClick={() => handleLocaleChange(lng)}
+          aria-label={`${t('Language')}: ${t(lng)}`}
+          aria-pressed={lng === currentLocale}
         >
           {t(lng)}
         </LocaleButton>

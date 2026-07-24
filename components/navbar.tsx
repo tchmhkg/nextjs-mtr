@@ -18,15 +18,14 @@ const Container = styled.div<IContainer>`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 50px;
+  height: calc(50px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: calc(15px + env(safe-area-inset-right, 0px));
   -webkit-transition: background-color 200ms linear;
   -ms-transition: background-color 200ms linear;
   transition: background-color 200ms linear;
   /* Above NProgress bar (z-index ~1031) so the bar never covers controls */
   z-index: ${({ shouldUpdateZIndex }) => (shouldUpdateZIndex ? 1100 : 1090)};
-  @media (min-width: 768px) {
-    padding-right: 15px;
-  }
 `
 
 const RightWrapper = styled.div`

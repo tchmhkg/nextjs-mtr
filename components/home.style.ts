@@ -56,12 +56,16 @@ export const Option = styled.div<IOption>`
   cursor: pointer;
   display: flex;
   align-items: center;
+  min-height: 44px;
   .option-name {
     background: ${({ $color, $selected }) =>
     $selected ? `${$color}` : 'transparent'};
     color: ${({ $selected, theme }) => ($selected ? '#fff' : theme.text)};
     width: 100%;
-    padding: 3px;
+    padding: 10px 8px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
 `
 
@@ -73,7 +77,8 @@ export const LineOption = styled(Option)`
 
 export const StationOption = styled(Option)`
   background: ${({ $color }) => $color};
-  padding: 3px;
+  padding: 4px;
+  min-height: 48px;
   .option-name {
     position: relative;
     display: flex;
@@ -87,6 +92,11 @@ export const StationOption = styled(Option)`
     .more-option {
       font-size: 18px;
       cursor: pointer;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 0 8px;
       color: ${({ $selected }) => ($selected ? '#000' : '#fff')} !important;
     }

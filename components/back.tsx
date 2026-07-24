@@ -6,9 +6,15 @@ import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
 
-const Button = styled.a`
+const Button = styled.button`
   cursor: pointer;
   color: ${(props) => props.theme.text};
+  background: none;
+  border: none;
+  min-height: 44px;
+  padding: 8px 0;
+  font-size: inherit;
+  font-family: inherit;
 `
 
 const BackButton = ({ backUrl = '' }) => {
@@ -25,7 +31,9 @@ const BackButton = ({ backUrl = '' }) => {
 
   return (
     <div>
-      <Button onClick={onClickBack}>← {t('Back')}</Button>
+      <Button type="button" onClick={onClickBack} aria-label={t('Back')}>
+        ← {t('Back')}
+      </Button>
     </div>
   )
 }
