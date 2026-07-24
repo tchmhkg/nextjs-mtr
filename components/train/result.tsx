@@ -3,41 +3,68 @@
 import Alert from '@components/alert'
 import Bell from '@components/bell'
 import Refresh from '@components/refresh'
+import ScheduleNotice from '@components/train/schedule-notice'
 import { usePageVisibility } from '@hooks/usePageVisibility'
 import type { MessageKey } from '@i18n/message-key'
-import type { ApiSuccessResponse } from '@lib/schedules/contracts/api-response'
+import type {
+  ApiErrorCode,
+  ApiErrorResponse,
+  ApiSuccessResponse,
+} from '@lib/schedules/contracts/api-response'
 import type {
   NextTrainDto,
   TrainRouteRow,
 } from '@lib/schedules/contracts/next-train.dto'
+import {
+  apiErrorToMessageKey,
+  isScheduleFetchError,
+  parseApiErrorCode,
+  ScheduleFetchError,
+} from '@lib/schedules/client-error'
 import { CLIENT_SCHEDULE_POLL_MS } from '@lib/public-env'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { advanceMtrTimestamp } from '@utils/mtr-time'
 import { DATA } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
 import ResultList from './result-list'
 
 interface ResultProps {
   line: string
   sta: string
   initialSchedule?: NextTrainDto | null
+  initialScheduleFailed?: boolean
 }
 
 async function fetchNextTrain(url: string): Promise<NextTrainDto> {
   const res = await fetch(url)
-  const json = (await res.json()) as ApiSuccessResponse<NextTrainDto> & {
-    error?: { message?: string }
+  let json: (ApiSuccessResponse<NextTrainDto> | ApiErrorResponse) | null = null
+  try {
+    json = (await res.json()) as ApiSuccessResponse<NextTrainDto> | ApiErrorResponse
+  } catch {
+    throw new ScheduleFetchError('UPSTREAM_ERROR', res.status || 503)
   }
   if (!res.ok || !json.success) {
-    throw new Error(
-      typeof json.error === 'object' ? json.error?.message : 'Request failed'
+    const code = parseApiErrorCode(
+      json && !json.success ? json.error?.code : undefined
     )
+    throw new ScheduleFetchError(code, res.status || 503)
   }
   return json.data
 }
 
-function Result({ line, sta, initialSchedule }: ResultProps) {
+function errorCode(error: unknown): ApiErrorCode {
+  if (isScheduleFetchError(error)) return error.code
+  return 'UPSTREAM_ERROR'
+}
+
+function Result({
+  line,
+  sta,
+  initialSchedule,
+  initialScheduleFailed = false,
+}: ResultProps) {
   const locale = useLocale()
   const t = useTranslations()
   const queryClient = useQueryClient()
@@ -46,6 +73,7 @@ function Result({ line, sta, initialSchedule }: ResultProps) {
   const [flashUpdate, setFlashUpdate] = useState(false)
   const [showAlert, setShowAlert] = useState(false)
   const [manualRefreshing, setManualRefreshing] = useState(false)
+  const [ssrNotice, setSsrNotice] = useState(initialScheduleFailed)
   const receivedAtRef = useRef(Date.now())
   const lastUpdatedSeenRef = useRef<string | null>(null)
 
@@ -70,6 +98,10 @@ function Result({ line, sta, initialSchedule }: ResultProps) {
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   })
+
+  useEffect(() => {
+    if (data) setSsrNotice(false)
+  }, [data])
 
   useEffect(() => {
     if (!data?.lastUpdated) return
@@ -127,13 +159,22 @@ function Result({ line, sta, initialSchedule }: ResultProps) {
       receivedAtRef.current = Date.now()
       lastUpdatedSeenRef.current = fresh.lastUpdated
       setFlashUpdate(true)
+      setSsrNotice(false)
       window.setTimeout(() => setFlashUpdate(false), 600)
-    } catch {
-      await refetch()
+    } catch (err) {
+      const code = errorCode(err)
+      if (code === 'RATE_LIMITED' || code === 'FORBIDDEN') {
+        toast.error(t(apiErrorToMessageKey(code)))
+        return
+      }
+      const result = await refetch()
+      if (result.isError) {
+        toast.error(t(apiErrorToMessageKey(errorCode(result.error))))
+      }
     } finally {
       setManualRefreshing(false)
     }
-  }, [apiUrl, manualRefreshing, queryClient, queryKey, refetch])
+  }, [apiUrl, manualRefreshing, queryClient, queryKey, refetch, t])
 
   const renderTrainLists = useCallback(() => {
     if (!data?.up && !data?.down) {
@@ -179,23 +220,20 @@ function Result({ line, sta, initialSchedule }: ResultProps) {
   }
 
   const refreshing = manualRefreshing || isFetching
+  const coldFailKey = apiErrorToMessageKey(errorCode(error))
+  const softFailKey = apiErrorToMessageKey(errorCode(error))
 
   if (isError && !data) {
     return (
       <section className="rounded-xl border border-border bg-surface-alt/80 p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <div className="text-sm text-muted">{t('Failed to load schedule')}</div>
+          <div className="text-sm text-muted">{t(coldFailKey)}</div>
           <Refresh onClick={onManualRefresh} isRefreshing={manualRefreshing} />
-        </div>
-        <div className="text-sm">
-          {error instanceof Error
-            ? error.message
-            : t('Service not available')}
         </div>
         <button
           type="button"
           onClick={() => void onManualRefresh()}
-          className="mt-3 text-sm text-accent underline"
+          className="mt-1 text-sm text-accent underline"
         >
           {t('Retry')}
         </button>
@@ -244,17 +282,18 @@ function Result({ line, sta, initialSchedule }: ResultProps) {
         </Alert>
       ) : null}
 
+      {ssrNotice && !isError ? (
+        <ScheduleNotice
+          messageKey="Failed to load schedule"
+          onRetry={() => void onManualRefresh()}
+        />
+      ) : null}
+
       {isError && data ? (
-        <div className="mb-3 text-sm text-amber-700 dark:text-amber-300">
-          {t('Failed to load schedule')}{' '}
-          <button
-            type="button"
-            onClick={() => void onManualRefresh()}
-            className="underline"
-          >
-            {t('Retry')}
-          </button>
-        </div>
+        <ScheduleNotice
+          messageKey={softFailKey}
+          onRetry={() => void onManualRefresh()}
+        />
       ) : null}
 
       {renderTrainLists()}

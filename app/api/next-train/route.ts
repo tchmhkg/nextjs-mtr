@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     return toErrorResponse(
       new ApiError(
         'MISSING_PARAMS',
-        'Missing required parameters: line and sta',
+        'Station not available',
         400
       )
     )
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     return toErrorResponse(
       new ApiError(
         'VALIDATION_ERROR',
-        parsed.error.issues[0]?.message ?? 'Invalid parameters',
+        'Station not available',
         400
       )
     )

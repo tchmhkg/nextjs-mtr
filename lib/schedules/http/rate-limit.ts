@@ -1,7 +1,7 @@
-import { Ratelimit } from '@upstash/ratelimit'
-import { Redis } from '@upstash/redis'
 import { env } from '@lib/env'
 import { ApiError } from '@lib/schedules/errors/api-error'
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
 
 function hasUpstash(): boolean {
   return Boolean(env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN)
@@ -58,7 +58,7 @@ export async function assertGeneralRateLimit(ip: string): Promise<void> {
   if (!success) {
     throw new ApiError(
       'RATE_LIMITED',
-      'Too many requests, please try again later',
+      'Please wait before refreshing again',
       429
     )
   }

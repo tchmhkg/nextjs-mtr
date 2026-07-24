@@ -42,6 +42,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const t = await getTranslations({ locale })
 
   let initialSchedule = null
+  let initialScheduleFailed = false
   if (sp.line && sp.sta) {
     try {
       initialSchedule = (
@@ -53,7 +54,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
         })
       ).data
     } catch {
-      initialSchedule = null
+      initialScheduleFailed = true
     }
   }
 
@@ -65,6 +66,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           initialLineFromUrl={sp.line ?? null}
           initialStaFromUrl={sp.sta ?? null}
           initialSchedule={initialSchedule}
+          initialScheduleFailed={initialScheduleFailed}
         />
       </Suspense>
     </Layout>

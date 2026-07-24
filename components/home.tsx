@@ -38,6 +38,7 @@ type HomeProps = {
   initialLineFromUrl?: string | null
   initialStaFromUrl?: string | null
   initialSchedule?: NextTrainDto | null
+  initialScheduleFailed?: boolean
 }
 
 const Home = ({
@@ -45,6 +46,7 @@ const Home = ({
   initialLineFromUrl = null,
   initialStaFromUrl = null,
   initialSchedule = null,
+  initialScheduleFailed = false,
 }: HomeProps) => {
   const dispatch = useDispatch()
   const { line: selectedLine, station: selectedStation } =
@@ -299,6 +301,11 @@ const Home = ({
           line={selectedLine.code}
           sta={selectedStation.code}
           initialSchedule={scheduleForResult}
+          initialScheduleFailed={
+            initialScheduleFailed &&
+            selectedLine.code === initialLineFromUrl &&
+            selectedStation.code === initialStaFromUrl
+          }
         />
       ) : null}
 

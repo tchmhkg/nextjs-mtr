@@ -43,15 +43,15 @@ async function getMtrNextTrain(
 
     const status = getUpstreamStatus(error)
     if (status === 404) {
-      throw new ApiError('NOT_FOUND', 'Schedule not found', 404)
+      throw new ApiError('NOT_FOUND', 'Station not available', 404)
     }
     if (status === 429) {
-      throw new ApiError('UPSTREAM_ERROR', 'Too many requests to MTR API', 429)
+      throw new ApiError('RATE_LIMITED', 'Please wait before refreshing again', 429)
     }
     if (status && status >= 400 && status < 500) {
-      throw new ApiError('UPSTREAM_ERROR', 'MTR API returned an error', status)
+      throw new ApiError('UPSTREAM_ERROR', 'Failed to load schedule', status)
     }
-    throw new ApiError('UPSTREAM_ERROR', 'Failed to fetch train data', 503)
+    throw new ApiError('UPSTREAM_ERROR', 'Failed to load schedule', 503)
   }
 }
 

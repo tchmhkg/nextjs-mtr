@@ -129,6 +129,9 @@
   "Refreshing": "Refreshing",
   "Retry": "Retry",
   "Failed to load schedule": "Failed to load schedule",
+  "Please wait before refreshing again": "Please wait before refreshing again",
+  "Refresh is unavailable": "Refresh is unavailable",
+  "Station not available": "Station not available",
   "Service delayed": "Service is delayed",
   "Arrival": "Arrival",
   "Departure": "Departure",
@@ -143,6 +146,7 @@
   "Transfer to": "Transfer to",
   "Something went wrong": "Something went wrong",
   "Please try again": "Please try again",
+  "Refresh Page": "Refresh Page",
   "Toggle theme": "Toggle dark mode",
   "Language": "Language",
   "DRL": "Disneyland Resort Line"

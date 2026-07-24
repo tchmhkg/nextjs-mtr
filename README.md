@@ -233,11 +233,19 @@ MTR schedule mapping follows the [Next Train API spec v1.7](https://data.gov.hk/
 ```json
 {
   "success": false,
-  "error": { "code": "VALIDATION_ERROR", "message": "Invalid parameters" },
+  "error": { "code": "VALIDATION_ERROR", "message": "Station not available" },
   "data": null
 }
 ```
 
+`error.code` is the stable contract for clients. Map codes to UI copy (see `lib/schedules/client-error.ts`); do not display `error.message` as user-facing text — it is an English fallback for logs and API consumers only.
+
+| Code | Typical HTTP | Client message key |
+| ---- | ------------ | ------------------ |
+| `RATE_LIMITED` | 429 | Please wait before refreshing again |
+| `FORBIDDEN` | 403 | Refresh is unavailable |
+| `NOT_FOUND` / `VALIDATION_ERROR` / `MISSING_PARAMS` | 400/404 | Station not available |
+| `UPSTREAM_ERROR` | 5xx | Failed to load schedule |
 ### Caching
 
 | Layer | Mechanism | TTL |

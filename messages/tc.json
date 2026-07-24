@@ -129,6 +129,9 @@
   "Refreshing": "更新中",
   "Retry": "重試",
   "Failed to load schedule": "無法載入班次",
+  "Please wait before refreshing again": "請稍候再重新整理",
+  "Refresh is unavailable": "目前無法重新整理",
+  "Station not available": "車站資料不可用",
   "Service delayed": "列車服務延誤",
   "Arrival": "抵達",
   "Departure": "開出",
@@ -143,6 +146,7 @@
   "Transfer to": "轉乘至",
   "Something went wrong": "發生錯誤",
   "Please try again": "請再試一次",
+  "Refresh Page": "重新整理頁面",
   "Toggle theme": "切換深色模式",
   "Language": "語言",
   "DRL": "迪士尼綫"

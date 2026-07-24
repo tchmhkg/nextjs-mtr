@@ -42,7 +42,7 @@ export async function assertFreshAllowed(request: Request): Promise<void> {
   if (site !== 'same-origin') {
     throw new ApiError(
       'FORBIDDEN',
-      'Forced refresh is only allowed from same-origin requests',
+      'Refresh is unavailable',
       403
     )
   }
