@@ -69,7 +69,9 @@ const Home = ({
   const [locationError, setLocationError] = useState<MessageKey | null>(null)
   const [showRelated, setShowRelated] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [pickerStep, setPickerStep] = useState<'line' | 'station'>('line')
+  const [pickerStep, setPickerStep] = useState<'line' | 'station'>(() =>
+    initialLineFromUrl && initialStaFromUrl ? 'station' : 'line'
+  )
   const refs = React.useMemo(() => DATA.reduce((stationRef: Record<string, React.RefObject<HTMLDivElement | null>>, value) => {
     for (const station of value.stations) {
       stationRef[station.code] = React.createRef<HTMLDivElement | null>()
@@ -203,7 +205,6 @@ const Home = ({
     if (line && station) {
       dispatch(setLine(line))
       dispatch(setStation(station))
-      setPickerStep('station')
     }
   }, [dispatch, initialLineFromUrl, initialStaFromUrl])
 

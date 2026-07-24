@@ -1,4 +1,5 @@
 const createNextIntlPlugin = require('next-intl/plugin')
+const { withSerwist } = require('@serwist/turbopack')
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
@@ -17,7 +18,7 @@ const nextConfig = {
 const { withSentryConfig } = require("@sentry/nextjs");
 
 module.exports = withSentryConfig(
-  withNextIntl(nextConfig),
+  withSerwist(withNextIntl(nextConfig)),
   {
     // For all available options, see:
     // https://www.npmjs.com/package/@sentry/webpack-plugin#options

@@ -6,7 +6,7 @@ import Refresh from '@components/refresh'
 import { usePageVisibility } from '@hooks/usePageVisibility'
 import type { MessageKey } from '@i18n/message-key'
 import type { ApiSuccessResponse } from '@lib/schedules/contracts/api-response'
-import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
+import type { NextTrainDto, TrainRouteRow } from '@lib/schedules/contracts/next-train.dto'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { advanceMtrTimestamp } from '@utils/mtr-time'
 import { DATA } from '@utils/next-train-data'
@@ -19,11 +19,6 @@ interface ResultProps {
   line: string
   sta: string
   initialSchedule?: NextTrainDto | null
-}
-
-interface TrainRoute {
-  dest: string
-  [key: string]: unknown
 }
 
 async function fetchNextTrain(url: string): Promise<NextTrainDto> {
@@ -111,7 +106,7 @@ const Result = ({ line, sta, initialSchedule }: ResultProps) => {
   )
 
   const getRouteDestLabel = useCallback(
-    (routes: TrainRoute[] = []) => {
+    (routes: TrainRouteRow[] = []) => {
       if (!routes?.length) return '-'
       const dests = Array.from(
         new Set(routes.map((r) => t(r.dest as MessageKey)))

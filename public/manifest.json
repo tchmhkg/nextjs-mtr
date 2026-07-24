@@ -3,9 +3,11 @@
   "short_name": "MTR Train",
   "description": "Get MTR Schedule",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "background_color": "#dce4ec",
+  "theme_color": "#dce4ec",
   "icons": [
     {
       "src": "/assets/icon-192x192.png",

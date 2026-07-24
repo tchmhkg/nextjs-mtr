@@ -12,6 +12,6 @@ export default function proxy(request: NextRequest) {
 // Next.js only accepts a plain string literal in `matcher` (not String.raw); escaped `\` is required.
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|_next/data|monitoring|.*\\..*).*)', // NOSONAR: Next.js requires a literal here; String.raw fails segment-config validation
+    '/((?!api|_next/static|_next/image|_next/data|monitoring|serwist|.*\\..*).*)', // NOSONAR: Next.js requires a literal here; String.raw fails segment-config validation
   ],
 }
