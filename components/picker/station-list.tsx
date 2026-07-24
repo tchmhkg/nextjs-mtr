@@ -46,15 +46,13 @@ const StationList = forwardRef<HTMLDivElement, StationListProps>(
           return (
             <div
               key={s.code}
-              className={`flex min-h-9 items-stretch border-b border-border/60 last:border-b-0 ${
-                selected ? 'bg-surface-alt' : ''
-              }`}
+              className={`flex min-h-9 items-stretch border-b border-border/60 last:border-b-0 ${selected ? 'bg-surface-alt' : ''
+                }`}
             >
               <button
                 ref={stationRefs[s.code]}
                 type="button"
-                role="option"
-                aria-selected={selected}
+                aria-current={selected ? 'true' : undefined}
                 aria-label={`${t('Select station')} ${s.label[l]}`}
                 onClick={() => onSelect(s)}
                 className="flex min-h-9 flex-1 items-center gap-2 px-2 py-1.5 text-left text-sm"

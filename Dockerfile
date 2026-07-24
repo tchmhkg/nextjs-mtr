@@ -4,7 +4,9 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production=false
+# ponytail: skip package lifecycle scripts in image builds (Sonar/CWE supply-chain).
+# Native bins (e.g. SWC) are fetched during `next build`, not install.
+RUN yarn install --frozen-lockfile --production=false --ignore-scripts
 
 FROM node:22-alpine AS builder
 WORKDIR /app
