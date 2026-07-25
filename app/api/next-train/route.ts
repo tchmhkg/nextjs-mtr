@@ -16,10 +16,22 @@ export async function GET(request: Request) {
     line: searchParams.get('line') ?? undefined,
     sta: searchParams.get('sta') ?? undefined,
     lang: searchParams.get('lang') ?? undefined,
+    dir: searchParams.get('dir') ?? undefined,
     fresh: searchParams.get('fresh') ?? undefined,
   }
 
-  if (!raw.line || !raw.sta) {
+  if (!raw.sta) {
+    return toErrorResponse(
+      new ApiError(
+        'MISSING_PARAMS',
+        'Station not available',
+        400
+      )
+    )
+  }
+
+  const mode = raw.mode ?? 'mtr'
+  if (mode !== 'lr' && !raw.line) {
     return toErrorResponse(
       new ApiError(
         'MISSING_PARAMS',
@@ -51,7 +63,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await getNextTrain(parsed.data)
+    const { dir: _dir, ...input } = parsed.data
+    const result = await getNextTrain(input)
     return toSuccessResponse(result.data, result.meta, {
       fresh: Boolean(parsed.data.fresh),
     })

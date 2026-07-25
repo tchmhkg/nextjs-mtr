@@ -30,6 +30,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `yarn test`          | Unit tests (Vitest)                              |
 | `yarn test:coverage` | Unit tests + scoped ≥80% coverage gate           |
 | `yarn verify`        | Alias for `yarn test:coverage`                   |
+| `yarn build:lr-data` | Regenerate `data/lr-catalog.json` from the LR CSV |
 
 Coverage is **scoped** to pure schedules/utils modules listed in
 `vitest.config.ts` (`coverage.include`). Components and pages are out of
@@ -79,7 +80,7 @@ flowchart TB
 
   subgraph upstreamLayer [Upstream clients]
     MtrClient["lib/upstream/mtr/client.ts"]
-    LrClient["lib/upstream/lr/client.ts<br/>stub"]
+    LrClient["lib/upstream/lr/client.ts"]
   end
 
   GovApi["Hong Kong open-data API<br/>rt.data.gov.hk"]
@@ -111,7 +112,7 @@ lib/
 │   └── mappers/               # Upstream JSON → NextTrainDto
 └── upstream/                  # Raw fetch clients (server-only)
     ├── mtr/
-    └── lr/                    # stub (not yet implemented)
+    └── lr/                    # Light Rail upstream client
 
 components/                    # React UI (client)
 store/                         # Redux: line/station selection only
@@ -216,13 +217,22 @@ GET /api/next-train?mode=mtr&line=TWL&sta=CEN&lang=tc
 
 | Param | Required | Default | Values |
 | ----- | -------- | ------- | ------ |
-| `mode` | No | `mtr` | `mtr`, `lr` (lr not yet implemented) |
-| `line` | Yes | — | Line code, e.g. `TWL` |
-| `sta` | Yes | — | Station code, e.g. `CEN` |
+| `mode` | No | `mtr` | `mtr`, `lr` |
+| `line` | Yes for `mtr`; optional UI route for `lr` | — | MTR line code, or LR route code (e.g. `505`) |
+| `sta` | Yes | — | MTR station code, or LR `station_id` when `mode=lr` |
+| `dir` | No (LR UI only) | `1` | LR route direction `1` or `2` |
 | `lang` | No | `tc` | `tc`, `en` |
 | `fresh` | No | — | `1` or `true` bypasses server/CDN cache (manual refresh) |
 
-MTR schedule mapping follows the [Next Train API spec v1.7](https://data.gov.hk/) (`lib/schedules/mappers/mtr-schedule.mapper.ts`).
+MTR schedule mapping follows the [Next Train API spec v1.7](https://data.gov.hk/) (`lib/schedules/mappers/mtr-schedule.mapper.ts`). Light Rail uses `mode=lr&sta={station_id}` (upstream is station-only) and maps `platform_list` into `data.platforms` (`lib/schedules/mappers/lr-schedule.mapper.ts`). Route/stop lists come from [`data/light_rail_routes_and_stops.csv`](data/light_rail_routes_and_stops.csv); regenerate with `yarn build:lr-data`.
+
+Example LR request (schedule; `line`/`dir` are picker URL state):
+
+```
+GET /api/next-train?mode=lr&sta=600&lang=tc
+```
+
+Shareable UI URL shape: `?mode=lr&line=505&dir=1&sta=100`.
 
 **Success response**
 
@@ -278,7 +288,7 @@ Copy `.env.local.example` to `.env.local`. Tunables (cache TTLs, poll interval, 
 | Variable | Default | Notes |
 | -------- | ------- | ----- |
 | `MTR_NEXT_TRAIN_API_URL` | gov HK schedule URL | Upstream MTR API |
-| `LR_NEXT_TRAIN_API_URL` | empty | Reserved for Light Rail |
+| `LR_NEXT_TRAIN_API_URL` | gov HK LRT schedule URL | Upstream Light Rail API |
 | `SCHEDULE_REVALIDATE_SECONDS` | `30` | Next.js fetch revalidate |
 | `SCHEDULE_S_MAXAGE_SECONDS` | `30` | API Cache-Control |
 | `SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS` | `60` | API Cache-Control |

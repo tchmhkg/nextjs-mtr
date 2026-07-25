@@ -3,6 +3,9 @@ import { z } from 'zod'
 const DEFAULT_MTR_API =
   'https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php'
 
+const DEFAULT_LR_API =
+  'https://rt.data.gov.hk/v1/transport/mtr/lrt/getSchedule'
+
 const emptyToUndefined = (v: unknown) =>
   v === '' || v == null ? undefined : v
 
@@ -30,7 +33,7 @@ const envSchema = z.object({
   ),
   LR_NEXT_TRAIN_API_URL: z.preprocess(
     emptyToUndefined,
-    z.string().default('')
+    z.string().url().default(DEFAULT_LR_API)
   ),
   SCHEDULE_REVALIDATE_SECONDS: positiveInt(30),
   SCHEDULE_S_MAXAGE_SECONDS: positiveInt(30),

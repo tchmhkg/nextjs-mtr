@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
 import path from 'node:path'
+import { defineConfig } from 'vitest/config'
 
 /**
  * Coverage policy: gate ≥80% only on pure/schedules logic listed in
@@ -21,10 +21,13 @@ export default defineConfig({
         'lib/schedules/client-error.ts',
         'lib/schedules/sanitize-alert-url.ts',
         'lib/schedules/mappers/mtr-schedule.mapper.ts',
+        'lib/schedules/mappers/lr-schedule.mapper.ts',
         'lib/schedules/errors/api-error.ts',
         'lib/schedules/http/respond.ts',
         'lib/schedules/http/fresh-guard.ts',
         'lib/schedules/contracts/next-train.query.ts',
+        'lib/upstream/lr/client.ts',
+        'utils/lr-data.ts',
       ],
       thresholds: {
         lines: 80,
