@@ -30,7 +30,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `yarn test`          | Unit tests (Vitest)                              |
 | `yarn test:coverage` | Unit tests + scoped ≥80% coverage gate           |
 | `yarn verify`        | Alias for `yarn test:coverage`                   |
-| `yarn build:lr-data` | Regenerate `utils/lr-data.ts` from the LR CSV    |
+| `yarn build:lr-data` | Regenerate `data/lr-catalog.json` from the LR CSV |
 
 Coverage is **scoped** to pure schedules/utils modules listed in
 `vitest.config.ts` (`coverage.include`). Components and pages are out of
