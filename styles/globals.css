@@ -51,7 +51,7 @@ body {
   min-height: 100%;
   font-family: var(--font-sans);
   line-height: 1.5;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--ink);
   /* background-color alone paints iOS rubber-band overscroll; gradient does not. */
   background-color: var(--page-bg-color);
