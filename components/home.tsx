@@ -27,6 +27,7 @@ import {
 } from '@utils/lr-data'
 import type { ILine, IStation } from '@utils/next-train-data'
 import { DATA } from '@utils/next-train-data'
+import { nextTransportQuery } from '@utils/transport-url'
 import { useLocale, useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import React, {
@@ -46,6 +47,33 @@ const getLanguage = (lang: string): Language =>
 
 function parseLrDir(raw: string | null | undefined): LrDir {
   return raw === '2' ? 2 : 1
+}
+
+function initialLrRouteCode(
+  mode: TransportMode,
+  line: string | null | undefined
+): string | null {
+  if (mode !== 'lr' || !line || !isKnownLrRoute(line)) return null
+  return line
+}
+
+function initialEditing(
+  mode: TransportMode,
+  line: string | null | undefined,
+  sta: string | null | undefined
+): boolean {
+  if (mode === 'lr') {
+    return !(line && isKnownLrRoute(line) && sta)
+  }
+  return !(line && sta)
+}
+
+function initialLrPickerStep(
+  mode: TransportMode,
+  line: string | null | undefined
+): 'route' | 'station' {
+  if (mode === 'lr' && line && isKnownLrRoute(line)) return 'station'
+  return 'route'
 }
 
 type HomeProps = Readonly<{
@@ -178,6 +206,117 @@ function scheduleMatchesSelection(
   return initialSchedule
 }
 
+type LrPickerBodyProps = Readonly<{
+  lrPickerStep: 'route' | 'station'
+  lrRouteCode: string | null
+  lrDir: LrDir
+  lrStationId: string | null
+  lrStops: readonly LrStation[]
+  lrListRef: React.RefObject<HTMLDivElement | null>
+  onSelectLrRoute: (routeCode: string) => void
+  onChangeLrDir: (d: LrDir) => void
+  onSelectLrStation: (station: LrStation) => void
+  onBackToRoutes: () => void
+}>
+
+function LrPickerBody({
+  lrPickerStep,
+  lrRouteCode,
+  lrDir,
+  lrStationId,
+  lrStops,
+  lrListRef,
+  onSelectLrRoute,
+  onChangeLrDir,
+  onSelectLrStation,
+  onBackToRoutes,
+}: LrPickerBodyProps) {
+  const t = useTranslations()
+
+  return (
+    <>
+      {lrPickerStep === 'station' && lrRouteCode ? (
+        <button
+          type="button"
+          onClick={onBackToRoutes}
+          className="mb-2 text-sm text-muted hover:text-ink md:hidden"
+          aria-label={t('Select a route')}
+        >
+          ← {t('Select a route')}
+        </button>
+      ) : null}
+
+      <div className="flex flex-col gap-3 md:flex-row md:gap-0">
+        <div
+          className={`md:w-40 md:shrink-0 md:border-r md:border-border md:pr-2 ${
+            lrPickerStep === 'station' ? 'hidden md:block' : 'block'
+          }`}
+        >
+          <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
+            {t('Select a route')}
+          </div>
+          <div className="md:hidden">
+            <LrRoutePicker
+              selectedCode={lrRouteCode}
+              onSelect={onSelectLrRoute}
+              variant="chips"
+            />
+          </div>
+          <div className="hidden md:block">
+            <LrRoutePicker
+              selectedCode={lrRouteCode}
+              onSelect={onSelectLrRoute}
+              variant="rail"
+            />
+          </div>
+        </div>
+
+        {lrRouteCode ? (
+          <div
+            className={`min-w-0 flex-1 md:pl-2 ${
+              lrPickerStep === 'route' ? 'hidden md:block' : 'block'
+            }`}
+          >
+            <div
+              className="mb-2 flex flex-wrap items-center gap-2 px-1"
+              style={{ borderLeft: `3px solid ${LR_COLOR}` }}
+            >
+              <span className="pl-2 text-xs font-medium uppercase tracking-wide text-muted">
+                {lrRouteCode} · {t('stations')}
+              </span>
+              <fieldset className="ml-auto m-0 flex gap-1 rounded-md border border-border p-0.5">
+                <legend className="sr-only">{t('Direction')}</legend>
+                {([1, 2] as const).map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => onChangeLrDir(d)}
+                    aria-pressed={lrDir === d}
+                    className={`rounded px-2 py-0.5 text-xs tabular-nums ${
+                      lrDir === d
+                        ? 'bg-surface-alt font-medium text-ink'
+                        : 'text-muted hover:text-ink'
+                    }`}
+                  >
+                    {t('Direction')} {d}
+                  </button>
+                ))}
+              </fieldset>
+            </div>
+            <LrStationList
+              key={`${lrRouteCode}-${lrDir}`}
+              ref={lrListRef}
+              stations={lrStops}
+              selectedId={lrStationId}
+              onSelect={onSelectLrStation}
+            />
+          </div>
+        ) : null}
+      </div>
+    </>
+  )
+}
+
 const Home = ({
   heading = 'MTR Next Train',
   initialModeFromUrl = 'mtr',
@@ -198,11 +337,7 @@ const Home = ({
   const lrListRef = useRef<HTMLDivElement>(null)
   const [mode, setMode] = useState<TransportMode>(initialModeFromUrl)
   const [lrRouteCode, setLrRouteCode] = useState<string | null>(() =>
-    initialModeFromUrl === 'lr' &&
-      initialLineFromUrl &&
-      isKnownLrRoute(initialLineFromUrl)
-      ? initialLineFromUrl
-      : null
+    initialLrRouteCode(initialModeFromUrl, initialLineFromUrl)
   )
   const [lrDir, setLrDir] = useState<LrDir>(() =>
     parseLrDir(initialDirFromUrl)
@@ -211,25 +346,14 @@ const Home = ({
     initialModeFromUrl === 'lr' ? initialStaFromUrl : null
   )
   const [interchangeFor, setInterchangeFor] = useState<IStation | null>(null)
-  const [editing, setEditing] = useState(() => {
-    if (initialModeFromUrl === 'lr') {
-      return !(
-        initialLineFromUrl &&
-        isKnownLrRoute(initialLineFromUrl) &&
-        initialStaFromUrl
-      )
-    }
-    return !(initialLineFromUrl && initialStaFromUrl)
-  })
+  const [editing, setEditing] = useState(() =>
+    initialEditing(initialModeFromUrl, initialLineFromUrl, initialStaFromUrl)
+  )
   const [pickerStep, setPickerStep] = useState<'line' | 'station'>(() =>
     initialLineFromUrl && initialStaFromUrl ? 'station' : 'line'
   )
   const [lrPickerStep, setLrPickerStep] = useState<'route' | 'station'>(() =>
-    initialModeFromUrl === 'lr' &&
-      initialLineFromUrl &&
-      isKnownLrRoute(initialLineFromUrl)
-      ? 'station'
-      : 'route'
+    initialLrPickerStep(initialModeFromUrl, initialLineFromUrl)
   )
 
   const stationRefs = useMemo(
@@ -246,17 +370,21 @@ const Home = ({
     []
   )
 
+  const clearLrSelection = useCallback(() => {
+    setLrRouteCode(null)
+    setLrStationId(null)
+  }, [])
+
   const onFoundNearest = useCallback(
     (line: ILine, station: IStation) => {
       setMode('mtr')
       dispatch(setLine(line))
       dispatch(setStation(station))
-      setLrRouteCode(null)
-      setLrStationId(null)
+      clearLrSelection()
       setEditing(false)
       setPickerStep('station')
     },
-    [dispatch]
+    [dispatch, clearLrSelection]
   )
 
   const { locating, locationError, getCurrLocation, setLocationError } =
@@ -269,21 +397,16 @@ const Home = ({
       setEditing(true)
       setInterchangeFor(null)
       setLocationError(null)
+      clearLrSelection()
+      setPickerStep('line')
       if (next === 'lr') {
         dispatch(setLine(null))
         dispatch(setStation(null))
-        setLrRouteCode(null)
-        setLrStationId(null)
         setLrDir(1)
         setLrPickerStep('route')
-        setPickerStep('line')
-      } else {
-        setLrRouteCode(null)
-        setLrStationId(null)
-        setPickerStep('line')
       }
     },
-    [mode, dispatch, setLocationError]
+    [mode, dispatch, setLocationError, clearLrSelection]
   )
 
   const onChangeLine = useCallback(
@@ -366,82 +489,16 @@ const Home = ({
   }, [dispatch, initialModeFromUrl, initialLineFromUrl, initialStaFromUrl])
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (mode === 'lr') {
-      if (!lrRouteCode || !lrStationId) {
-        if (!lrRouteCode) {
-          // Switching from MTR (or clearing route): bare mode=lr. Do not leave
-          // mode=mtr&line=… or a soft-nav remount snaps the tab back to MTR.
-          const alreadyBare =
-            searchParams.get('mode') === 'lr' &&
-            !searchParams.get('line') &&
-            !searchParams.get('sta') &&
-            !searchParams.get('dir')
-          if (alreadyBare) return
-          params.set('mode', 'lr')
-          params.delete('line')
-          params.delete('sta')
-          params.delete('dir')
-          router.replace(`?${params.toString()}`, { scroll: false })
-          return
-        }
-        // Route chosen, stop not yet: never write line/dir-only (remount snaps
-        // mobile picker). Only strip a stale sta, and force mode=lr if needed.
-        if (searchParams.get('mode') !== 'lr') {
-          params.set('mode', 'lr')
-          params.delete('line')
-          params.delete('sta')
-          params.delete('dir')
-          router.replace(`?${params.toString()}`, { scroll: false })
-          return
-        }
-        if (searchParams.get('sta')) {
-          params.delete('sta')
-          router.replace(`?${params.toString()}`, { scroll: false })
-        }
-        return
-      }
-
-      if (
-        searchParams.get('mode') === 'lr' &&
-        searchParams.get('line') === lrRouteCode &&
-        searchParams.get('sta') === lrStationId &&
-        searchParams.get('dir') === String(lrDir)
-      ) {
-        return
-      }
-      params.set('mode', 'lr')
-      params.set('line', lrRouteCode)
-      params.set('sta', lrStationId)
-      params.set('dir', String(lrDir))
-      router.replace(`?${params.toString()}`, { scroll: false })
-      return
-    }
-
-    if (!selectedLine?.code || !selectedStation?.code) {
-      // Mirror: leaving LR must not keep mode=lr in the URL.
-      if (searchParams.get('mode') === 'lr' || searchParams.get('dir')) {
-        params.set('mode', 'mtr')
-        params.delete('line')
-        params.delete('sta')
-        params.delete('dir')
-        router.replace(`?${params.toString()}`, { scroll: false })
-      }
-      return
-    }
-    if (
-      (searchParams.get('mode') === 'mtr' || !searchParams.get('mode')) &&
-      searchParams.get('line') === selectedLine.code &&
-      searchParams.get('sta') === selectedStation.code &&
-      !searchParams.get('dir')
-    ) {
-      return
-    }
-    params.set('mode', 'mtr')
-    params.set('line', selectedLine.code)
-    params.set('sta', selectedStation.code)
-    params.delete('dir')
-    router.replace(`?${params.toString()}`, { scroll: false })
+    const next = nextTransportQuery(
+      searchParams,
+      mode,
+      lrRouteCode,
+      lrStationId,
+      lrDir,
+      selectedLine?.code,
+      selectedStation?.code
+    )
+    if (next) router.replace(next, { scroll: false })
   }, [
     mode,
     lrRouteCode,
@@ -586,85 +643,18 @@ const Home = ({
               onBackToLines={() => setPickerStep('line')}
             />
           ) : (
-            <>
-              {lrPickerStep === 'station' && lrRouteCode ? (
-                <button
-                  type="button"
-                  onClick={() => setLrPickerStep('route')}
-                  className="mb-2 text-sm text-muted hover:text-ink md:hidden"
-                  aria-label={t('Select a route')}
-                >
-                  ← {t('Select a route')}
-                </button>
-              ) : null}
-
-              <div className="flex flex-col gap-3 md:flex-row md:gap-0">
-                <div
-                  className={`md:w-40 md:shrink-0 md:border-r md:border-border md:pr-2 ${lrPickerStep === 'station' ? 'hidden md:block' : 'block'
-                    }`}
-                >
-                  <div className="mb-1 hidden px-2 text-xs font-medium uppercase tracking-wide text-muted md:block">
-                    {t('Select a route')}
-                  </div>
-                  <div className="md:hidden">
-                    <LrRoutePicker
-                      selectedCode={lrRouteCode}
-                      onSelect={onSelectLrRoute}
-                      variant="chips"
-                    />
-                  </div>
-                  <div className="hidden md:block">
-                    <LrRoutePicker
-                      selectedCode={lrRouteCode}
-                      onSelect={onSelectLrRoute}
-                      variant="rail"
-                    />
-                  </div>
-                </div>
-
-                {lrRouteCode ? (
-                  <div
-                    className={`min-w-0 flex-1 md:pl-2 ${lrPickerStep === 'route' ? 'hidden md:block' : 'block'
-                      }`}
-                  >
-                    <div
-                      className="mb-2 flex flex-wrap items-center gap-2 px-1"
-                      style={{ borderLeft: `3px solid ${LR_COLOR}` }}
-                    >
-                      <span className="pl-2 text-xs font-medium uppercase tracking-wide text-muted">
-                        {lrRouteCode} · {t('stations')}
-                      </span>
-                      <div
-                        className="ml-auto flex gap-1 rounded-md border border-border p-0.5"
-                        role="group"
-                        aria-label={t('Direction')}
-                      >
-                        {([1, 2] as const).map((d) => (
-                          <button
-                            key={d}
-                            type="button"
-                            onClick={() => onChangeLrDir(d)}
-                            className={`rounded px-2 py-0.5 text-xs tabular-nums ${lrDir === d
-                              ? 'bg-surface-alt font-medium text-ink'
-                              : 'text-muted hover:text-ink'
-                              }`}
-                          >
-                            {t('Direction')} {d}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <LrStationList
-                      key={`${lrRouteCode}-${lrDir}`}
-                      ref={lrListRef}
-                      stations={lrStops}
-                      selectedId={lrStationId}
-                      onSelect={onSelectLrStation}
-                    />
-                  </div>
-                ) : null}
-              </div>
-            </>
+            <LrPickerBody
+              lrPickerStep={lrPickerStep}
+              lrRouteCode={lrRouteCode}
+              lrDir={lrDir}
+              lrStationId={lrStationId}
+              lrStops={lrStops}
+              lrListRef={lrListRef}
+              onSelectLrRoute={onSelectLrRoute}
+              onChangeLrDir={onChangeLrDir}
+              onSelectLrStation={onSelectLrStation}
+              onBackToRoutes={() => setLrPickerStep('route')}
+            />
           )}
         </section>
       ) : null}
