@@ -14,16 +14,3 @@ export function localizedPath(locale: string, pathname: string): string {
   if (locale === DEFAULT_LOCALE) return base
   return base === '/' ? '/en' : `/en${base}`
 }
-
-/**
- * next-intl locales are `tc`|`en` (not BCP-47 zh-*). Typical HK Accept-Language
- * (`zh-HK,zh;q=0.9,en;q=0.8`) otherwise negotiates to `en`. Prefer `tc` when any
- * Chinese tag is present.
- */
-export function preferTcIfChinese(
-  acceptLanguage: string | null
-): string | null {
-  if (!acceptLanguage) return acceptLanguage
-  if (!/\bzh\b/i.test(acceptLanguage)) return acceptLanguage
-  return 'tc,en;q=0.8'
-}
