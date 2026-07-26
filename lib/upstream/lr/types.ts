@@ -24,6 +24,8 @@ export type LrRouteRow = {
 export type LrPlatform = {
   platform_id: number
   route_list?: LrRouteRow[]
+  /** Undocumented live field: 1 = service ended for today. */
+  end_service_status?: number
 }
 
 export type LrScheduleResponse = {

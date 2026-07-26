@@ -36,6 +36,7 @@ describe('mapLrUpstreamToDto', () => {
     expect(dto.platforms).toHaveLength(1)
     expect(dto.platforms?.[0]).toMatchObject({
       id: '1',
+      endService: false,
       trains: [
         {
           destLabel: 'Siu Hong',
@@ -84,7 +85,54 @@ describe('mapLrUpstreamToDto', () => {
     })
   })
 
-  it('drops stopped routes and empty platforms', () => {
+  it('keeps ended platforms and dedupes remarks', () => {
+    const dto = mapLrUpstreamToDto(
+      {
+        status: 1,
+        system_time: '2026-07-27 01:08:24',
+        platform_list: [
+          { platform_id: 2, end_service_status: 1 },
+          {
+            platform_id: 5,
+            end_service_status: 0,
+            route_list: [
+              {
+                dest_en: 'Tin Yat',
+                dest_ch: '天逸',
+                time_en: '10 min',
+                time_ch: '10分鐘',
+                route_no: '761P',
+                stop: 0,
+                routeRemarkEng2: 'Special note',
+                routeRemarkChi2: '特別班次說明',
+              },
+              {
+                dest_en: 'Yuen Long',
+                dest_ch: '元朗',
+                time_en: '12 min',
+                time_ch: '12分鐘',
+                route_no: '610',
+                stop: 0,
+                routeRemarkEng2: 'Special note',
+                routeRemarkChi2: '特別班次說明',
+              },
+            ],
+          },
+        ],
+      },
+      'tc'
+    )
+    expect(dto.platforms).toHaveLength(2)
+    expect(dto.platforms?.[0]).toMatchObject({
+      id: '2',
+      endService: true,
+      trains: [],
+    })
+    expect(dto.platforms?.[1]?.trains).toHaveLength(2)
+    expect(dto.remarks).toEqual(['特別班次說明'])
+  })
+
+  it('drops stopped routes and empty non-ended platforms', () => {
     const dto = mapLrUpstreamToDto(
       {
         status: 2,
@@ -100,6 +148,7 @@ describe('mapLrUpstreamToDto', () => {
       'en'
     )
     expect(dto.platforms).toBeNull()
+    expect(dto.remarks).toBeNull()
     expect(dto.isDelayed).toBe(false)
     expect(dto.alert).toBeNull()
   })
