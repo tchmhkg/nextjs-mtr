@@ -12,12 +12,10 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope
 
-/** Build-time constants (redeploy to change). Keep in sync with lib/env defaults. */
-const SW_NETWORK_TIMEOUT_MS = Number(
-  process.env.SW_NETWORK_TIMEOUT_MS || 8000
-)
-const SW_MAX_ENTRIES = Number(process.env.SW_MAX_ENTRIES || 64)
-const SW_MAX_AGE_SECONDS = Number(process.env.SW_MAX_AGE_SECONDS || 86_400)
+/** Literals — Serwist/esbuild does not inline process.env. Keep in sync with lib/env defaults. */
+const SW_NETWORK_TIMEOUT_MS = 8000
+const SW_MAX_ENTRIES = 64
+const SW_MAX_AGE_SECONDS = 86_400
 
 function isFreshNextTrain(url: URL): boolean {
   const fresh = url.searchParams.get('fresh')
