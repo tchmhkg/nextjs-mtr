@@ -60,7 +60,6 @@ const envSchema = z.object({
     z.string().url().default('http://localhost:3000')
   ),
   NEXT_PUBLIC_SCHEDULE_POLL_MS: positiveInt(30_000),
-  NEXT_PUBLIC_GITHUB_URL: optionalUrl,
 })
 
 export type AppEnv = z.infer<typeof envSchema>
@@ -86,7 +85,6 @@ function readEnv(): AppEnv {
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_SCHEDULE_POLL_MS: process.env.NEXT_PUBLIC_SCHEDULE_POLL_MS,
-    NEXT_PUBLIC_GITHUB_URL: process.env.NEXT_PUBLIC_GITHUB_URL,
   })
 }
 

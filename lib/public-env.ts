@@ -9,8 +9,5 @@ export const CLIENT_SCHEDULE_POLL_MS = (() => {
   return Number.isFinite(n) && n > 0 ? n : 30_000
 })()
 
-/** Hide GitHub button when unset. */
-export const CLIENT_GITHUB_URL = process.env.NEXT_PUBLIC_GITHUB_URL || undefined
-
 export const CLIENT_SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'

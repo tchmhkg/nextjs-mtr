@@ -1,27 +1,5 @@
 import { Link } from '@i18n/navigation'
-import { CLIENT_GITHUB_URL } from '@lib/public-env'
 import { getTranslations } from 'next-intl/server'
-import Image from 'next/image'
-
-function GitHubButton() {
-  if (!CLIENT_GITHUB_URL) return null
-  return (
-    <a
-      href={CLIENT_GITHUB_URL}
-      rel="noopener noreferrer"
-      target="_blank"
-      className="block size-[25px] overflow-hidden rounded-full bg-white"
-    >
-      <Image
-        src="/images/github.png"
-        width={25}
-        height={25}
-        alt="GitHub Icon"
-        priority
-      />
-    </a>
-  )
-}
 
 export default async function Header() {
   const t = await getTranslations()
@@ -47,9 +25,6 @@ export default async function Header() {
           <circle cx="12" cy="12" r="3" />
         </svg>
       </Link>
-      <div className="flex items-center gap-1">
-        <GitHubButton />
-      </div>
     </header>
   )
 }
