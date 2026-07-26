@@ -31,11 +31,19 @@ function nextLrQuery(
       clearLineStaDir(params, 'lr')
       return `?${params.toString()}`
     }
-    if (searchParams.get('mode') !== 'lr') {
-      clearLineStaDir(params, 'lr')
-      return `?${params.toString()}`
+    // Route picked, station not yet — keep line/dir in sync (do not leave a
+    // previous route's line= in the URL or remounts restore the old route).
+    if (
+      searchParams.get('mode') === 'lr' &&
+      searchParams.get('line') === lrRouteCode &&
+      !searchParams.get('sta') &&
+      searchParams.get('dir') === String(lrDir)
+    ) {
+      return null
     }
-    if (!searchParams.get('sta')) return null
+    params.set('mode', 'lr')
+    params.set('line', lrRouteCode)
+    params.set('dir', String(lrDir))
     params.delete('sta')
     return `?${params.toString()}`
   }
