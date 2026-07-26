@@ -215,6 +215,7 @@ export function useHomeController({
   initialScheduleFailed = false,
 }: HomeControllerProps) {
   const dispatch = useDispatch()
+  const router = useRouter()
   const { line: selectedLine, station: selectedStation } =
     useSelector(getTrainState)
   const stationListRef = useRef<HTMLDivElement>(null)
@@ -276,8 +277,10 @@ export function useHomeController({
       dispatch(setStation(null))
       setLrDir(1)
       setLrPickerStep('route')
+      // Eager URL update so SSR props don't re-hydrate MTR before sync effect runs
+      router.replace('?mode=lr', { scroll: false })
     },
-    [mode, dispatch, setLocationError, clearLrSelection]
+    [mode, dispatch, setLocationError, clearLrSelection, router]
   )
 
   const onChangeLine = useCallback(
@@ -335,11 +338,7 @@ export function useHomeController({
       .filter((s): s is LrStation => Boolean(s))
   }, [lrRouteCode, lrDir])
 
-  useHydrateMtrFromUrl(
-    initialModeFromUrl,
-    initialLineFromUrl,
-    initialStaFromUrl
-  )
+  useHydrateMtrFromUrl(mode, initialLineFromUrl, initialStaFromUrl)
 
   useSyncTransportUrl(
     mode,
