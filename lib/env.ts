@@ -9,10 +9,7 @@ const DEFAULT_LR_API =
 const emptyToUndefined = (v: unknown) =>
   v === '' || v == null ? undefined : v
 
-const optionalUrl = z.preprocess(
-  emptyToUndefined,
-  z.string().url().optional()
-)
+const optionalUrl = z.preprocess(emptyToUndefined, z.url().optional())
 
 const positiveInt = (fallback: number) =>
   z.preprocess(
@@ -29,11 +26,11 @@ const nonNegInt = (fallback: number) =>
 const envSchema = z.object({
   MTR_NEXT_TRAIN_API_URL: z.preprocess(
     emptyToUndefined,
-    z.string().url().default(DEFAULT_MTR_API)
+    z.url().default(DEFAULT_MTR_API)
   ),
   LR_NEXT_TRAIN_API_URL: z.preprocess(
     emptyToUndefined,
-    z.string().url().default(DEFAULT_LR_API)
+    z.url().default(DEFAULT_LR_API)
   ),
   SCHEDULE_REVALIDATE_SECONDS: positiveInt(30),
   SCHEDULE_S_MAXAGE_SECONDS: positiveInt(30),
@@ -42,7 +39,7 @@ const envSchema = z.object({
     emptyToUndefined,
     z.string().default('mtr.com.hk')
   ),
-  FRESH_COOLDOWN_MS: nonNegInt(500),
+  FRESH_COOLDOWN_MS: nonNegInt(0),
   RATE_LIMIT_REQUESTS: positiveInt(60),
   RATE_LIMIT_WINDOW_MS: positiveInt(60_000),
   FRESH_RATE_LIMIT_REQUESTS: positiveInt(30),
@@ -57,7 +54,7 @@ const envSchema = z.object({
   ),
   NEXT_PUBLIC_SITE_URL: z.preprocess(
     emptyToUndefined,
-    z.string().url().default('http://localhost:3000')
+    z.url().default('http://localhost:3000')
   ),
   NEXT_PUBLIC_SCHEDULE_POLL_MS: positiveInt(30_000),
 })
