@@ -217,8 +217,8 @@ function LrPickerBody({
                     onClick={() => onChangeLrDir(d)}
                     aria-pressed={lrDir === d}
                     className={`rounded px-2 py-0.5 text-xs tabular-nums ${lrDir === d
-                        ? 'bg-surface-alt font-medium text-ink'
-                        : 'text-muted hover:text-ink'
+                      ? 'bg-surface-alt font-medium text-ink'
+                      : 'text-muted hover:text-ink'
                       }`}
                   >
                     {t('Direction')} {d}
@@ -242,12 +242,10 @@ function LrPickerBody({
 
 function HomeHeader({
   heading,
-  mode,
   locating,
   getCurrLocation,
 }: Readonly<{
   heading: string
-  mode: TransportMode
   locating: boolean
   getCurrLocation: () => void
 }>) {
@@ -259,13 +257,11 @@ function HomeHeader({
       </h1>
       {/* Fixed slot so MTR↔LR mode switch does not shift the header / schedule refresh. */}
       <div className="flex size-11 shrink-0 items-center justify-center">
-        {mode === 'mtr' ? (
-          <CurrLocation
-            onClick={getCurrLocation}
-            aria-label={t('Find nearest station')}
-            busy={locating}
-          />
-        ) : null}
+        <CurrLocation
+          onClick={getCurrLocation}
+          aria-label={t('Find nearest station')}
+          busy={locating}
+        />
       </div>
     </header>
   )
@@ -401,12 +397,11 @@ function HomeView({
     <div className="mx-auto w-full max-w-5xl">
       <HomeHeader
         heading={heading}
-        mode={c.mode}
         locating={c.locating}
         getCurrLocation={c.getCurrLocation}
       />
       <ModeToggle mode={c.mode} onChange={c.onChangeMode} />
-      {c.locationError && c.mode === 'mtr' ? (
+      {c.locationError ? (
         <p className="mb-2 text-sm text-red-600 dark:text-red-400" role="alert">
           {t(c.locationError)}
         </p>

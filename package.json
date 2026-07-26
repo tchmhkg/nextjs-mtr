@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "verify": "yarn test:coverage",
-    "build:lr-data": "node scripts/build-lr-data.mjs"
+    "build:lr-data": "node scripts/build-lr-data.mjs",
+    "fetch:lr-coords": "node scripts/fetch-lr-coords.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
