@@ -46,7 +46,7 @@ type ResultProps = Readonly<{
 }>
 
 async function fetchNextTrain(url: string): Promise<NextTrainDto> {
-  const res = await fetch(url)
+  const res = await fetch(url, { cache: 'no-store' })
   let json: (ApiSuccessResponse<NextTrainDto> | ApiErrorResponse) | null = null
   try {
     json = (await res.json()) as ApiSuccessResponse<NextTrainDto> | ApiErrorResponse
@@ -281,7 +281,9 @@ function Result({
     queryFn: () => fetchNextTrain(apiUrl!),
     enabled: Boolean(apiUrl),
     initialData: initialSchedule ?? undefined,
+    initialDataUpdatedAt: 0,
     staleTime: 0,
+    refetchOnMount: 'always',
     refetchInterval: isVisible ? CLIENT_SCHEDULE_POLL_MS : false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
