@@ -160,5 +160,8 @@
   "Light Rail": "輕鐵",
   "Transport mode": "交通模式",
   "Select a route": "選擇路綫",
-  "Direction": "方向"
+  "Direction": "方向",
+  "Route": "路綫",
+  "Destination": "目的地",
+  "Next train": "下班車"
 }

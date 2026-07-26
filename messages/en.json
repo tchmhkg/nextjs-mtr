@@ -160,5 +160,8 @@
   "Light Rail": "Light Rail",
   "Transport mode": "Transport mode",
   "Select a route": "Select a route",
-  "Direction": "Direction"
+  "Direction": "Direction",
+  "Route": "Route",
+  "Destination": "Destination",
+  "Next train": "Next train"
 }
