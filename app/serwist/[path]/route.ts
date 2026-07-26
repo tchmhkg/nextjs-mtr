@@ -13,10 +13,8 @@ export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } =
   createSerwistRoute({
     swSrc: 'app/sw.ts',
     useNativeEsbuild: true,
-    additionalPrecacheEntries: [
-      { url: '/', revision },
-      { url: '/manifest.json', revision },
-      { url: '/assets/icon-192x192.png', revision },
-      { url: '/assets/icon-512x512.png', revision },
-    ],
+    // Only add entries Serwist does not already pick up from public/.
+    // Duplicating /manifest.json (public file hash vs commit SHA) throws
+    // add-to-cache-list-conflicting-entries during SW evaluation.
+    additionalPrecacheEntries: [{ url: '/', revision }],
   })

@@ -15,6 +15,18 @@ describe('nextTransportQuery', () => {
     )
   })
 
+  it('updates line when switching LR route before picking a station', () => {
+    const sp = new URLSearchParams('mode=lr&line=614P&sta=200&dir=1')
+    expect(nextTransportQuery(sp, 'lr', '610', null, 1)).toBe(
+      '?mode=lr&line=610&dir=1'
+    )
+  })
+
+  it('returns null when LR route-only URL already matches', () => {
+    const sp = new URLSearchParams('mode=lr&line=610&dir=1')
+    expect(nextTransportQuery(sp, 'lr', '610', null, 1)).toBeNull()
+  })
+
   it('returns null when already in sync', () => {
     const sp = new URLSearchParams('mode=mtr&line=EAL&sta=TAW')
     expect(nextTransportQuery(sp, 'mtr', null, null, 1, 'EAL', 'TAW')).toBeNull()

@@ -24,6 +24,8 @@ export interface NextTrainAlert {
 export interface NextTrainPlatform {
   id: string
   trains: TrainRouteRow[]
+  /** Light Rail: platform service has ended for today. */
+  endService?: boolean
 }
 
 export interface NextTrainDto {
@@ -31,6 +33,8 @@ export interface NextTrainDto {
   down: TrainRouteRow[] | null
   /** Light Rail: trains grouped by platform. */
   platforms?: NextTrainPlatform[] | null
+  /** Light Rail: deduped route remarks for the station. */
+  remarks?: string[] | null
   isDelayed: boolean
   lastUpdated: string | null
   sysTime: string | null

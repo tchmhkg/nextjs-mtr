@@ -36,6 +36,7 @@ import React, {
 } from 'react'
 import { toast } from 'sonner'
 import ResultList from './result-list'
+import LrSchedulePanel from './lr-schedule-panel'
 
 type ResultProps = Readonly<{
   mode?: 'mtr' | 'lr'
@@ -46,7 +47,7 @@ type ResultProps = Readonly<{
 }>
 
 async function fetchNextTrain(url: string): Promise<NextTrainDto> {
-  const res = await fetch(url)
+  const res = await fetch(url, { cache: 'no-store' })
   let json: (ApiSuccessResponse<NextTrainDto> | ApiErrorResponse) | null = null
   try {
     json = (await res.json()) as ApiSuccessResponse<NextTrainDto> | ApiErrorResponse
@@ -84,26 +85,7 @@ function TrainLists({
   const color = lineColor ?? '#999'
 
   if (data.platforms?.length) {
-    return (
-      <>
-        {data.isDelayed ? (
-          <div className="mb-3 rounded-lg border border-amber-400/60 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-            {t('Service delayed')}
-          </div>
-        ) : null}
-        <div className="grid gap-4 md:grid-cols-2">
-          {data.platforms.map((platform) => (
-            <ResultList
-              key={platform.id}
-              label={`${t('Platform')} ${platform.id}`}
-              data={platform.trains}
-              lineColor={color}
-              delay={false}
-            />
-          ))}
-        </div>
-      </>
-    )
+    return <LrSchedulePanel data={data} />
   }
 
   if (!data.up && !data.down) {
@@ -281,7 +263,9 @@ function Result({
     queryFn: () => fetchNextTrain(apiUrl!),
     enabled: Boolean(apiUrl),
     initialData: initialSchedule ?? undefined,
+    initialDataUpdatedAt: 0,
     staleTime: 0,
+    refetchOnMount: 'always',
     refetchInterval: isVisible ? CLIENT_SCHEDULE_POLL_MS : false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,

@@ -42,6 +42,18 @@ function routeNumber(row: LrRouteRow): string | null {
   return route || null
 }
 
+function routeRemark(row: LrRouteRow, lang: string): string | null {
+  const tc = lang.toLowerCase() === 'tc'
+  const primary = tc
+    ? stringFromUnknown(row.routeRemarkChi2).trim()
+    : stringFromUnknown(row.routeRemarkEng2).trim()
+  if (primary) return primary
+  const fallback = tc
+    ? stringFromUnknown(row.routeRemarkEng2).trim()
+    : stringFromUnknown(row.routeRemarkChi2).trim()
+  return fallback || null
+}
+
 function mapRouteRow(
   row: LrRouteRow,
   platformId: string,
@@ -74,11 +86,29 @@ function mapRouteRow(
 
 function mapPlatform(platform: LrPlatform, lang: string): NextTrainPlatform {
   const id = String(platform.platform_id)
+  const endService = platform.end_service_status === 1
   const routes = platform.route_list ?? []
   const trains = routes
     .filter((r) => r.stop !== 1)
     .map((r, i) => mapRouteRow(r, id, i + 1, lang))
-  return { id, trains }
+  return { id, trains, endService }
+}
+
+function collectRemarks(
+  platforms: LrPlatform[],
+  lang: string
+): string[] {
+  const seen = new Set<string>()
+  const remarks: string[] = []
+  for (const platform of platforms) {
+    for (const row of platform.route_list ?? []) {
+      const remark = routeRemark(row, lang)
+      if (!remark || seen.has(remark)) continue
+      seen.add(remark)
+      remarks.push(remark)
+    }
+  }
+  return remarks
 }
 
 export function mapLrUpstreamToDto(
@@ -88,17 +118,20 @@ export function mapLrUpstreamToDto(
   const data = (raw ?? {}) as LrScheduleResponse
   const status = Number(data.status)
   const systemTime = nullableTime(data.system_time)
-  const platforms = (data.platform_list ?? [])
+  const upstreamPlatforms = data.platform_list ?? []
+  const platforms = upstreamPlatforms
     .map((p) => mapPlatform(p, lang))
-    .filter((p) => p.trains.length > 0)
+    .filter((p) => p.trains.length > 0 || p.endService)
 
+  const remarks = collectRemarks(upstreamPlatforms, lang)
   const isAlert = status === 0
-  const hasTrains = platforms.length > 0
+  const hasPlatforms = platforms.length > 0
 
   return {
     up: null,
     down: null,
-    platforms: hasTrains ? platforms : null,
+    platforms: hasPlatforms ? platforms : null,
+    remarks: remarks.length ? remarks : null,
     isDelayed: isAlert,
     lastUpdated: systemTime,
     sysTime: systemTime,
