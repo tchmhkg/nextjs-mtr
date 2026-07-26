@@ -37,6 +37,6 @@ describe('preferTcIfChinese', () => {
 
   it('leaves non-Chinese headers unchanged', () => {
     expect(preferTcIfChinese('en-US,en;q=0.9')).toBe('en-US,en;q=0.9')
-    expect(preferTcIfChinese(null)).toBe(null)
+    expect(preferTcIfChinese(null)).toBeNull()
   })
 })
