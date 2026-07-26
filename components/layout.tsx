@@ -1,10 +1,8 @@
-'use client'
-
 import OfflineBanner from '@components/offline-banner'
 import Navbar from '@components/navbar'
+import BackButton from '@components/back'
 import { Link } from '@i18n/navigation'
-import { useTranslations } from 'next-intl'
-import dynamic from 'next/dynamic'
+import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 type LayoutProps = Readonly<{
@@ -16,16 +14,14 @@ type LayoutProps = Readonly<{
   backUrl?: string
 }>
 
-const BackButton = dynamic(() => import('@components/back'))
-
-export default function Layout({
+export default async function Layout({
   children,
   home,
   back = false,
   showBackToHome = true,
   ...props
 }: LayoutProps) {
-  const t = useTranslations()
+  const t = await getTranslations()
 
   return (
     <>

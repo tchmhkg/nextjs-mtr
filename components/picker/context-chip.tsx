@@ -35,7 +35,7 @@ export default function ContextChip({
         <button
           type="button"
           onClick={onInterchange}
-          className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-accent hover:underline"
+          className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-muted hover:text-ink hover:underline"
         >
           {interchangeLabel}
         </button>

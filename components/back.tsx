@@ -1,21 +1,20 @@
 'use client'
 
 import { useRouter } from '@i18n/navigation'
-import { localizedPath } from '@utils/locale-path'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import React, { useCallback } from 'react'
 
 function BackButton({ backUrl = '' }: Readonly<{ backUrl?: string }>) {
-  const locale = useLocale()
   const t = useTranslations()
   const router = useRouter()
   const onClickBack = useCallback(() => {
     if (backUrl) {
-      router.push(localizedPath(locale, backUrl))
+      // next-intl router prefixes locale; do not call localizedPath here
+      router.push(backUrl)
     } else {
       router.back()
     }
-  }, [router, backUrl, locale])
+  }, [router, backUrl])
 
   return (
     <div>

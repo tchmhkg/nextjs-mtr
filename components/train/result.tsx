@@ -281,6 +281,7 @@ function Result({
     queryFn: () => fetchNextTrain(apiUrl!),
     enabled: Boolean(apiUrl),
     initialData: initialSchedule ?? undefined,
+    staleTime: 0,
     refetchInterval: isVisible ? CLIENT_SCHEDULE_POLL_MS : false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
