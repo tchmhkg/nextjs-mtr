@@ -12,6 +12,7 @@ import {
 import { useDispatch, useSelector } from '@store/store'
 import type { LrStation } from '@utils/lr-data'
 import {
+  findLrRouteServing,
   getLrRouteStopIds,
   getLrStation,
   isKnownLrRoute,
@@ -248,7 +249,7 @@ export function useHomeController({
     setLrStationId(null)
   }, [])
 
-  const onFoundNearest = useCallback(
+  const onFoundNearestMtr = useCallback(
     (line: ILine, station: IStation) => {
       setMode('mtr')
       dispatch(setLine(line))
@@ -260,8 +261,28 @@ export function useHomeController({
     [dispatch, clearLrSelection]
   )
 
+  const onFoundNearestLr = useCallback(
+    (station: LrStation) => {
+      dispatch(setLine(null))
+      dispatch(setStation(null))
+      const serving = findLrRouteServing(station.id, lrRouteCode, lrDir)
+      if (serving) {
+        setLrRouteCode(serving.routeCode)
+        setLrDir(serving.dir)
+      }
+      setLrStationId(station.id)
+      setLrPickerStep(serving ? 'station' : 'route')
+      setEditing(false)
+      scrollToSchedulePanel()
+    },
+    [dispatch, lrRouteCode, lrDir]
+  )
+
   const { locating, locationError, getCurrLocation, setLocationError } =
-    useNearestStation(onFoundNearest)
+    useNearestStation(mode, {
+      onFoundMtr: onFoundNearestMtr,
+      onFoundLr: onFoundNearestLr,
+    })
 
   const onChangeMode = useCallback(
     (next: TransportMode) => {
