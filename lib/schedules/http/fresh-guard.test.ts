@@ -1,10 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '@lib/schedules/errors/api-error'
-import {
-  assertFreshAllowed,
-  clientIpFromRequest,
-} from './fresh-guard'
+
+vi.mock('@lib/env', () => ({
+  env: {
+    FRESH_COOLDOWN_MS: 500,
+    UPSTASH_REDIS_REST_URL: undefined,
+    UPSTASH_REDIS_REST_TOKEN: undefined,
+  },
+}))
+
+const { assertFreshAllowed, clientIpFromRequest } = await import('./fresh-guard')
 
 function requestWith(
   headers: Record<string, string>,
