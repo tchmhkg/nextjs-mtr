@@ -266,8 +266,9 @@ function Result({
   }, [mode, line, sta, lang])
 
   const selectionKey = `${mode}:${line ?? ''}:${sta}`
-  // Cold open / first mount: use CDN poll (fast). Later station changes: prefer ?fresh=1.
-  const preferFreshForSelectionRef = useRef(false)
+  // SSR cold open: CDN poll. Client selection (no SSR seed) or in-place station
+  // change: prefer ?fresh=1. Home no longer remounts Result per station.
+  const preferFreshForSelectionRef = useRef(initialSchedule == null)
   const selectionKeySeenRef = useRef(selectionKey)
   if (selectionKeySeenRef.current !== selectionKey) {
     selectionKeySeenRef.current = selectionKey
@@ -297,6 +298,13 @@ function Result({
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   })
+
+  // Revisit within staleTime skips queryFn — force refetch so prefer-fresh runs.
+  useEffect(() => {
+    if (!preferFreshForSelectionRef.current) return
+    if (!queryClient.getQueryData(queryKey)) return
+    void refetch()
+  }, [selectionKey, queryKey, queryClient, refetch])
 
   const {
     flashUpdate,

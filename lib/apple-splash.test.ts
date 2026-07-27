@@ -5,9 +5,11 @@ describe('appleSplashAsset', () => {
   it('names files by pixel size, not device', () => {
     const a = appleSplashAsset({ cssW: 440, cssH: 956, dpr: 3 })
     expect(a.href).toBe('/splashscreens/1320x2868.png')
+    expect(a.media).toContain('screen and')
     expect(a.media).toContain('device-width: 440px')
     expect(a.media).toContain('device-height: 956px')
     expect(a.media).toContain('-webkit-device-pixel-ratio: 3')
+    expect(a.media).toContain('orientation: portrait')
   })
 
   it('honors Plus pixel override', () => {

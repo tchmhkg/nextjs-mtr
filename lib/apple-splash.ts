@@ -28,7 +28,7 @@ export function appleSplashAsset(s: AppleSplashSize): {
   const { pxW, pxH } = appleSplashPixels(s)
   return {
     href: `/splashscreens/${pxW}x${pxH}.png`,
-    media: `(device-width: ${s.cssW}px) and (device-height: ${s.cssH}px) and (-webkit-device-pixel-ratio: ${s.dpr})`,
+    media: `screen and (device-width: ${s.cssW}px) and (device-height: ${s.cssH}px) and (-webkit-device-pixel-ratio: ${s.dpr}) and (orientation: portrait)`,
     pxW,
     pxH,
   }

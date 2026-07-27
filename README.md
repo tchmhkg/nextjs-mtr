@@ -50,7 +50,7 @@ docker run --rm -p 3000:3000 nextjs-mtr
 
 - **Framework:** Next.js (App Router), React, TypeScript
 - **UI:** Tailwind CSS v4, dark mode via `html.dark` class
-- **State:** Redux Toolkit + react-redux (line/station selection)
+- **State:** Redux Toolkit + react-redux (mode + MTR/LR selection; schedules stay in TanStack Query)
 - **Data:** TanStack Query for client polling; BFF route at `/api/next-train`
 - **i18n:** next-intl
 - **Validation:** Zod at the API route boundary
@@ -115,9 +115,11 @@ lib/
     └── lr/                    # Light Rail upstream client
 
 components/                    # React UI (client)
-store/                         # Redux: line/station selection only
+store/                         # Redux: mode + MTR/LR selection only
 utils/next-train-data.ts       # Static line/station metadata
 ```
+
+After changing apple-touch splash assets or media queries, delete and re-add the iOS home-screen icon so Safari picks up the new launch image.
 
 ### Layer responsibilities
 
