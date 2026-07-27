@@ -8,14 +8,14 @@ import NextTopLoader from 'nextjs-toploader'
 
 const outfit = Outfit({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600'],
   display: 'swap',
   variable: '--font-outfit',
 })
 
 const notoSansTc = Noto_Sans_TC({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  weight: ['400', '500'],
   display: 'swap',
   variable: '--font-noto-sans-tc',
 })
@@ -72,13 +72,13 @@ type RootLayoutProps = Readonly<{
 export default async function RootLayout({ children }: RootLayoutProps) {
   const hdr = await headers()
   const lang = hdr.get('x-next-intl-locale') ?? 'tc'
+  const fontVars =
+    lang === 'tc'
+      ? `${outfit.variable} ${notoSansTc.variable}`
+      : outfit.variable
 
   return (
-    <html
-      lang={lang}
-      dir="ltr"
-      className={`${outfit.variable} ${notoSansTc.variable}`}
-    >
+    <html lang={lang} dir="ltr" className={fontVars}>
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />

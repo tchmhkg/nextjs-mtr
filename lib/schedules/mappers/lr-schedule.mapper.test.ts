@@ -39,12 +39,11 @@ describe('mapLrUpstreamToDto', () => {
       endService: false,
       trains: [
         {
-          destLabel: 'Siu Hong',
+          dest: 'Siu Hong',
           plat: '1',
           time: '3 min',
           route: '615P',
           relativeEta: true,
-          timeType: 'A',
           trainLength: 2,
         },
       ],
@@ -78,11 +77,12 @@ describe('mapLrUpstreamToDto', () => {
       'tc'
     )
     expect(dto.platforms?.[0]?.trains[0]).toMatchObject({
-      destLabel: '天逸',
+      dest: '天逸',
       time: '即將抵達',
       route: '751P*',
-      timeType: 'D',
     })
+    expect(dto.platforms?.[0]?.trains[0]?.destLabel).toBeUndefined()
+    expect(dto.platforms?.[0]?.trains[0]?.timeType).toBeUndefined()
   })
 
   it('keeps ended platforms and dedupes remarks', () => {

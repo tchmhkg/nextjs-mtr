@@ -52,13 +52,15 @@ function mapRoute(raw: string | undefined): string | null {
 function mapTrainRow(row: MtrTrainRouteRow): TrainRouteRow | null {
   const time = nullableTime(row.time)
   if (!time) return null
+  const timeType = mapTimeType(row.timetype)
+  const route = mapRoute(row.route)
   return {
     seq: String(row.seq ?? ''),
     dest: String(row.dest ?? ''),
     plat: String(row.plat ?? ''),
     time,
-    timeType: mapTimeType(row.timetype),
-    route: mapRoute(row.route),
+    ...(timeType ? { timeType } : {}),
+    ...(route ? { route } : {}),
   }
 }
 
@@ -120,7 +122,6 @@ export function mapMtrUpstreamToDto(
     down: mapDirection(parsed.schedule?.DOWN),
     isDelayed: parsed.isdelay,
     lastUpdated: parsed.curr_time,
-    sysTime: parsed.sys_time,
     alert: parsed.alert,
   }
 }
