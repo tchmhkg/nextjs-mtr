@@ -28,9 +28,9 @@ export const metadata: Metadata = {
   description: 'Get MTR Schedule',
   manifest: '/manifest.json',
   icons: {
+    // One PNG + ico is enough; listing every size made SW/browser fetch them all.
     icon: [
       { url: '/favicon.ico' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
     apple: '/assets/icon-192x192.png',
@@ -72,6 +72,10 @@ type RootLayoutProps = Readonly<{
 export default async function RootLayout({ children }: RootLayoutProps) {
   const hdr = await headers()
   const lang = hdr.get('x-next-intl-locale') ?? 'tc'
+  // Only iOS needs apple-touch-startup-image; emitting all sizes on every visit
+  // made Chromium + the service worker fetch ~17 unused splash PNGs at startup.
+  const ua = hdr.get('user-agent') ?? ''
+  const showAppleSplash = /iPhone|iPad|iPod/i.test(ua)
 
   return (
     <html
@@ -82,14 +86,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        {APPLE_SPLASH.map(({ href, media }) => (
-          <link
-            key={href + media}
-            href={href}
-            media={media}
-            rel="apple-touch-startup-image"
-          />
-        ))}
+        {showAppleSplash
+          ? APPLE_SPLASH.map(({ href, media }) => (
+              <link
+                key={href + media}
+                href={href}
+                media={media}
+                rel="apple-touch-startup-image"
+              />
+            ))
+          : null}
       </head>
       <body>
         <NextTopLoader color="#333333" showSpinner={false} height={2} />

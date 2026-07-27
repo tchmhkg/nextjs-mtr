@@ -13,6 +13,8 @@ export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } =
   createSerwistRoute({
     swSrc: 'app/sw.ts',
     useNativeEsbuild: true,
+    // iOS launch images are only needed at Add-to-Home-Screen time, not offline shell.
+    globIgnores: ['**/splashscreens/**'],
     // Only add entries Serwist does not already pick up from public/.
     // Duplicating /manifest.json (public file hash vs commit SHA) throws
     // add-to-cache-list-conflicting-entries during SW evaluation.

@@ -36,8 +36,8 @@ import React, {
   useState,
 } from 'react'
 import { toast } from 'sonner'
-import ResultList from './result-list'
 import LrSchedulePanel from './lr-schedule-panel'
+import ResultList from './result-list'
 
 type ResultProps = Readonly<{
   mode?: 'mtr' | 'lr'
@@ -217,27 +217,8 @@ type RefetchResult = {
 async function refreshWithFallback(
   apiUrl: string,
   refetch: () => Promise<RefetchResult>,
-  t: (key: MessageKey) => string,
-  options?: { quiet?: boolean }
+  t: (key: MessageKey) => string
 ): Promise<NextTrainDto | null> {
-  if (options?.quiet) {
-    try {
-      const { data } = await preferFreshThenPoll(
-        () => fetchNextTrain(`${apiUrl}&fresh=1`),
-        async () => {
-          const result = await refetch()
-          if (result.isError) throw result.error ?? new Error('poll failed')
-          if (result.data === undefined) throw new Error('poll empty')
-          return result.data
-        }
-      )
-      return data
-    } catch (err) {
-      toast.error(t(apiErrorToMessageKey(errorCode(err))))
-      return null
-    }
-  }
-
   try {
     return await fetchNextTrain(`${apiUrl}&fresh=1`)
   } catch (err) {
@@ -285,9 +266,30 @@ function Result({
     return `/api/next-train?${q.toString()}`
   }, [mode, line, sta, lang])
 
+  const selectionKey = `${mode}:${line ?? ''}:${sta}`
+  // First load for a selection bypasses CDN; interval/focus polls stay cached.
+  const preferFreshForSelectionRef = useRef(true)
+  const selectionKeySeenRef = useRef(selectionKey)
+  if (selectionKeySeenRef.current !== selectionKey) {
+    selectionKeySeenRef.current = selectionKey
+    preferFreshForSelectionRef.current = true
+  }
+
   const { data, error, isPending, isFetching, isError, refetch } = useQuery({
     queryKey,
-    queryFn: () => fetchNextTrain(apiUrl!),
+    queryFn: async () => {
+      const url = apiUrl!
+      if (preferFreshForSelectionRef.current) {
+        const { data: fresh } = await preferFreshThenPoll(
+          () => fetchNextTrain(`${url}&fresh=1`),
+          () => fetchNextTrain(url)
+        )
+        // Only clear after success so a cancelled Strict Mode retry still prefers fresh.
+        preferFreshForSelectionRef.current = false
+        return fresh
+      }
+      return fetchNextTrain(url)
+    },
     enabled: Boolean(apiUrl),
     initialData: initialSchedule ?? undefined,
     initialDataUpdatedAt: 0,
@@ -298,7 +300,6 @@ function Result({
     refetchOnReconnect: true,
   })
 
-  const selectionKey = `${mode}:${line ?? ''}:${sta}`
   const {
     flashUpdate,
     setFlashUpdate,
@@ -374,50 +375,6 @@ function Result({
     lastUpdatedSeenRef,
     setFlashUpdate,
   ])
-
-  // Bypass CDN on station select — poll URL can serve s-maxage-stale ETAs.
-  const selectFreshRef = useRef({
-    apiUrl,
-    refetch,
-    queryKey,
-    t,
-    queryClient,
-    receivedAtRef,
-    lastUpdatedSeenRef,
-    setFlashUpdate,
-    setSsrNotice,
-  })
-  selectFreshRef.current = {
-    apiUrl,
-    refetch,
-    queryKey,
-    t,
-    queryClient,
-    receivedAtRef,
-    lastUpdatedSeenRef,
-    setFlashUpdate,
-    setSsrNotice,
-  }
-  useEffect(() => {
-    const ctx = selectFreshRef.current
-    if (!ctx.apiUrl) return
-    let cancelled = false
-    ;(async () => {
-      const fresh = await refreshWithFallback(ctx.apiUrl!, ctx.refetch, ctx.t, {
-        quiet: true,
-      })
-      if (cancelled || !fresh) return
-      ctx.queryClient.setQueryData(ctx.queryKey, fresh)
-      ctx.receivedAtRef.current = Date.now()
-      ctx.lastUpdatedSeenRef.current = fresh.lastUpdated
-      ctx.setFlashUpdate(true)
-      ctx.setSsrNotice(false)
-      window.setTimeout(() => ctx.setFlashUpdate(false), 600)
-    })().catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [selectionKey])
 
   const retry = useCallback(() => {
     onManualRefresh().catch(() => { })
