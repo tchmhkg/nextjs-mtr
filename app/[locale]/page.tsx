@@ -2,8 +2,6 @@ import Home from '@components/home'
 import Layout from '@components/layout'
 import { routing } from '@i18n/routing'
 import type { TransportMode } from '@lib/schedules/contracts/transport-mode'
-import { getNextTrain } from '@lib/schedules/get-next-train'
-import { isKnownLrStation } from '@utils/lr-data'
 import type { Metadata } from 'next'
 import { hasLocale } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
@@ -53,36 +51,6 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const t = await getTranslations({ locale })
   const mode = parseMode(sp.mode)
 
-  let initialSchedule = null
-  let initialScheduleFailed = false
-
-  if (mode === 'lr' && sp.sta && isKnownLrStation(sp.sta)) {
-    try {
-      initialSchedule = (
-        await getNextTrain({
-          mode: 'lr',
-          sta: sp.sta,
-          lang: locale,
-        })
-      ).data
-    } catch {
-      initialScheduleFailed = true
-    }
-  } else if (mode === 'mtr' && sp.line && sp.sta) {
-    try {
-      initialSchedule = (
-        await getNextTrain({
-          mode: 'mtr',
-          line: sp.line,
-          sta: sp.sta,
-          lang: locale,
-        })
-      ).data
-    } catch {
-      initialScheduleFailed = true
-    }
-  }
-
   return (
     <Layout home>
       <Suspense
@@ -100,8 +68,6 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           initialLineFromUrl={sp.line ?? null}
           initialDirFromUrl={sp.dir ?? null}
           initialStaFromUrl={sp.sta ?? null}
-          initialSchedule={initialSchedule}
-          initialScheduleFailed={initialScheduleFailed}
         />
       </Suspense>
     </Layout>

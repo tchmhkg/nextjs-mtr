@@ -1,3 +1,4 @@
+import { APPLE_SPLASH } from '@lib/apple-splash'
 import { env } from '@lib/env'
 import '@styles/globals.css'
 import type { Metadata, Viewport } from 'next'
@@ -81,56 +82,14 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <link
-          href="/splashscreens/iphone5_splash.png"
-          media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/iphone6_splash.png"
-          media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/iphoneplus_splash.png"
-          media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/iphonex_splash.png"
-          media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/iphonexr_splash.png"
-          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/iphonexsmax_splash.png"
-          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/ipad_splash.png"
-          media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/ipadpro1_splash.png"
-          media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/ipadpro3_splash.png"
-          media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)"
-          rel="apple-touch-startup-image"
-        />
-        <link
-          href="/splashscreens/ipadpro2_splash.png"
-          media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)"
-          rel="apple-touch-startup-image"
-        />
+        {APPLE_SPLASH.map(({ href, media }) => (
+          <link
+            key={href + media}
+            href={href}
+            media={media}
+            rel="apple-touch-startup-image"
+          />
+        ))}
       </head>
       <body>
         <NextTopLoader color="#333333" showSpinner={false} height={2} />
