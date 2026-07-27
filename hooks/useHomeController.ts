@@ -5,8 +5,15 @@ import { useRouter } from '@i18n/navigation'
 import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
 import type { TransportMode } from '@lib/schedules/contracts/transport-mode'
 import {
+  clearLrSelection,
   getTrainState,
+  hydrateFromUrl,
+  type LrDir,
   setLine,
+  setLrDir,
+  setLrRouteCode,
+  setLrStationId,
+  setMode,
   setStation,
 } from '@store/slices/trainSlice'
 import { useDispatch, useSelector } from '@store/store'
@@ -30,7 +37,7 @@ import React, {
   useState,
 } from 'react'
 
-export type LrDir = 1 | 2
+export type { LrDir }
 
 function parseLrDir(raw: string | null | undefined): LrDir {
   return raw === '2' ? 2 : 1
@@ -81,16 +88,11 @@ function buildStationRefs() {
   )
 }
 
-function hydrateMtrFromUrl(
-  dispatch: ReturnType<typeof useDispatch>,
-  lineCode: string,
-  staCode: string
-) {
+function resolveMtrFromUrl(lineCode: string, staCode: string) {
   const lineData = DATA.find((s) => s.line.code === lineCode)
   const station = lineData?.stations.find((s) => s.code === staCode)
-  if (!lineData || !station) return
-  dispatch(setLine(lineData.line))
-  dispatch(setStation(station))
+  if (!lineData || !station) return null
+  return { line: lineData.line, station }
 }
 
 function applyInterchangeLine(
@@ -133,16 +135,43 @@ function scheduleMatchesSelection(
   return initialSchedule
 }
 
-function useHydrateMtrFromUrl(
-  mode: TransportMode,
+function useHydrateSelectionFromUrl(
+  modeFromUrl: TransportMode,
   line: string | null | undefined,
-  sta: string | null | undefined
+  sta: string | null | undefined,
+  dir: string | null | undefined
 ) {
   const dispatch = useDispatch()
   useLayoutEffect(() => {
-    if (mode === 'lr' || !line || !sta) return
-    hydrateMtrFromUrl(dispatch, line, sta)
-  }, [dispatch, mode, line, sta])
+    if (modeFromUrl === 'lr') {
+      dispatch(
+        hydrateFromUrl({
+          mode: 'lr',
+          line: null,
+          station: null,
+          lrRouteCode: initialLrRouteCode('lr', line),
+          lrStationId: sta ?? null,
+          lrDir: parseLrDir(dir),
+        })
+      )
+      return
+    }
+    if (!line || !sta) {
+      dispatch(hydrateFromUrl({ mode: 'mtr' }))
+      return
+    }
+    const resolved = resolveMtrFromUrl(line, sta)
+    if (!resolved) return
+    dispatch(
+      hydrateFromUrl({
+        mode: 'mtr',
+        line: resolved.line,
+        station: resolved.station,
+        lrRouteCode: null,
+        lrStationId: null,
+      })
+    )
+  }, [dispatch, modeFromUrl, line, sta, dir])
 }
 
 function useSyncTransportUrl(
@@ -217,20 +246,16 @@ export function useHomeController({
 }: HomeControllerProps) {
   const dispatch = useDispatch()
   const router = useRouter()
-  const { line: selectedLine, station: selectedStation } =
-    useSelector(getTrainState)
+  const {
+    mode,
+    line: selectedLine,
+    station: selectedStation,
+    lrRouteCode,
+    lrStationId,
+    lrDir,
+  } = useSelector(getTrainState)
   const stationListRef = useRef<HTMLDivElement>(null)
   const lrListRef = useRef<HTMLDivElement>(null)
-  const [mode, setMode] = useState<TransportMode>(initialModeFromUrl)
-  const [lrRouteCode, setLrRouteCode] = useState<string | null>(() =>
-    initialLrRouteCode(initialModeFromUrl, initialLineFromUrl)
-  )
-  const [lrDir, setLrDir] = useState<LrDir>(() =>
-    parseLrDir(initialDirFromUrl)
-  )
-  const [lrStationId, setLrStationId] = useState<string | null>(() =>
-    initialModeFromUrl === 'lr' ? initialStaFromUrl : null
-  )
   const [interchangeFor, setInterchangeFor] = useState<IStation | null>(null)
   const [editing, setEditing] = useState(() =>
     initialEditing(initialModeFromUrl, initialLineFromUrl, initialStaFromUrl)
@@ -244,21 +269,16 @@ export function useHomeController({
 
   const stationRefs = useMemo(() => buildStationRefs(), [])
 
-  const clearLrSelection = useCallback(() => {
-    setLrRouteCode(null)
-    setLrStationId(null)
-  }, [])
-
   const onFoundNearestMtr = useCallback(
     (line: ILine, station: IStation) => {
-      setMode('mtr')
+      dispatch(setMode('mtr'))
       dispatch(setLine(line))
       dispatch(setStation(station))
-      clearLrSelection()
+      dispatch(clearLrSelection())
       setEditing(false)
       setPickerStep('station')
     },
-    [dispatch, clearLrSelection]
+    [dispatch]
   )
 
   const onFoundNearestLr = useCallback(
@@ -267,10 +287,10 @@ export function useHomeController({
       dispatch(setStation(null))
       const serving = findLrRouteServing(station.id, lrRouteCode, lrDir)
       if (serving) {
-        setLrRouteCode(serving.routeCode)
-        setLrDir(serving.dir)
+        dispatch(setLrRouteCode(serving.routeCode))
+        dispatch(setLrDir(serving.dir))
       }
-      setLrStationId(station.id)
+      dispatch(setLrStationId(station.id))
       setLrPickerStep(serving ? 'station' : 'route')
       setEditing(false)
       scrollToSchedulePanel()
@@ -287,21 +307,21 @@ export function useHomeController({
   const onChangeMode = useCallback(
     (next: TransportMode) => {
       if (next === mode) return
-      setMode(next)
+      dispatch(setMode(next))
       setEditing(true)
       setInterchangeFor(null)
       setLocationError(null)
-      clearLrSelection()
+      dispatch(clearLrSelection())
       setPickerStep('line')
       if (next !== 'lr') return
       dispatch(setLine(null))
       dispatch(setStation(null))
-      setLrDir(1)
+      dispatch(setLrDir(1))
       setLrPickerStep('route')
       // Eager URL update so SSR props don't re-hydrate MTR before sync effect runs
       router.replace('?mode=lr', { scroll: false })
     },
-    [mode, dispatch, setLocationError, clearLrSelection, router]
+    [mode, dispatch, setLocationError, router]
   )
 
   const onChangeLine = useCallback(
@@ -325,26 +345,35 @@ export function useHomeController({
     [dispatch]
   )
 
-  const onSelectLrRoute = useCallback((routeCode: string) => {
-    setLrRouteCode(routeCode)
-    setLrStationId(null)
-    setLrPickerStep('station')
-    setEditing(true)
-    lrListRef.current?.scrollTo({ top: 0 })
-  }, [])
+  const onSelectLrRoute = useCallback(
+    (routeCode: string) => {
+      dispatch(setLrRouteCode(routeCode))
+      dispatch(setLrStationId(null))
+      setLrPickerStep('station')
+      setEditing(true)
+      lrListRef.current?.scrollTo({ top: 0 })
+    },
+    [dispatch]
+  )
 
-  const onChangeLrDir = useCallback((d: LrDir) => {
-    setLrDir(d)
-    setLrStationId(null)
-    setEditing(true)
-    setLrPickerStep('station')
-  }, [])
+  const onChangeLrDir = useCallback(
+    (d: LrDir) => {
+      dispatch(setLrDir(d))
+      dispatch(setLrStationId(null))
+      setEditing(true)
+      setLrPickerStep('station')
+    },
+    [dispatch]
+  )
 
-  const onSelectLrStation = useCallback((station: LrStation) => {
-    setLrStationId(station.id)
-    setEditing(false)
-    scrollToSchedulePanel()
-  }, [])
+  const onSelectLrStation = useCallback(
+    (station: LrStation) => {
+      dispatch(setLrStationId(station.id))
+      setEditing(false)
+      scrollToSchedulePanel()
+    },
+    [dispatch]
+  )
 
   const lineStations = useMemo(() => {
     if (!selectedLine?.code) return undefined
@@ -359,7 +388,12 @@ export function useHomeController({
       .filter((s): s is LrStation => Boolean(s))
   }, [lrRouteCode, lrDir])
 
-  useHydrateMtrFromUrl(mode, initialLineFromUrl, initialStaFromUrl)
+  useHydrateSelectionFromUrl(
+    initialModeFromUrl,
+    initialLineFromUrl,
+    initialStaFromUrl,
+    initialDirFromUrl
+  )
 
   useSyncTransportUrl(
     mode,

@@ -1,7 +1,12 @@
 import Home from '@components/home'
 import Layout from '@components/layout'
 import { routing } from '@i18n/routing'
+import { isApiError } from '@lib/schedules/errors/api-error'
+import { getNextTrain } from '@lib/schedules/get-next-train'
+import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
 import type { TransportMode } from '@lib/schedules/contracts/transport-mode'
+import { isKnownLrStation } from '@utils/lr-data'
+import { isKnownLineSta } from '@utils/next-train-data'
 import type { Metadata } from 'next'
 import { hasLocale } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
@@ -41,6 +46,32 @@ function parseMode(raw: string | undefined): TransportMode {
   return raw === 'lr' ? 'lr' : 'mtr'
 }
 
+async function loadInitialSchedule(
+  mode: TransportMode,
+  line: string | undefined,
+  sta: string | undefined,
+  lang: string
+): Promise<{ schedule: NextTrainDto | null; failed: boolean }> {
+  if (!sta) return { schedule: null, failed: false }
+  if (mode === 'mtr') {
+    if (!line || !isKnownLineSta(line, sta)) {
+      return { schedule: null, failed: false }
+    }
+  } else if (!isKnownLrStation(sta)) {
+    return { schedule: null, failed: false }
+  }
+
+  try {
+    const { data } = await getNextTrain({ mode, line, sta, lang })
+    return { schedule: data, failed: false }
+  } catch (err) {
+    if (isApiError(err) && err.status >= 400 && err.status < 500) {
+      return { schedule: null, failed: true }
+    }
+    return { schedule: null, failed: true }
+  }
+}
+
 export default async function HomePage({ params, searchParams }: HomePageProps) {
   const { locale } = await params
   if (!hasLocale(routing.locales, locale)) {
@@ -50,6 +81,13 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   setRequestLocale(locale)
   const t = await getTranslations({ locale })
   const mode = parseMode(sp.mode)
+  const lang = locale === 'en' ? 'en' : 'tc'
+  const { schedule, failed } = await loadInitialSchedule(
+    mode,
+    sp.line,
+    sp.sta,
+    lang
+  )
 
   return (
     <Layout home>
@@ -68,6 +106,8 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           initialLineFromUrl={sp.line ?? null}
           initialDirFromUrl={sp.dir ?? null}
           initialStaFromUrl={sp.sta ?? null}
+          initialSchedule={schedule}
+          initialScheduleFailed={failed}
         />
       </Suspense>
     </Layout>

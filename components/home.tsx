@@ -357,7 +357,6 @@ function HomeSchedule({ c }: Readonly<{ c: HomeController }>) {
     return (
       <div id="schedule-panel">
         <Result
-          key={`mtr-${c.selectedLine.code}-${c.selectedStation.code}`}
           mode="mtr"
           line={c.selectedLine.code}
           sta={c.selectedStation.code}
@@ -372,7 +371,6 @@ function HomeSchedule({ c }: Readonly<{ c: HomeController }>) {
     return (
       <div id="schedule-panel">
         <Result
-          key={`lr-${c.lrStationId}`}
           mode="lr"
           sta={c.lrStationId}
           initialSchedule={c.scheduleForResult}
