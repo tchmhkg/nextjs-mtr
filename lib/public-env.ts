@@ -8,6 +8,3 @@ export const CLIENT_SCHEDULE_POLL_MS = (() => {
   const n = raw ? Number(raw) : Number.NaN
   return Number.isFinite(n) && n > 0 ? n : 30_000
 })()
-
-export const CLIENT_SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'

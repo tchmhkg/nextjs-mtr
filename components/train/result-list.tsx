@@ -9,7 +9,6 @@ type ResultListProps = Readonly<{
   label?: string
   data?: TrainRouteRow[]
   lineColor?: string
-  delay?: boolean
   currTime?: string
 }>
 
@@ -17,13 +16,11 @@ function ResultList({
   label = '',
   data = [],
   lineColor = '#999',
-  delay = false,
   currTime,
 }: ResultListProps) {
   const t = useTranslations()
 
   const renderResult = useCallback(() => {
-    if (delay) return <div className="text-sm text-muted">{t('Service not available')}</div>
     if (!data?.length)
       return <div className="text-sm text-muted">{t('End Service')}</div>
     return data.map((times) => (
@@ -34,7 +31,7 @@ function ResultList({
         currTime={currTime}
       />
     ))
-  }, [currTime, data, delay, lineColor, t])
+  }, [currTime, data, lineColor, t])
 
   return (
     <div>

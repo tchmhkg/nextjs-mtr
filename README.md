@@ -297,7 +297,7 @@ Copy `.env.local.example` to `.env.local`. Tunables (cache TTLs, poll interval, 
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | metadataBase / OG |
 | `NEXT_PUBLIC_SCHEDULE_POLL_MS` | `30000` | Client poll; set at build for client |
 | `NEXT_PUBLIC_GITHUB_URL` | unset | Navbar GitHub button hidden if empty |
-| `UPSTASH_*` / `RATE_LIMIT_*` / `SW_*` | see example | Upstash rate limits + service worker cache policy |
+| `UPSTASH_*` / `RATE_LIMIT_*` | see example | Upstash rate limits |
 
 Without Upstash, `fresh=1` uses a per-instance memory cooldown (`FRESH_COOLDOWN_MS`). With Upstash configured, general and fresh request limits apply across instances.
 
