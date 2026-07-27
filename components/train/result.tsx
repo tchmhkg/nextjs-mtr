@@ -22,6 +22,7 @@ import type {
   NextTrainDto,
   TrainRouteRow,
 } from '@lib/schedules/contracts/next-train.dto'
+import { preferFreshThenPoll } from '@lib/schedules/prefer-fresh'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { advanceMtrTimestamp } from '@utils/mtr-time'
 import { DATA } from '@utils/next-train-data'
@@ -207,11 +208,36 @@ function ResultColdFail({
   )
 }
 
+type RefetchResult = {
+  isError: boolean
+  error: unknown
+  data?: NextTrainDto
+}
+
 async function refreshWithFallback(
   apiUrl: string,
-  refetch: () => Promise<{ isError: boolean; error: unknown }>,
-  t: (key: MessageKey) => string
+  refetch: () => Promise<RefetchResult>,
+  t: (key: MessageKey) => string,
+  options?: { quiet?: boolean }
 ): Promise<NextTrainDto | null> {
+  if (options?.quiet) {
+    try {
+      const { data } = await preferFreshThenPoll(
+        () => fetchNextTrain(`${apiUrl}&fresh=1`),
+        async () => {
+          const result = await refetch()
+          if (result.isError) throw result.error ?? new Error('poll failed')
+          if (result.data === undefined) throw new Error('poll empty')
+          return result.data
+        }
+      )
+      return data
+    } catch (err) {
+      toast.error(t(apiErrorToMessageKey(errorCode(err))))
+      return null
+    }
+  }
+
   try {
     return await fetchNextTrain(`${apiUrl}&fresh=1`)
   } catch (err) {
@@ -223,8 +249,9 @@ async function refreshWithFallback(
     const result = await refetch()
     if (result.isError) {
       toast.error(t(apiErrorToMessageKey(errorCode(result.error))))
+      return null
     }
-    return null
+    return result.data ?? null
   }
 }
 
@@ -347,6 +374,50 @@ function Result({
     lastUpdatedSeenRef,
     setFlashUpdate,
   ])
+
+  // Bypass CDN on station select — poll URL can serve s-maxage-stale ETAs.
+  const selectFreshRef = useRef({
+    apiUrl,
+    refetch,
+    queryKey,
+    t,
+    queryClient,
+    receivedAtRef,
+    lastUpdatedSeenRef,
+    setFlashUpdate,
+    setSsrNotice,
+  })
+  selectFreshRef.current = {
+    apiUrl,
+    refetch,
+    queryKey,
+    t,
+    queryClient,
+    receivedAtRef,
+    lastUpdatedSeenRef,
+    setFlashUpdate,
+    setSsrNotice,
+  }
+  useEffect(() => {
+    const ctx = selectFreshRef.current
+    if (!ctx.apiUrl) return
+    let cancelled = false
+    ;(async () => {
+      const fresh = await refreshWithFallback(ctx.apiUrl!, ctx.refetch, ctx.t, {
+        quiet: true,
+      })
+      if (cancelled || !fresh) return
+      ctx.queryClient.setQueryData(ctx.queryKey, fresh)
+      ctx.receivedAtRef.current = Date.now()
+      ctx.lastUpdatedSeenRef.current = fresh.lastUpdated
+      ctx.setFlashUpdate(true)
+      ctx.setSsrNotice(false)
+      window.setTimeout(() => ctx.setFlashUpdate(false), 600)
+    })().catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [selectionKey])
 
   const retry = useCallback(() => {
     onManualRefresh().catch(() => { })
