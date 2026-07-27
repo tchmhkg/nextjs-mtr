@@ -6,7 +6,7 @@ Live deployment: [nextjs-mtr.vercel.app](https://nextjs-mtr.vercel.app)
 
 ## Requirements
 
-- **Node.js** 22 or newer (see `engines` / `.nvmrc`)
+- **Node.js** 24 (see `engines` / `.nvmrc`)
 
 ## Setup
 
@@ -39,7 +39,7 @@ by chasing a repo-wide percentage.
 
 ## Docker
 
-Multi-stage image uses Node 22 Alpine and Next.js `output: 'standalone'`.
+Multi-stage image uses Node 24 Alpine and Next.js `output: 'standalone'`.
 
 ```bash
 docker build -t nextjs-mtr .
