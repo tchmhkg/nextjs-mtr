@@ -1,5 +1,6 @@
 'use client'
 
+import { LR_COLOR } from '@components/picker/lr-station-list'
 import Alert from '@components/alert'
 import Bell from '@components/bell'
 import Refresh from '@components/refresh'
@@ -107,7 +108,6 @@ function TrainLists({
             label={getRouteDestLabel(data.up)}
             data={data.up}
             lineColor={color}
-            delay={false}
             currTime={effectiveNow}
           />
         ) : null}
@@ -116,7 +116,6 @@ function TrainLists({
             label={getRouteDestLabel(data.down)}
             data={data.down}
             lineColor={color}
-            delay={false}
             currTime={effectiveNow}
           />
         ) : null}
@@ -331,7 +330,7 @@ function Result({
   }, [mode, data?.lastUpdated, nowMs, receivedAtRef, clockEpoch])
 
   const lineColor = useMemo(() => {
-    if (mode === 'lr') return '#D3A809'
+    if (mode === 'lr') return LR_COLOR
     return DATA.find((l) => l.line.code === line)?.line?.color
   }, [mode, line])
 

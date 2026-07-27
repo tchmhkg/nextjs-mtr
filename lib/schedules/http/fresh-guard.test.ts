@@ -44,6 +44,7 @@ describe('assertFreshAllowed', () => {
   })
 
   it('allows same-origin then rate-limits rapid repeats', async () => {
+    vi.useFakeTimers()
     const ip = `test-${Date.now()}`
     const headers = {
       'sec-fetch-site': 'same-origin',

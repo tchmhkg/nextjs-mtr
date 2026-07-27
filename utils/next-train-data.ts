@@ -812,7 +812,7 @@ export const DATA: ILineStation[] = [
 ]
 
 /** Known MTR line+station pairs from DATA (for API validation). */
-export const KNOWN_LINE_STA = new Set(
+const KNOWN_LINE_STA = new Set(
   DATA.flatMap(({ line, stations }) =>
     stations.map((s) => `${line.code}-${s.code}`)
   )

@@ -9,7 +9,7 @@ function BackButton({ backUrl = '' }: Readonly<{ backUrl?: string }>) {
   const router = useRouter()
   const onClickBack = useCallback(() => {
     if (backUrl) {
-      // next-intl router prefixes locale; do not call localizedPath here
+      // next-intl router prefixes locale; do not double-prefix here
       router.push(backUrl)
     } else {
       router.back()
