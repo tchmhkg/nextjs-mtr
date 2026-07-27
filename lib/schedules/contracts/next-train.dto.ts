@@ -7,13 +7,13 @@ export interface TrainRouteRow {
   destLabel?: string
   plat: string
   time: string
-  /** EAL / LR: Arrival or Departure */
-  timeType?: EalTimeType | null
-  /** EAL via Racecourse, or LR route_no */
-  route?: string | null
+  /** EAL: Arrival or Departure (omit when absent). */
+  timeType?: EalTimeType
+  /** EAL via Racecourse, or LR route_no (omit when absent). */
+  route?: string
   /** Relative ETA (LR); skip wall-clock duration when true. */
   relativeEta?: boolean
-  trainLength?: number | null
+  trainLength?: number
 }
 
 export interface NextTrainAlert {
@@ -37,6 +37,5 @@ export interface NextTrainDto {
   remarks?: string[] | null
   isDelayed: boolean
   lastUpdated: string | null
-  sysTime: string | null
   alert: NextTrainAlert | null
 }

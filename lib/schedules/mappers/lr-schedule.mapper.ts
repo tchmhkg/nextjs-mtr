@@ -1,5 +1,4 @@
 import type {
-  EalTimeType,
   NextTrainDto,
   NextTrainPlatform,
   TrainRouteRow,
@@ -26,11 +25,6 @@ function nullableTime(value: unknown): string | null {
   const s = stringFromUnknown(value).trim()
   if (!s) return null
   return s
-}
-
-function mapTimeType(raw: string | undefined): EalTimeType | null {
-  if (raw === 'A' || raw === 'D') return raw
-  return null
 }
 
 function routeNumber(row: LrRouteRow): string | null {
@@ -61,7 +55,7 @@ function mapRouteRow(
   lang: string
 ): TrainRouteRow {
   const tc = lang.toLowerCase() === 'tc'
-  const destLabel = tc
+  const dest = tc
     ? stringFromUnknown(row.dest_ch).trim() ||
       stringFromUnknown(row.dest_en).trim()
     : stringFromUnknown(row.dest_en).trim() ||
@@ -69,18 +63,18 @@ function mapRouteRow(
   const timeRaw = tc
     ? nullableTime(row.time_ch) ?? nullableTime(row.time_en)
     : nullableTime(row.time_en) ?? nullableTime(row.time_ch)
+  const route = routeNumber(row)
+  const trainLength =
+    typeof row.train_length === 'number' ? row.train_length : undefined
 
   return {
     seq: String(seq),
-    dest: destLabel || '-',
-    destLabel: destLabel || '-',
+    dest: dest || '-',
     plat: platformId,
     time: timeRaw ?? '-',
-    timeType: mapTimeType(row.arrival_departure),
-    route: routeNumber(row),
+    ...(route ? { route } : {}),
     relativeEta: true,
-    trainLength:
-      typeof row.train_length === 'number' ? row.train_length : null,
+    ...(trainLength != null ? { trainLength } : {}),
   }
 }
 
@@ -134,7 +128,6 @@ export function mapLrUpstreamToDto(
     remarks: remarks.length ? remarks : null,
     isDelayed: isAlert,
     lastUpdated: systemTime,
-    sysTime: systemTime,
     alert: null,
   }
 }

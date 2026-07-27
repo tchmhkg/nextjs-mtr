@@ -2,7 +2,7 @@
 /// <reference lib="webworker" />
 import { defaultCache } from '@serwist/turbopack/worker'
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist'
-import { Serwist } from 'serwist'
+import { NetworkOnly, Serwist } from 'serwist'
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -19,7 +19,14 @@ const serwist = new Serwist({
   navigationPreload: true,
   // Do not NetworkFirst-cache /api/next-train — poll responses must stay live.
   // Manual Refresh still uses ?fresh=1 for upstream/CDN bypass.
-  runtimeCaching: [...defaultCache],
+  runtimeCaching: [
+    {
+      matcher: ({ sameOrigin, url }) =>
+        sameOrigin && url.pathname.startsWith('/api/next-train'),
+      handler: new NetworkOnly(),
+    },
+    ...defaultCache,
+  ],
 })
 
 serwist.addEventListeners()

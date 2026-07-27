@@ -28,7 +28,6 @@ describe('mapMtrUpstreamToDto', () => {
     )
     expect(alertResult.isDelayed).toBe(false)
     expect(alertResult.lastUpdated).toBe('2026-07-11 01:00:05')
-    expect(alertResult.sysTime).toBe('2026-07-11 01:00:00')
     expect(alertResult.up?.[0]?.dest).toBe('TSW')
     expect(alertResult.alert?.message).toBe('Test alert')
     expect(alertResult.alert?.url).toBeNull()
