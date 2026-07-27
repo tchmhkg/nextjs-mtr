@@ -6,7 +6,7 @@ Live deployment: [nextjs-mtr.vercel.app](https://nextjs-mtr.vercel.app)
 
 ## Requirements
 
-- **Node.js** 22 or newer (see `engines` / `.nvmrc`)
+- **Node.js** 22 (see `engines` / `.nvmrc`)
 
 ## Setup
 
