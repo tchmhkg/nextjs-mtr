@@ -16,7 +16,7 @@ import {
   setMode,
   setStation,
 } from '@store/slices/trainSlice'
-import { useDispatch, useSelector } from '@store/store'
+import { useDispatch, useSelector, store } from '@store/store'
 import type { LrStation } from '@utils/lr-data'
 import {
   findLrRouteServing,
@@ -135,73 +135,92 @@ function scheduleMatchesSelection(
   return initialSchedule
 }
 
-function useHydrateSelectionFromUrl(
-  modeFromUrl: TransportMode,
-  line: string | null | undefined,
-  sta: string | null | undefined,
-  dir: string | null | undefined
-) {
-  const dispatch = useDispatch()
-  useLayoutEffect(() => {
-    if (modeFromUrl === 'lr') {
-      dispatch(
-        hydrateFromUrl({
-          mode: 'lr',
-          line: null,
-          station: null,
-          lrRouteCode: initialLrRouteCode('lr', line),
-          lrStationId: sta ?? null,
-          lrDir: parseLrDir(dir),
-        })
-      )
-      return
-    }
-    if (!line || !sta) {
-      dispatch(hydrateFromUrl({ mode: 'mtr' }))
-      return
-    }
-    const resolved = resolveMtrFromUrl(line, sta)
-    if (!resolved) return
-    dispatch(
-      hydrateFromUrl({
-        mode: 'mtr',
-        line: resolved.line,
-        station: resolved.station,
-        lrRouteCode: null,
-        lrStationId: null,
-      })
-    )
-  }, [dispatch, modeFromUrl, line, sta, dir])
+function parseModeParam(raw: string | null): TransportMode {
+  return raw === 'lr' ? 'lr' : 'mtr'
 }
 
-function useSyncTransportUrl(
-  mode: TransportMode,
-  lrRouteCode: string | null,
-  lrStationId: string | null,
-  lrDir: LrDir,
-  mtrLine?: string | null,
-  mtrSta?: string | null
-) {
+function hydratePayloadFromSearch(sp: URLSearchParams) {
+  const mode = parseModeParam(sp.get('mode'))
+  const line = sp.get('line')
+  const sta = sp.get('sta')
+  const dir = sp.get('dir')
+  if (mode === 'lr') {
+    return {
+      mode: 'lr' as const,
+      line: null,
+      station: null,
+      lrRouteCode: initialLrRouteCode('lr', line),
+      lrStationId: sta,
+      lrDir: parseLrDir(dir),
+    }
+  }
+  if (!line || !sta) {
+    // Mode only — don't wipe an in-progress line pick before sta is chosen.
+    return { mode: 'mtr' as const }
+  }
+  const resolved = resolveMtrFromUrl(line, sta)
+  if (!resolved) {
+    return { mode: 'mtr' as const }
+  }
+  return {
+    mode: 'mtr' as const,
+    line: resolved.line,
+    station: resolved.station,
+    lrRouteCode: null,
+    lrStationId: null,
+  }
+}
+
+/**
+ * Keep Redux selection and the URL in sync without a feedback loop.
+ * Both sides read `useSearchParams` (not lagging RSC page props). Client
+ * writes set a skip flag so the following hydrate does not undo them.
+ * Sync reads `store.getState()` so a stale effect closure cannot fight a
+ * layout hydrate on first paint (URL=lr while default Redux mode=mtr).
+ */
+function useSelectionUrlSync() {
+  const dispatch = useDispatch()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const {
+    mode,
+    line: selectedLine,
+    station: selectedStation,
+    lrRouteCode,
+    lrStationId,
+    lrDir,
+  } = useSelector(getTrainState)
+  const skipHydrateFromOurWrite = useRef(false)
+
+  useLayoutEffect(() => {
+    if (skipHydrateFromOurWrite.current) {
+      skipHydrateFromOurWrite.current = false
+      return
+    }
+    dispatch(hydrateFromUrl(hydratePayloadFromSearch(searchParams)))
+  }, [dispatch, searchParams])
+
   useEffect(() => {
+    const s = store.getState().train
     const next = nextTransportQuery(
       searchParams,
-      mode,
-      lrRouteCode,
-      lrStationId,
-      lrDir,
-      mtrLine,
-      mtrSta
+      s.mode,
+      s.lrRouteCode,
+      s.lrStationId,
+      s.lrDir,
+      s.line?.code,
+      s.station?.code
     )
-    if (next) router.replace(next, { scroll: false })
+    if (!next) return
+    skipHydrateFromOurWrite.current = true
+    router.replace(next, { scroll: false })
   }, [
     mode,
     lrRouteCode,
     lrStationId,
     lrDir,
-    mtrLine,
-    mtrSta,
+    selectedLine?.code,
+    selectedStation?.code,
     router,
     searchParams,
   ])
@@ -245,7 +264,6 @@ export function useHomeController({
   initialScheduleFailed = false,
 }: HomeControllerProps) {
   const dispatch = useDispatch()
-  const router = useRouter()
   const {
     mode,
     line: selectedLine,
@@ -313,15 +331,15 @@ export function useHomeController({
       setLocationError(null)
       dispatch(clearLrSelection())
       setPickerStep('line')
-      if (next !== 'lr') return
-      dispatch(setLine(null))
-      dispatch(setStation(null))
-      dispatch(setLrDir(1))
-      setLrPickerStep('route')
-      // Eager URL update so SSR props don't re-hydrate MTR before sync effect runs
-      router.replace('?mode=lr', { scroll: false })
+      if (next === 'lr') {
+        dispatch(setLine(null))
+        dispatch(setStation(null))
+        dispatch(setLrDir(1))
+        setLrPickerStep('route')
+      }
+      // URL is updated by useSelectionUrlSync from Redux.
     },
-    [mode, dispatch, setLocationError, router]
+    [mode, dispatch, setLocationError]
   )
 
   const onChangeLine = useCallback(
@@ -388,21 +406,7 @@ export function useHomeController({
       .filter((s): s is LrStation => Boolean(s))
   }, [lrRouteCode, lrDir])
 
-  useHydrateSelectionFromUrl(
-    initialModeFromUrl,
-    initialLineFromUrl,
-    initialStaFromUrl,
-    initialDirFromUrl
-  )
-
-  useSyncTransportUrl(
-    mode,
-    lrRouteCode,
-    lrStationId,
-    lrDir,
-    selectedLine?.code,
-    selectedStation?.code
-  )
+  useSelectionUrlSync()
 
   useScrollSelectedStation(
     mode,
