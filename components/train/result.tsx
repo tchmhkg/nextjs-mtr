@@ -267,8 +267,8 @@ function Result({
   }, [mode, line, sta, lang])
 
   const selectionKey = `${mode}:${line ?? ''}:${sta}`
-  // First load for a selection bypasses CDN; interval/focus polls stay cached.
-  const preferFreshForSelectionRef = useRef(true)
+  // Cold open / first mount: use CDN poll (fast). Later station changes: prefer ?fresh=1.
+  const preferFreshForSelectionRef = useRef(false)
   const selectionKeySeenRef = useRef(selectionKey)
   if (selectionKeySeenRef.current !== selectionKey) {
     selectionKeySeenRef.current = selectionKey

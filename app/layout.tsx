@@ -15,7 +15,8 @@ const outfit = Outfit({
 
 const notoSansTc = Noto_Sans_TC({
   subsets: ['latin'],
-  weight: ['400', '500'],
+  // 600 matches Tailwind font-semibold used across schedule UI.
+  weight: ['400', '500', '600'],
   display: 'swap',
   variable: '--font-noto-sans-tc',
 })
@@ -72,17 +73,19 @@ type RootLayoutProps = Readonly<{
 export default async function RootLayout({ children }: RootLayoutProps) {
   const hdr = await headers()
   const lang = hdr.get('x-next-intl-locale') ?? 'tc'
-  const fontVars =
-    lang === 'tc'
-      ? `${outfit.variable} ${notoSansTc.variable}`
-      : outfit.variable
+  // Always set both font variables — CSS font stacks reference both; omitting
+  // Noto on non-tc made var(--font-noto-sans-tc) invalidate the whole family.
   // Only iOS needs apple-touch-startup-image; emitting all sizes on every visit
   // made Chromium + the service worker fetch ~17 unused splash PNGs at startup.
   const ua = hdr.get('user-agent') ?? ''
   const showAppleSplash = /iPhone|iPad|iPod/i.test(ua)
 
   return (
-    <html lang={lang} dir="ltr" className={fontVars}>
+    <html
+      lang={lang}
+      dir="ltr"
+      className={`${outfit.variable} ${notoSansTc.variable}`}
+    >
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
