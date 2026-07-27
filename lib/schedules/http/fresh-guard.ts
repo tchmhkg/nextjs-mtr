@@ -15,6 +15,7 @@ export function clientIpFromRequest(request: Request): string {
 }
 
 function assertMemoryFreshCooldown(ip: string): void {
+  if (env.FRESH_COOLDOWN_MS <= 0) return
   const now = Date.now()
   const last = lastFreshByIp.get(ip)
   if (last != null && now - last < env.FRESH_COOLDOWN_MS) {
