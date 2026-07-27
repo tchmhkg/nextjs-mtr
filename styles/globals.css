@@ -3,8 +3,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: var(--font-outfit), var(--font-noto-sans-tc), system-ui, sans-serif;
-  --font-tc: var(--font-noto-sans-tc), var(--font-outfit), system-ui, sans-serif;
+  /* Fallbacks so a missing next/font variable cannot invalidate the whole stack. */
+  --font-sans: var(--font-outfit, system-ui), var(--font-noto-sans-tc, system-ui),
+    system-ui, sans-serif;
+  --font-tc: var(--font-noto-sans-tc, system-ui), var(--font-outfit, system-ui),
+    system-ui, sans-serif;
   --color-surface: var(--surface);
   --color-surface-alt: var(--surface-alt);
   --color-ink: var(--ink);
