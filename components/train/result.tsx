@@ -294,10 +294,29 @@ function Result({
     initialData: initialSchedule ?? undefined,
     initialDataUpdatedAt: 0,
     staleTime: CLIENT_SCHEDULE_POLL_MS,
-    refetchInterval: isVisible ? CLIENT_SCHEDULE_POLL_MS : false,
+    // Interval is driven below via visibility — RQ's focusManager pauses
+    // refetchInterval on iOS PWAs even while the app is on screen.
+    refetchInterval: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   })
+
+  // Poll while visible (works in iOS standalone where RQ interval does not).
+  useEffect(() => {
+    if (!apiUrl || !isVisible) return
+    const id = window.setInterval(() => {
+      void refetch()
+    }, CLIENT_SCHEDULE_POLL_MS)
+    return () => window.clearInterval(id)
+  }, [apiUrl, isVisible, refetch])
+
+  // Refetch when returning from home screen / another app.
+  const wasVisibleRef = useRef(isVisible)
+  useEffect(() => {
+    const becameVisible = isVisible && !wasVisibleRef.current
+    wasVisibleRef.current = isVisible
+    if (becameVisible && apiUrl) void refetch()
+  }, [isVisible, apiUrl, refetch])
 
   // Revisit within staleTime skips queryFn — force refetch so prefer-fresh runs.
   useEffect(() => {
