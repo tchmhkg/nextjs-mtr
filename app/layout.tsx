@@ -60,10 +60,10 @@ type RootLayoutProps = Readonly<{
 }>
 
 export default function RootLayout({ children }: RootLayoutProps) {
-  // lang defaults to tc; [locale]/layout sets the real value via inline script.
+  // lang defaults to zh-Hant (tc); [locale]/layout sets the real value via inline script.
   // Splash links injected client-side on iOS only (see AppleSplashLinks).
   return (
-    <html lang="tc" dir="ltr" suppressHydrationWarning className={outfit.variable}>
+    <html lang="zh-Hant" dir="ltr" suppressHydrationWarning className={outfit.variable}>
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />

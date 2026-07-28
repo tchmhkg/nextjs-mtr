@@ -3,7 +3,7 @@ import AppleSplashLinks from '@components/apple-splash-links'
 import Navbar from '@components/navbar'
 import OfflineBanner from '@components/offline-banner'
 import SerwistProviderWrapper from '@components/serwist-provider'
-import { routing } from '@i18n/routing'
+import { htmlLang, routing } from '@i18n/routing'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -31,7 +31,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       {/* Locale is validated above; set html lang before paint without root headers(). */}
       <script
         dangerouslySetInnerHTML={{
-          __html: `document.documentElement.lang=${JSON.stringify(locale)}`,
+          __html: `document.documentElement.lang=${JSON.stringify(htmlLang(locale))}`,
         }}
       />
       <AppleSplashLinks />
