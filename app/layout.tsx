@@ -1,24 +1,13 @@
-import { APPLE_SPLASH } from '@lib/apple-splash'
 import { env } from '@lib/env'
 import '@styles/globals.css'
 import type { Metadata, Viewport } from 'next'
-import { Noto_Sans_TC, Outfit } from 'next/font/google'
-import { headers } from 'next/headers'
-import NextTopLoader from 'nextjs-toploader'
+import { Outfit } from 'next/font/google'
 
 const outfit = Outfit({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   display: 'swap',
   variable: '--font-outfit',
-})
-
-const notoSansTc = Noto_Sans_TC({
-  subsets: ['latin'],
-  // 600 matches Tailwind font-semibold used across schedule UI.
-  weight: ['400', '500', '600'],
-  display: 'swap',
-  variable: '--font-noto-sans-tc',
 })
 
 const siteUrl = env.NEXT_PUBLIC_SITE_URL
@@ -70,40 +59,16 @@ type RootLayoutProps = Readonly<{
   children: React.ReactNode
 }>
 
-export default async function RootLayout({ children }: RootLayoutProps) {
-  const hdr = await headers()
-  const lang = hdr.get('x-next-intl-locale') ?? 'tc'
-  // Always set both font variables — CSS font stacks reference both; omitting
-  // Noto on non-tc made var(--font-noto-sans-tc) invalidate the whole family.
-  // Only iOS needs apple-touch-startup-image; emitting all sizes on every visit
-  // made Chromium + the service worker fetch ~17 unused splash PNGs at startup.
-  const ua = hdr.get('user-agent') ?? ''
-  const showAppleSplash = /iPhone|iPad|iPod/i.test(ua)
-
+export default function RootLayout({ children }: RootLayoutProps) {
+  // lang defaults to zh-Hant (tc); [locale]/layout sets the real value via inline script.
+  // Splash links injected client-side on iOS only (see AppleSplashLinks).
   return (
-    <html
-      lang={lang}
-      dir="ltr"
-      className={`${outfit.variable} ${notoSansTc.variable}`}
-    >
+    <html lang="zh-Hant" dir="ltr" suppressHydrationWarning className={outfit.variable}>
       <head>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        {showAppleSplash
-          ? APPLE_SPLASH.map(({ href, media }) => (
-              <link
-                key={href + media}
-                href={href}
-                media={media}
-                rel="apple-touch-startup-image"
-              />
-            ))
-          : null}
       </head>
-      <body>
-        <NextTopLoader color="#333333" showSpinner={false} height={2} />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

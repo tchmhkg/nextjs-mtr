@@ -3,11 +3,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Fallbacks so a missing next/font variable cannot invalidate the whole stack. */
-  --font-sans: var(--font-outfit, system-ui), var(--font-noto-sans-tc, system-ui),
-    system-ui, sans-serif;
-  --font-tc: var(--font-noto-sans-tc, system-ui), var(--font-outfit, system-ui),
-    system-ui, sans-serif;
+  /* Outfit via next/font; CJK from system fonts (no Noto webfont download). */
+  --font-sans: var(--font-outfit, system-ui), "PingFang TC", "Hiragino Sans CNS",
+    "Microsoft JhengHei", system-ui, sans-serif;
+  --font-tc: "PingFang TC", "Hiragino Sans CNS", "Microsoft JhengHei",
+    "Noto Sans TC", system-ui, sans-serif;
   --color-surface: var(--surface);
   --color-surface-alt: var(--surface-alt);
   --color-ink: var(--ink);
@@ -67,8 +67,17 @@ body {
   background-attachment: fixed;
 }
 
-html[lang='tc'],
-html[lang='tc'] body {
+@media (max-width: 768px) {
+
+  html,
+  body {
+    /* fixed attachment janks scroll on mobile */
+    background-attachment: scroll;
+  }
+}
+
+html[lang='zh-Hant'],
+html[lang='zh-Hant'] body {
   font-family: var(--font-tc);
 }
 

@@ -55,7 +55,7 @@ docker run --rm -p 3000:3000 nextjs-mtr
 - **i18n:** next-intl
 - **Validation:** Zod at the API route boundary
 - **Monitoring (optional):** Sentry (`@sentry/nextjs`)
-- **UX:** nextjs-toploader for route progress; date-fns for times
+- **UX:** date-fns for times
 
 Formatting in the editor is typically handled with **Prettier** and **ESLint** (flat config: `eslint.config.mjs`, extends Next core-web-vitals + Prettier).
 
