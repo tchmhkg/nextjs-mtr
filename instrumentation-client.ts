@@ -1,23 +1,56 @@
-// This file configures the initialization of Sentry on the client.
-// The added config here will be used whenever a users loads a page in their browser.
+// Defer Sentry so the SDK is off the critical path for Lighthouse / first paint.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import * as Sentry from "@sentry/nextjs";
+type SentryModule = typeof import('@sentry/nextjs')
 
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+let sentry: SentryModule | null = null
+let loading: Promise<SentryModule> | null = null
 
-  integrations: [],
+function loadSentry(): Promise<SentryModule> {
+  if (sentry) return Promise.resolve(sentry)
+  loading ??= import('@sentry/nextjs').then((mod) => {
+    mod.init({
+      dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+      integrations: [],
+      tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1,
+      // Replay disabled — session replay was the largest client JS cost.
+      replaysSessionSampleRate: 0,
+      replaysOnErrorSampleRate: 0,
+      debug: false,
+    })
+    sentry = mod
+    return mod
+  })
+  return loading
+}
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1,
+function scheduleSentryInit() {
+  const run = () => {
+    void loadSentry()
+  }
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(run, { timeout: 4000 })
+  } else {
+    setTimeout(run, 2000)
+  }
+}
 
-  // Replay disabled — session replay was the largest client JS cost.
-  replaysSessionSampleRate: 0,
-  replaysOnErrorSampleRate: 0,
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'complete') {
+    scheduleSentryInit()
+  } else {
+    window.addEventListener('load', scheduleSentryInit, { once: true })
+  }
+}
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
-});
-
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+export function onRouterTransitionStart(
+  ...args: Parameters<SentryModule['captureRouterTransitionStart']>
+) {
+  if (sentry) {
+    sentry.captureRouterTransitionStart(...args)
+    return
+  }
+  void loadSentry().then((mod) => {
+    mod.captureRouterTransitionStart(...args)
+  })
+}
