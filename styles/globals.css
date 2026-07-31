@@ -56,7 +56,9 @@ html,
 body {
   padding: 0;
   margin: 0;
+  /* 100% alone often fails to fill the visual viewport on mobile */
   min-height: 100%;
+  min-height: 100dvh;
   font-family: var(--font-sans);
   line-height: 1.5;
   font-size: 1rem;
@@ -64,6 +66,8 @@ body {
   /* background-color alone paints iOS rubber-band overscroll; gradient does not. */
   background-color: var(--page-bg-color);
   background-image: var(--page-bg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
   background-attachment: fixed;
 }
 

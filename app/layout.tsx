@@ -60,7 +60,7 @@ type RootLayoutProps = Readonly<{
 }>
 
 export default function RootLayout({ children }: RootLayoutProps) {
-  // lang defaults to zh-Hant (tc); [locale]/layout sets the real value via inline script.
+  // lang defaults to zh-Hant (tc); HtmlLang sets the real value after hydrate.
   // Splash links injected client-side on iOS only (see AppleSplashLinks).
   return (
     <html lang="zh-Hant" dir="ltr" suppressHydrationWarning className={outfit.variable}>
@@ -68,7 +68,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
       </head>
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   )
 }

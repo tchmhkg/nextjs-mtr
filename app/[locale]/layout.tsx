@@ -1,9 +1,10 @@
 import AppProviders from '@components/app-providers'
 import AppleSplashLinks from '@components/apple-splash-links'
+import HtmlLang from '@components/html-lang'
 import Navbar from '@components/navbar'
 import OfflineBanner from '@components/offline-banner'
 import SerwistProviderWrapper from '@components/serwist-provider'
-import { htmlLang, routing } from '@i18n/routing'
+import { routing } from '@i18n/routing'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -17,7 +18,10 @@ type LocaleLayoutProps = Readonly<{
   params: Promise<{ locale: string }>
 }>
 
-export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
+export default async function LocaleLayout({
+  children,
+  params,
+}: LocaleLayoutProps) {
   const { locale } = await params
   if (!hasLocale(routing.locales, locale)) {
     notFound()
@@ -28,18 +32,13 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <NextIntlClientProvider messages={messages}>
-      {/* Locale is validated above; set html lang before paint without root headers(). */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `document.documentElement.lang=${JSON.stringify(htmlLang(locale))}`,
-        }}
-      />
+      <HtmlLang />
       <AppleSplashLinks />
       <SerwistProviderWrapper>
         <AppProviders>
           <OfflineBanner />
           <Navbar />
-          <div className="relative overflow-y-auto p-[15px] pt-[calc(50px+env(safe-area-inset-top,0px))] pb-[calc(15px+env(safe-area-inset-bottom,0px))] pl-[calc(15px+env(safe-area-inset-left,0px))] pr-[calc(15px+env(safe-area-inset-right,0px))] text-ink">
+          <div className="relative min-h-dvh overflow-y-auto p-[15px] pt-[calc(50px+env(safe-area-inset-top,0px))] pb-[calc(15px+env(safe-area-inset-bottom,0px))] pl-[calc(15px+env(safe-area-inset-left,0px))] pr-[calc(15px+env(safe-area-inset-right,0px))] text-ink">
             {children}
           </div>
         </AppProviders>

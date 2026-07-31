@@ -21,6 +21,7 @@ const ContentSecurityPolicy = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  serverExternalPackages: ['hk-journey-time'],
   compiler: {
     removeConsole: {
       exclude: ['error'],
