@@ -34,6 +34,22 @@ function minutes(seconds: number): number {
   return Math.round(seconds / 60)
 }
 
+function stationsByCodeMap(): Map<string, IStation> {
+  const map = new Map<string, IStation>()
+  for (const { stations } of DATA) {
+    for (const s of stations) {
+      if (!map.has(s.code)) map.set(s.code, s)
+    }
+  }
+  return map
+}
+
+function stationsForLine(line: ILine | null): IStation[] {
+  if (!line) return []
+  const stations = DATA.find((d) => d.line.code === line.code)?.stations ?? []
+  return stations.map((s) => ({ ...s, related: undefined }))
+}
+
 async function fetchJourney(
   origin: string,
   destination: string,
@@ -56,10 +72,17 @@ async function fetchJourney(
   return json.data
 }
 
-export default function Journey() {
+function chipClass(active: boolean, extra = ''): string {
+  const base = 'rounded-full border px-3 py-1.5 text-sm'
+  const tone = active
+    ? 'border-ink bg-surface-alt text-ink'
+    : 'border-border text-muted'
+  return `${base} ${tone} ${extra}`.trim()
+}
+
+function useJourneyController() {
   const t = useTranslations()
-  const locale = useLocale()
-  const l = lang(locale)
+  const l = lang(useLocale())
 
   const [step, setStep] = useState<Step>('from')
   const [fromLine, setFromLine] = useState<ILine | null>(null)
@@ -71,16 +94,7 @@ export default function Journey() {
   const stationRefs = useRef<
     Record<string, React.RefObject<HTMLButtonElement | null>>
   >({})
-
-  const stationsByCode = useMemo(() => {
-    const map = new Map<string, IStation>()
-    for (const { stations } of DATA) {
-      for (const s of stations) {
-        if (!map.has(s.code)) map.set(s.code, s)
-      }
-    }
-    return map
-  }, [])
+  const stationsByCode = useMemo(stationsByCodeMap, [])
 
   const lineLabel = useCallback(
     (code: string) => {
@@ -111,26 +125,23 @@ export default function Journey() {
       onFoundLr: () => undefined,
     })
 
-  const activeLine = step === 'to' ? toLine : fromLine
-  const activeStations = useMemo(() => {
-    if (!activeLine) return []
-    const stations =
-      DATA.find((d) => d.line.code === activeLine.code)?.stations ?? []
-    return stations.map((s) => ({ ...s, related: undefined }))
-  }, [activeLine])
+  const pickingTo = step === 'to'
+  const activeLine = pickingTo ? toLine : fromLine
+  const activeStations = useMemo(
+    () => stationsForLine(activeLine),
+    [activeLine]
+  )
 
-  const ensureRefs = useCallback((stations: IStation[]) => {
-    for (const s of stations) {
-      if (!stationRefs.current[s.code]) {
-        stationRefs.current[s.code] = { current: null }
-      }
+  for (const s of activeStations) {
+    if (!stationRefs.current[s.code]) {
+      stationRefs.current[s.code] = { current: null }
     }
-  }, [])
+  }
 
-  ensureRefs(activeStations)
-
-  const ready =
-    Boolean(fromStation && toStation) && fromStation!.code !== toStation!.code
+  const ready = Boolean(
+    fromStation && toStation && fromStation.code !== toStation.code
+  )
+  const showPicker = step === 'from' || pickingTo
 
   const query = useQuery({
     queryKey: ['journey', fromStation?.code, toStation?.code, leaveNow],
@@ -140,25 +151,31 @@ export default function Journey() {
     staleTime: 20_000,
   })
 
-  const onSelectFromLine = useCallback((line: ILine) => {
-    setFromLine(line)
-    setFromStation(null)
-  }, [])
+  const selectLine = useCallback(
+    (line: ILine) => {
+      if (pickingTo) {
+        setToLine(line)
+        setToStation(null)
+        return
+      }
+      setFromLine(line)
+      setFromStation(null)
+    },
+    [pickingTo]
+  )
 
-  const onSelectToLine = useCallback((line: ILine) => {
-    setToLine(line)
-    setToStation(null)
-  }, [])
-
-  const onSelectFromStation = useCallback((station: IStation) => {
-    setFromStation(station)
-    setStep('to')
-  }, [])
-
-  const onSelectToStation = useCallback((station: IStation) => {
-    setToStation(station)
-    setStep('result')
-  }, [])
+  const selectStation = useCallback(
+    (station: IStation) => {
+      if (pickingTo) {
+        setToStation(station)
+        setStep('result')
+        return
+      }
+      setFromStation(station)
+      setStep('to')
+    },
+    [pickingTo]
+  )
 
   const reset = () => {
     setFromStation(null)
@@ -170,116 +187,255 @@ export default function Journey() {
     setStep('from')
   }
 
-  const showPicker = step === 'from' || step === 'to'
+  return {
+    t,
+    l,
+    step,
+    fromStation,
+    toStation,
+    leaveNow,
+    setLeaveNow,
+    locating,
+    locationError,
+    getCurrLocation,
+    activeLine,
+    activeStations,
+    stationRefs,
+    stationsByCode,
+    lineLabel,
+    ready,
+    showPicker,
+    pickingTo,
+    query,
+    selectLine,
+    selectStation,
+    reset,
+    setStep,
+  }
+}
+
+export default function Journey() {
+  const c = useJourneyController()
 
   return (
     <div>
-      <div className="mb-6 flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <h1 className="mb-1 text-2xl font-semibold text-ink">
-            {t('Journey')}
-          </h1>
-          <p className="text-sm text-muted">
-            {t('Journey subtitle')}
-            <span className="text-muted/80"> · {t('Journey accuracy hint')}</span>
-          </p>
-        </div>
-        {showPicker ? (
-          <CurrLocation
-            onClick={getCurrLocation}
-            aria-label={t('Find nearest station')}
-            busy={locating}
-          />
-        ) : null}
-      </div>
-
-      {locationError && showPicker ? (
-        <p className="mb-3 text-sm text-red-600">{t(locationError)}</p>
+      <JourneyHeader
+        showGeo={c.showPicker}
+        locating={c.locating}
+        onGeo={c.getCurrLocation}
+      />
+      {c.locationError && c.showPicker ? (
+        <p className="mb-3 text-sm text-red-600">{c.t(c.locationError)}</p>
       ) : null}
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setStep('from')}
-          className={`rounded-full border px-3 py-1.5 text-sm ${step === 'from'
-            ? 'border-ink bg-surface-alt text-ink'
-            : 'border-border text-muted'
-            }`}
-        >
-          {t('From')}{' '}
-          {fromStation ? fromStation.label[l] : t('Select a station')}
-        </button>
-        <button
-          type="button"
-          onClick={() => setStep('to')}
-          disabled={!fromStation}
-          className={`rounded-full border px-3 py-1.5 text-sm enabled:hover:border-ink/40 disabled:opacity-40 ${step === 'to'
-            ? 'border-ink bg-surface-alt text-ink'
-            : 'border-border text-muted'
-            }`}
-        >
-          {t('To')} {toStation ? toStation.label[l] : t('Select a station')}
-        </button>
-      </div>
+      <JourneyStepChips
+        step={c.step}
+        locale={c.l}
+        fromStation={c.fromStation}
+        toStation={c.toStation}
+        onFrom={() => c.setStep('from')}
+        onTo={() => c.setStep('to')}
+      />
 
-      {showPicker ? (
-        <div className="space-y-3">
-          <LinePicker
-            variant="chips"
-            selectedCode={activeLine?.code}
-            onSelect={step === 'from' ? onSelectFromLine : onSelectToLine}
-          />
-          {activeLine ? (
-            <StationList
-              stations={activeStations}
-              selectedCode={
-                step === 'from' ? fromStation?.code : toStation?.code
-              }
-              lineColor={activeLine.color}
-              onSelect={
-                step === 'from' ? onSelectFromStation : onSelectToStation
-              }
-              onInterchange={() => undefined}
-              stationRefs={stationRefs.current}
-            />
-          ) : (
-            <p className="text-sm text-muted">{t('Select a line')}</p>
-          )}
-        </div>
+      {c.showPicker ? (
+        <JourneyPicker
+          activeLine={c.activeLine}
+          activeStations={c.activeStations}
+          selectedCode={
+            c.pickingTo ? c.toStation?.code : c.fromStation?.code
+          }
+          stationRefs={c.stationRefs.current}
+          onSelectLine={c.selectLine}
+          onSelectStation={c.selectStation}
+        />
       ) : null}
 
-      {step === 'result' && ready ? (
-        <div className="space-y-4">
-          {query.isLoading ? (
-            <p className="text-sm text-muted">{t('Estimating journey')}</p>
-          ) : null}
-          {query.isError ? (
-            <p className="text-sm text-red-600">
-              {(query.error as Error).message || t('Failed to estimate journey')}
-            </p>
-          ) : null}
-          {query.data ? (
-            <JourneyResult
-              data={query.data}
-              locale={l}
-              stationsByCode={stationsByCode}
-              lineLabel={lineLabel}
-              leaveNow={leaveNow}
-              onLeaveNowChange={setLeaveNow}
-            />
-          ) : null}
-
-          <button
-            type="button"
-            className="text-sm text-muted underline"
-            onClick={reset}
-          >
-            {t('Start over')}
-          </button>
-        </div>
+      {c.step === 'result' && c.ready ? (
+        <JourneyResultPanel
+          query={c.query}
+          locale={c.l}
+          stationsByCode={c.stationsByCode}
+          lineLabel={c.lineLabel}
+          leaveNow={c.leaveNow}
+          onLeaveNowChange={c.setLeaveNow}
+          onReset={c.reset}
+        />
       ) : null}
     </div>
   )
+}
+
+function JourneyHeader({
+  showGeo,
+  locating,
+  onGeo,
+}: Readonly<{
+  showGeo: boolean
+  locating: boolean
+  onGeo: () => void
+}>) {
+  const t = useTranslations()
+  return (
+    <div className="mb-6 flex items-start justify-between gap-3">
+      <div className="min-w-0 flex-1">
+        <h1 className="mb-1 text-2xl font-semibold text-ink">{t('Journey')}</h1>
+        <p className="text-sm text-muted">
+          {t('Journey subtitle')}
+          <span className="text-muted/80"> · {t('Journey accuracy hint')}</span>
+        </p>
+      </div>
+      {showGeo ? (
+        <CurrLocation
+          onClick={onGeo}
+          aria-label={t('Find nearest station')}
+          busy={locating}
+        />
+      ) : null}
+    </div>
+  )
+}
+
+function JourneyStepChips({
+  step,
+  locale,
+  fromStation,
+  toStation,
+  onFrom,
+  onTo,
+}: Readonly<{
+  step: Step
+  locale: Language
+  fromStation: IStation | null
+  toStation: IStation | null
+  onFrom: () => void
+  onTo: () => void
+}>) {
+  const t = useTranslations()
+  const pick = t('Select a station')
+  return (
+    <div className="mb-4 flex flex-wrap gap-2">
+      <button
+        type="button"
+        onClick={onFrom}
+        className={chipClass(step === 'from')}
+      >
+        {t('From')} {fromStation ? fromStation.label[locale] : pick}
+      </button>
+      <button
+        type="button"
+        onClick={onTo}
+        disabled={!fromStation}
+        className={chipClass(
+          step === 'to',
+          'enabled:hover:border-ink/40 disabled:opacity-40'
+        )}
+      >
+        {t('To')} {toStation ? toStation.label[locale] : pick}
+      </button>
+    </div>
+  )
+}
+
+function JourneyPicker({
+  activeLine,
+  activeStations,
+  selectedCode,
+  stationRefs,
+  onSelectLine,
+  onSelectStation,
+}: Readonly<{
+  activeLine: ILine | null
+  activeStations: IStation[]
+  selectedCode: string | undefined
+  stationRefs: Record<string, React.RefObject<HTMLButtonElement | null>>
+  onSelectLine: (line: ILine) => void
+  onSelectStation: (station: IStation) => void
+}>) {
+  const t = useTranslations()
+  return (
+    <div className="space-y-3">
+      <LinePicker
+        variant="chips"
+        selectedCode={activeLine?.code}
+        onSelect={onSelectLine}
+      />
+      {activeLine ? (
+        <StationList
+          stations={activeStations}
+          selectedCode={selectedCode}
+          lineColor={activeLine.color}
+          onSelect={onSelectStation}
+          onInterchange={() => undefined}
+          stationRefs={stationRefs}
+        />
+      ) : (
+        <p className="text-sm text-muted">{t('Select a line')}</p>
+      )}
+    </div>
+  )
+}
+
+function JourneyResultPanel({
+  query,
+  locale,
+  stationsByCode,
+  lineLabel,
+  leaveNow,
+  onLeaveNowChange,
+  onReset,
+}: Readonly<{
+  query: {
+    isLoading: boolean
+    isError: boolean
+    error: Error | null
+    data: JourneyEstimate | undefined
+  }
+  locale: Language
+  stationsByCode: Map<string, IStation>
+  lineLabel: (code: string) => string
+  leaveNow: boolean
+  onLeaveNowChange: (v: boolean) => void
+  onReset: () => void
+}>) {
+  const t = useTranslations()
+  return (
+    <div className="space-y-4">
+      {query.isLoading ? (
+        <p className="text-sm text-muted">{t('Estimating journey')}</p>
+      ) : null}
+      {query.isError ? (
+        <p className="text-sm text-red-600">
+          {query.error?.message || t('Failed to estimate journey')}
+        </p>
+      ) : null}
+      {query.data ? (
+        <JourneyResult
+          data={query.data}
+          locale={locale}
+          stationsByCode={stationsByCode}
+          lineLabel={lineLabel}
+          leaveNow={leaveNow}
+          onLeaveNowChange={onLeaveNowChange}
+        />
+      ) : null}
+      <button
+        type="button"
+        className="text-sm text-muted underline"
+        onClick={onReset}
+      >
+        {t('Start over')}
+      </button>
+    </div>
+  )
+}
+
+function warningFor(
+  warnings: string[] | undefined,
+  t: ReturnType<typeof useTranslations>
+): string | null {
+  if (!warnings?.length) return null
+  if (warnings.includes('NO_UPCOMING_TRAIN')) return t('No upcoming train')
+  return t('Waiting unavailable')
 }
 
 function JourneyResult({
@@ -305,13 +461,11 @@ function JourneyResult({
     data.breakdown.waitingSeconds != null
       ? minutes(data.breakdown.waitingSeconds)
       : null
-
-  let warningText: string | null = null
-  if (data.warnings?.includes('NO_UPCOMING_TRAIN')) {
-    warningText = t('No upcoming train')
-  } else if (data.warnings?.length) {
-    warningText = t('Waiting unavailable')
-  }
+  const warningText = warningFor(data.warnings, t)
+  const meta =
+    data.transferCount === 0
+      ? t('Journey meta direct')
+      : t('Journey meta transfers', { count: data.transferCount })
 
   return (
     <div className="space-y-4">
@@ -322,42 +476,23 @@ function JourneyResult({
             {t('min')}
           </span>
         </p>
-        <p className="mt-1 text-sm text-muted">
-          {data.transferCount === 0
-            ? t('Journey meta direct')
-            : t('Journey meta transfers', { count: data.transferCount })}
-        </p>
+        <p className="mt-1 text-sm text-muted">{meta}</p>
         <p className="mt-0.5 text-xs text-muted">{t('Journey estimate note')}</p>
 
         <dl className="mt-4 space-y-1.5 text-sm">
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted">{t('Riding')}</dt>
-            <dd className="tabular-nums text-ink">
-              {rideMin} {t('min')}
-            </dd>
-          </div>
+          <BreakdownRow label={t('Riding')} value={`${rideMin} ${t('min')}`} />
           {transferMin > 0 ? (
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">
-                {t('Transfers')}
-                <span className="mt-0.5 block text-xs">
-                  {t('Transfers hint')}
-                </span>
-              </dt>
-              <dd className="shrink-0 tabular-nums text-ink">
-                {transferMin} {t('min')}
-              </dd>
-            </div>
+            <BreakdownRow
+              label={t('Transfers')}
+              hint={t('Transfers hint')}
+              value={`${transferMin} ${t('min')}`}
+            />
           ) : null}
           {waitMin != null ? (
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">
-                {t('Origin wait at', { station: originName })}
-              </dt>
-              <dd className="tabular-nums text-ink">
-                {waitMin} {t('min')}
-              </dd>
-            </div>
+            <BreakdownRow
+              label={t('Origin wait at', { station: originName })}
+              value={`${waitMin} ${t('min')}`}
+            />
           ) : null}
         </dl>
 
@@ -381,48 +516,113 @@ function JourneyResult({
         </span>
       </label>
 
-      <div>
-        <p className="mb-2 text-sm font-medium text-ink">{t('Route')}</p>
-        <ol className="space-y-0">
-          {data.legs.map((leg, i) => (
-            <li key={`${leg.line}-${leg.origin}-${leg.destination}-${i}`}>
-              {leg.transferInSeconds != null && leg.transferInSeconds > 0 ? (
-                <p className="my-2 pl-4 text-xs text-muted">
-                  {t('Transfer at', {
-                    station: stationLabel(leg.origin, locale, stationsByCode),
-                    minutes: minutes(leg.transferInSeconds),
-                  })}
-                </p>
-              ) : null}
-              <div className="flex items-start gap-2 py-1">
-                <span
-                  className="mt-1.5 size-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: lineColor(leg.line) }}
-                  aria-hidden
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-ink">
-                    {lineLabel(leg.line)}
-                  </p>
-                  <p className="text-sm text-muted">
-                    {stationLabel(leg.origin, locale, stationsByCode)}
-                    {' → '}
-                    {stationLabel(leg.destination, locale, stationsByCode)}
-                  </p>
-                  <p className="text-xs text-muted">
-                    {minutes(leg.ridingSeconds)} {t('min')}
-                    {i === 0 &&
-                      leg.boardingWaitSeconds != null &&
-                      leg.boardingWaitSeconds > 0
-                      ? ` · ${t('Next train in', { minutes: minutes(leg.boardingWaitSeconds) })}`
-                      : null}
-                  </p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
+      <JourneyLegs
+        data={data}
+        locale={locale}
+        stationsByCode={stationsByCode}
+        lineLabel={lineLabel}
+      />
     </div>
+  )
+}
+
+function BreakdownRow({
+  label,
+  hint,
+  value,
+}: Readonly<{ label: string; hint?: string; value: string }>) {
+  return (
+    <div className="flex justify-between gap-4">
+      <dt className="text-muted">
+        {label}
+        {hint ? <span className="mt-0.5 block text-xs">{hint}</span> : null}
+      </dt>
+      <dd className="shrink-0 tabular-nums text-ink">{value}</dd>
+    </div>
+  )
+}
+
+function JourneyLegs({
+  data,
+  locale,
+  stationsByCode,
+  lineLabel,
+}: Readonly<{
+  data: JourneyEstimate
+  locale: Language
+  stationsByCode: Map<string, IStation>
+  lineLabel: (code: string) => string
+}>) {
+  const t = useTranslations()
+  return (
+    <div>
+      <p className="mb-2 text-sm font-medium text-ink">{t('Route')}</p>
+      <ol className="space-y-0">
+        {data.legs.map((leg, i) => (
+          <JourneyLegRow
+            key={`${leg.line}-${leg.origin}-${leg.destination}-${i}`}
+            leg={leg}
+            index={i}
+            locale={locale}
+            stationsByCode={stationsByCode}
+            lineLabel={lineLabel}
+          />
+        ))}
+      </ol>
+    </div>
+  )
+}
+
+function JourneyLegRow({
+  leg,
+  index,
+  locale,
+  stationsByCode,
+  lineLabel,
+}: Readonly<{
+  leg: JourneyEstimate['legs'][number]
+  index: number
+  locale: Language
+  stationsByCode: Map<string, IStation>
+  lineLabel: (code: string) => string
+}>) {
+  const t = useTranslations()
+  const transferIn = leg.transferInSeconds
+  const boardWait = leg.boardingWaitSeconds
+  const nextTrain =
+    index === 0 && boardWait != null && boardWait > 0
+      ? ` · ${t('Next train in', { minutes: minutes(boardWait) })}`
+      : ''
+
+  return (
+    <li>
+      {transferIn != null && transferIn > 0 ? (
+        <p className="my-2 pl-4 text-xs text-muted">
+          {t('Transfer at', {
+            station: stationLabel(leg.origin, locale, stationsByCode),
+            minutes: minutes(transferIn),
+          })}
+        </p>
+      ) : null}
+      <div className="flex items-start gap-2 py-1">
+        <span
+          className="mt-1.5 size-2.5 shrink-0 rounded-full"
+          style={{ backgroundColor: lineColor(leg.line) }}
+          aria-hidden
+        />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-ink">{lineLabel(leg.line)}</p>
+          <p className="text-sm text-muted">
+            {stationLabel(leg.origin, locale, stationsByCode)}
+            {' → '}
+            {stationLabel(leg.destination, locale, stationsByCode)}
+          </p>
+          <p className="text-xs text-muted">
+            {minutes(leg.ridingSeconds)} {t('min')}
+            {nextTrain}
+          </p>
+        </div>
+      </div>
+    </li>
   )
 }
