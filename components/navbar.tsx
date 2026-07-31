@@ -25,6 +25,13 @@ export default async function Header() {
           <circle cx="12" cy="12" r="3" />
         </svg>
       </Link>
+      <Link
+        href="/journey"
+        aria-label={t('Journey')}
+        className="text-sm font-medium text-ink no-underline hover:underline"
+      >
+        {t('Journey')}
+      </Link>
     </header>
   )
 }
