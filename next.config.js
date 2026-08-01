@@ -22,6 +22,10 @@ const ContentSecurityPolicy = [
 const nextConfig = {
   output: 'standalone',
   serverExternalPackages: ['hk-journey-time'],
+  // Dynamic fs reads of graph JSON are invisible to the tracer.
+  outputFileTracingIncludes: {
+    '/api/journey': ['./node_modules/hk-journey-time/dist/data/**/*'],
+  },
   compiler: {
     removeConsole: {
       exclude: ['error'],
