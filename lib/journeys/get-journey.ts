@@ -66,6 +66,9 @@ export async function getJourney(
     if (error instanceof AppError) {
       throw mapAppError(error)
     }
-    throw error
+    // Surface ENOENT / missing graph data instead of a blank 503.
+    const message =
+      error instanceof Error ? error.message : 'Failed to estimate journey'
+    throw new ApiError('UPSTREAM_ERROR', message, 503)
   }
 }
