@@ -50,6 +50,8 @@ function stationsForLine(line: ILine | null): IStation[] {
   return stations.map((s) => ({ ...s, related: undefined }))
 }
 
+type JourneyFetchError = Error & { code?: string }
+
 async function fetchJourney(
   origin: string,
   destination: string,
@@ -64,12 +66,47 @@ async function fetchJourney(
   const json = (await res.json()) as {
     success: boolean
     data: JourneyEstimate | null
-    error?: { message: string }
+    error?: { code?: string; message: string }
   }
   if (!json.success || !json.data) {
-    throw new Error(json.error?.message ?? 'Failed to estimate journey')
+    const err = new Error(
+      json.error?.message ?? 'Failed to estimate journey'
+    ) as JourneyFetchError
+    err.code = json.error?.code
+    throw err
   }
   return json.data
+}
+
+type JourneyErrorKey =
+  | 'UNKNOWN_STOP'
+  | 'SAME_STOP'
+  | 'NOT_FOUND'
+  | 'VALIDATION_ERROR'
+  | 'RATE_LIMITED'
+  | 'UPSTREAM_ERROR'
+  | 'Failed to estimate journey'
+
+const JOURNEY_ERROR_KEYS = new Set<string>([
+  'UNKNOWN_STOP',
+  'SAME_STOP',
+  'NOT_FOUND',
+  'VALIDATION_ERROR',
+  'RATE_LIMITED',
+  'UPSTREAM_ERROR',
+  'Failed to estimate journey',
+])
+
+function journeyErrorMessage(
+  error: Error | null,
+  t: (key: JourneyErrorKey) => string
+): string {
+  const code = (error as JourneyFetchError | null)?.code
+  if (code && JOURNEY_ERROR_KEYS.has(code)) return t(code as JourneyErrorKey)
+  if (error?.message && JOURNEY_ERROR_KEYS.has(error.message)) {
+    return t(error.message as JourneyErrorKey)
+  }
+  return t('Failed to estimate journey')
 }
 
 function chipClass(active: boolean, extra = ''): string {
@@ -405,7 +442,7 @@ function JourneyResultPanel({
       ) : null}
       {query.isError ? (
         <p className="text-sm text-red-600">
-          {query.error?.message || t('Failed to estimate journey')}
+          {journeyErrorMessage(query.error, t)}
         </p>
       ) : null}
       {query.data ? (

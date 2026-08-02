@@ -9,9 +9,11 @@ import {
 function mapAppError(error: AppError): ApiError {
   switch (error.code) {
     case 'VALIDATION_ERROR':
-    case 'UNKNOWN_STOP':
-    case 'SAME_STOP':
       return new ApiError('VALIDATION_ERROR', error.message, 400)
+    case 'UNKNOWN_STOP':
+      return new ApiError('UNKNOWN_STOP', error.message, 400)
+    case 'SAME_STOP':
+      return new ApiError('SAME_STOP', error.message, 400)
     case 'NO_ROUTE':
       return new ApiError('NOT_FOUND', error.message, 404)
     case 'RATE_LIMITED':
