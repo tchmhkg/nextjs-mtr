@@ -3,6 +3,8 @@ import type { TransportMode } from './transport-mode'
 export type ApiErrorCode =
   | 'MISSING_PARAMS'
   | 'VALIDATION_ERROR'
+  | 'UNKNOWN_STOP'
+  | 'SAME_STOP'
   | 'UPSTREAM_ERROR'
   | 'NOT_FOUND'
   | 'NOT_IMPLEMENTED'
