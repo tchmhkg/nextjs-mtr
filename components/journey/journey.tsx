@@ -78,7 +78,16 @@ async function fetchJourney(
   return json.data
 }
 
-const JOURNEY_ERROR_KEYS = new Set([
+type JourneyErrorKey =
+  | 'UNKNOWN_STOP'
+  | 'SAME_STOP'
+  | 'NOT_FOUND'
+  | 'VALIDATION_ERROR'
+  | 'RATE_LIMITED'
+  | 'UPSTREAM_ERROR'
+  | 'Failed to estimate journey'
+
+const JOURNEY_ERROR_KEYS = new Set<string>([
   'UNKNOWN_STOP',
   'SAME_STOP',
   'NOT_FOUND',
@@ -90,12 +99,12 @@ const JOURNEY_ERROR_KEYS = new Set([
 
 function journeyErrorMessage(
   error: Error | null,
-  t: (key: string) => string
+  t: (key: JourneyErrorKey) => string
 ): string {
   const code = (error as JourneyFetchError | null)?.code
-  if (code && JOURNEY_ERROR_KEYS.has(code)) return t(code)
+  if (code && JOURNEY_ERROR_KEYS.has(code)) return t(code as JourneyErrorKey)
   if (error?.message && JOURNEY_ERROR_KEYS.has(error.message)) {
-    return t(error.message)
+    return t(error.message as JourneyErrorKey)
   }
   return t('Failed to estimate journey')
 }
