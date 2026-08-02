@@ -149,7 +149,7 @@
   "SAME_STOP": "出發站與目的地相同",
   "NOT_FOUND": "找不到可用路線",
   "VALIDATION_ERROR": "出發站或目的地無效",
-  "RATE_LIMITED": "請求過多，請稍后再試",
+  "RATE_LIMITED": "請求過多，請稍後再試",
   "UPSTREAM_ERROR": "無法估算此車程",
   "Start over": "重新開始",
   "min": "分鐘",
