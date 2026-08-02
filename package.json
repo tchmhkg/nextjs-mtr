@@ -23,7 +23,7 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "date-fns": "^4.4.0",
-    "hk-journey-time": "tchmhkg/hk-journey-time#v0.1.4",
+    "hk-journey-time": "tchmhkg/hk-journey-time#6d8b6b5",
     "next": "16.2.12",
     "next-intl": "^4.13.4",
     "react": "19.2.8",

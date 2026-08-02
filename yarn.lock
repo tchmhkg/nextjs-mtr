@@ -3228,9 +3228,9 @@ hermes-parser@^0.25.1:
   dependencies:
     hermes-estree "0.25.1"
 
-hk-journey-time@tchmhkg/hk-journey-time#v0.1.4:
-  version "0.1.4"
-  resolved "https://codeload.github.com/tchmhkg/hk-journey-time/tar.gz/83321beab82696ecd141793d2b52f0ac1c6d5f2f"
+hk-journey-time@tchmhkg/hk-journey-time#6d8b6b5:
+  version "0.1.2"
+  resolved "https://codeload.github.com/tchmhkg/hk-journey-time/tar.gz/6d8b6b5bce8935a2895beb622f158495f3b4a743"
   dependencies:
     "@hono/node-server" "^1.19.17"
     hono "^4.12.32"
