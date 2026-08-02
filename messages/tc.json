@@ -161,5 +161,6 @@
   "Transfer at": "於{station}轉車 · 約 {minutes} 分鐘",
   "Next train in": "下班車約 {minutes} 分鐘",
   "Waiting unavailable": "未能取得實時班次",
-  "No upcoming train": "此方向暫無列出班次（可能已過尾班車）"
+  "No upcoming train": "此方向暫無列出班次（可能已過尾班車）",
+  "Racecourse race day only": "馬場站僅於賽馬日提供服務"
 }

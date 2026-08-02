@@ -473,6 +473,8 @@ function warningFor(
   t: ReturnType<typeof useTranslations>
 ): string | null {
   if (!warnings?.length) return null
+  if (warnings.includes('RACECOURSE_RACE_DAY'))
+    return t('Racecourse race day only')
   if (warnings.includes('NO_UPCOMING_TRAIN')) return t('No upcoming train')
   return t('Waiting unavailable')
 }
