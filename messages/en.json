@@ -161,5 +161,6 @@
   "Transfer at": "Change at {station} · about {minutes} min",
   "Next train in": "next train in {minutes} min",
   "Waiting unavailable": "Live departure time unavailable",
-  "No upcoming train": "No train listed that way right now (may be after last train)"
+  "No upcoming train": "No train listed that way right now (may be after last train)",
+  "Racecourse race day only": "Racecourse station only runs on race days"
 }

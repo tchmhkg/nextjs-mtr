@@ -27,7 +27,8 @@ function stationLabel(
 
 function lineColor(code: string): string {
   if (code === 'WALK') return '#888'
-  return DATA.find((d) => d.line.code === code)?.line.color ?? '#666'
+  const line = code === 'TKS' ? 'TKL' : code
+  return DATA.find((d) => d.line.code === line)?.line.color ?? '#666'
 }
 
 function minutes(seconds: number): number {
@@ -136,7 +137,8 @@ function useJourneyController() {
   const lineLabel = useCallback(
     (code: string) => {
       if (code === 'WALK') return t('Walk')
-      return DATA.find((d) => d.line.code === code)?.line.label[l] ?? code
+      const line = code === 'TKS' ? 'TKL' : code
+      return DATA.find((d) => d.line.code === line)?.line.label[l] ?? code
     },
     [t, l]
   )
@@ -471,6 +473,8 @@ function warningFor(
   t: ReturnType<typeof useTranslations>
 ): string | null {
   if (!warnings?.length) return null
+  if (warnings.includes('RACECOURSE_RACE_DAY'))
+    return t('Racecourse race day only')
   if (warnings.includes('NO_UPCOMING_TRAIN')) return t('No upcoming train')
   return t('Waiting unavailable')
 }
