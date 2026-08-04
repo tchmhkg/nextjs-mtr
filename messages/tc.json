@@ -1,5 +1,8 @@
 {
   "appTitle": "Next MTR Train",
+  "appDescription": "港鐵及輕鐵班次與車程時間。",
+  "Settings description": "Next MTR Train 的語言、主題與應用偏好設定。",
+  "Journey description": "估算港鐵車站之間的車程時間（含轉乘）。",
   "en": "Eng",
   "tc": "繁",
   "Back to home": "回到首頁",

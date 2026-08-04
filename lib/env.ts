@@ -49,14 +49,24 @@ const envSchema = z.object({
     emptyToUndefined,
     z.string().optional()
   ),
-  NEXT_PUBLIC_SITE_URL: z.preprocess(
-    emptyToUndefined,
-    z.url().default('http://localhost:3000')
-  ),
+  NEXT_PUBLIC_SITE_URL: z.url(),
   NEXT_PUBLIC_SCHEDULE_POLL_MS: positiveInt(30_000),
 })
 
 export type AppEnv = z.infer<typeof envSchema>
+
+/** Prefer explicit SITE_URL; else Vercel host; else localhost. Trim whitespace. */
+function resolveSiteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  if (explicit) return explicit
+  const vercel =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() ||
+    process.env.VERCEL_URL?.trim()
+  if (vercel) {
+    return vercel.startsWith('http') ? vercel : `https://${vercel}`
+  }
+  return 'http://localhost:3000'
+}
 
 function readEnv(): AppEnv {
   return envSchema.parse({
@@ -74,7 +84,7 @@ function readEnv(): AppEnv {
     FRESH_RATE_LIMIT_WINDOW_MS: process.env.FRESH_RATE_LIMIT_WINDOW_MS,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_SITE_URL: resolveSiteUrl(),
     NEXT_PUBLIC_SCHEDULE_POLL_MS: process.env.NEXT_PUBLIC_SCHEDULE_POLL_MS,
   })
 }

@@ -1,11 +1,13 @@
+import { env } from '@lib/env'
 import type { MetadataRoute } from 'next'
 
-/** Schedule app is private-use; keep crawlers out site-wide. */
 export default function robots(): MetadataRoute.Robots {
+  const siteUrl = env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')
   return {
     rules: {
       userAgent: '*',
-      disallow: '/',
+      allow: '/',
     },
+    sitemap: `${siteUrl}/sitemap.xml`,
   }
 }
