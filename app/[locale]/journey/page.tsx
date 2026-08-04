@@ -1,39 +1,21 @@
 import Journey from '@components/journey/journey'
 import Layout from '@components/layout'
-import { routing } from '@i18n/routing'
+import { localeFromParams, pageMetadata } from '@lib/seo'
 import type { Metadata } from 'next'
-import { hasLocale } from 'next-intl'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { notFound } from 'next/navigation'
 
-type GenerateMetadataProps = Readonly<{
+type PageParams = Readonly<{
   params: Promise<{ locale: string }>
 }>
 
-export async function generateMetadata({
-  params,
-}: GenerateMetadataProps): Promise<Metadata> {
-  const { locale } = await params
-  if (!hasLocale(routing.locales, locale)) {
-    notFound()
-  }
-  setRequestLocale(locale)
-  const t = await getTranslations({ locale })
-  return {
-    title: t('Journey'),
-  }
+export function generateMetadata({ params }: PageParams): Promise<Metadata> {
+  return pageMetadata(params, '/journey', {
+    title: 'Journey',
+    description: 'Journey description',
+  })
 }
 
-type JourneyPageProps = Readonly<{
-  params: Promise<{ locale: string }>
-}>
-
-export default async function JourneyPage({ params }: JourneyPageProps) {
-  const { locale } = await params
-  if (!hasLocale(routing.locales, locale)) {
-    notFound()
-  }
-  setRequestLocale(locale)
+export default async function JourneyPage({ params }: PageParams) {
+  await localeFromParams(params)
 
   return (
     <Layout back backUrl="/" showBackToHome={false}>

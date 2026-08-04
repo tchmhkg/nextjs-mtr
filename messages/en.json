@@ -1,5 +1,8 @@
 {
   "appTitle": "Next MTR Train",
+  "appDescription": "MTR and Light Rail schedules and journey times.",
+  "Settings description": "Language, theme, and app preferences for Next MTR Train.",
+  "Journey description": "Estimate ride time between MTR stations, including transfers.",
   "en": "Eng",
   "tc": "繁",
   "Back to home": "Back to home",

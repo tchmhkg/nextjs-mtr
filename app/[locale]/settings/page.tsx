@@ -1,40 +1,21 @@
 import Layout from '@components/layout'
 import Settings from '@components/settings'
-import { routing } from '@i18n/routing'
+import { localeFromParams, pageMetadata } from '@lib/seo'
 import type { Metadata } from 'next'
-import { hasLocale } from 'next-intl'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { notFound } from 'next/navigation'
 
-type GenerateMetadataProps = Readonly<{
+type PageParams = Readonly<{
   params: Promise<{ locale: string }>
 }>
 
-export async function generateMetadata({
-  params,
-}: GenerateMetadataProps): Promise<Metadata> {
-  const { locale } = await params
-  if (!hasLocale(routing.locales, locale)) {
-    notFound()
-  }
-  setRequestLocale(locale)
-  const t = await getTranslations({ locale })
-  return {
-    title: t('Settings'),
-    robots: { index: false, follow: false },
-  }
+export function generateMetadata({ params }: PageParams): Promise<Metadata> {
+  return pageMetadata(params, '/settings', {
+    title: 'Settings',
+    description: 'Settings description',
+  })
 }
 
-type SettingsPageProps = Readonly<{
-  params: Promise<{ locale: string }>
-}>
-
-export default async function SettingsPage({ params }: SettingsPageProps) {
-  const { locale } = await params
-  if (!hasLocale(routing.locales, locale)) {
-    notFound()
-  }
-  setRequestLocale(locale)
+export default async function SettingsPage({ params }: PageParams) {
+  await localeFromParams(params)
 
   return (
     <Layout back backUrl="/" showBackToHome={false}>

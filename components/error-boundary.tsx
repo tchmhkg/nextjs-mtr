@@ -1,8 +1,7 @@
 'use client'
 
-import * as Sentry from '@sentry/nextjs'
 import { useTranslations } from 'next-intl'
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 
 type Props = Readonly<{
   children: ReactNode
@@ -53,8 +52,10 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    Sentry.captureException(error, {
-      contexts: { react: { componentStack: errorInfo.componentStack } },
+    void import('@sentry/nextjs').then((Sentry) => {
+      Sentry.captureException(error, {
+        contexts: { react: { componentStack: errorInfo.componentStack } },
+      })
     })
   }
 

@@ -2,13 +2,11 @@
 
 import CurrLocation from '@components/curr-location'
 import ContextChip from '@components/picker/context-chip'
-import InterchangeDialog from '@components/picker/interchange-dialog'
 import LinePicker from '@components/picker/line-picker'
 import LrRoutePicker from '@components/picker/lr-route-picker'
 import LrStationList, { LR_COLOR } from '@components/picker/lr-station-list'
 import ModeToggle from '@components/picker/mode-toggle'
 import StationList from '@components/picker/station-list'
-import Result from '@components/train/result'
 import {
   type HomeController,
   type LrDir,
@@ -20,7 +18,23 @@ import type { LrStation } from '@utils/lr-data'
 import type { ILine, IStation } from '@utils/next-train-data'
 import { DATA } from '@utils/next-train-data'
 import { useLocale, useTranslations } from 'next-intl'
+import dynamic from 'next/dynamic'
 import React from 'react'
+
+const Result = dynamic(() => import('@components/train/result'), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse space-y-3" aria-hidden>
+      <div className="h-6 w-40 rounded bg-border/60" />
+      <div className="h-32 w-full rounded bg-border/40" />
+    </div>
+  ),
+})
+
+const InterchangeDialog = dynamic(
+  () => import('@components/picker/interchange-dialog'),
+  { ssr: false },
+)
 
 type Language = 'en' | 'tc'
 

@@ -1,4 +1,5 @@
 import { env } from '@lib/env'
+import { SITE_DESCRIPTION_EN } from '@lib/seo'
 import '@styles/globals.css'
 import type { Metadata, Viewport } from 'next'
 import { Outfit } from 'next/font/google'
@@ -15,7 +16,7 @@ const siteUrl = env.NEXT_PUBLIC_SITE_URL
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: 'NextMTRTrain',
-  description: 'Get MTR Schedule',
+  description: SITE_DESCRIPTION_EN,
   manifest: '/manifest.json',
   icons: {
     // One PNG + ico is enough; listing every size made SW/browser fetch them all.
@@ -34,13 +35,13 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary',
     title: 'NextMTRTrain',
-    description: 'Get MTR Schedule',
+    description: SITE_DESCRIPTION_EN,
     images: [`${siteUrl}/assets/icon-192x192.png`],
   },
   openGraph: {
     type: 'website',
     title: 'NextMTRTrain',
-    description: 'Get MTR Schedule',
+    description: SITE_DESCRIPTION_EN,
     siteName: 'NextMTRTrain',
     url: siteUrl,
     images: [`${siteUrl}/assets/icon-192x192.png`],

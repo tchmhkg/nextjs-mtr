@@ -1,35 +1,27 @@
 import Home from '@components/home'
 import Layout from '@components/layout'
-import { routing } from '@i18n/routing'
-import { isApiError } from '@lib/schedules/errors/api-error'
-import { getNextTrain } from '@lib/schedules/get-next-train'
 import type { NextTrainDto } from '@lib/schedules/contracts/next-train.dto'
 import type { TransportMode } from '@lib/schedules/contracts/transport-mode'
+import { isApiError } from '@lib/schedules/errors/api-error'
+import { getNextTrain } from '@lib/schedules/get-next-train'
+import { localeFromParams, pageMetadata } from '@lib/seo'
 import { isKnownLrStation } from '@utils/lr-data'
 import { isKnownLineSta } from '@utils/next-train-data'
 import type { Metadata } from 'next'
-import { hasLocale } from 'next-intl'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { Suspense } from 'react'
 
 type GenerateMetadataProps = Readonly<{
   params: Promise<{ locale: string }>
 }>
 
-export async function generateMetadata({
+export function generateMetadata({
   params,
 }: GenerateMetadataProps): Promise<Metadata> {
-  const { locale } = await params
-  if (!hasLocale(routing.locales, locale)) {
-    notFound()
-  }
-  setRequestLocale(locale)
-  const t = await getTranslations({ locale })
-  return {
-    title: t('appTitle'),
-    robots: { index: false, follow: false },
-  }
+  return pageMetadata(params, '', {
+    title: 'appTitle',
+    description: 'appDescription',
+  })
 }
 
 type HomePageProps = Readonly<{
@@ -73,12 +65,8 @@ async function loadInitialSchedule(
 }
 
 export default async function HomePage({ params, searchParams }: HomePageProps) {
-  const { locale } = await params
-  if (!hasLocale(routing.locales, locale)) {
-    notFound()
-  }
+  const locale = await localeFromParams(params)
   const sp = await searchParams
-  setRequestLocale(locale)
   const t = await getTranslations({ locale })
   const mode = parseMode(sp.mode)
   const lang = locale === 'en' ? 'en' : 'tc'
