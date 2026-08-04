@@ -5,6 +5,8 @@ export const routing = defineRouting({
   defaultLocale: 'tc',
   localePrefix: 'as-needed',
   localeDetection: false,
+  // Route codes (`tc`) are not BCP 47; HTML alternates use zh-Hant via lib/seo.
+  alternateLinks: false,
 })
 
 export type AppLocale = (typeof routing.locales)[number]

@@ -22,11 +22,10 @@ export default function ModeToggle({ mode, onChange }: ModeToggleProps) {
         role="tab"
         aria-selected={mode === 'mtr'}
         onClick={() => onChange('mtr')}
-        className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-          mode === 'mtr'
+        className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${mode === 'mtr'
             ? 'bg-surface-alt text-ink shadow-sm'
-            : 'text-muted hover:text-ink'
-        }`}
+            : 'text-ink/70 hover:text-ink'
+          }`}
       >
         {t('MTR')}
       </button>
@@ -35,11 +34,10 @@ export default function ModeToggle({ mode, onChange }: ModeToggleProps) {
         role="tab"
         aria-selected={mode === 'lr'}
         onClick={() => onChange('lr')}
-        className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-          mode === 'lr'
+        className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${mode === 'lr'
             ? 'bg-surface-alt text-ink shadow-sm'
-            : 'text-muted hover:text-ink'
-        }`}
+            : 'text-ink/70 hover:text-ink'
+          }`}
       >
         {t('Light Rail')}
       </button>
