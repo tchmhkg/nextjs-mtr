@@ -30,6 +30,7 @@ function scheduleSentryInit() {
   const events = ['pointerdown', 'keydown', 'touchstart'] as const
 
   const cleanup = () => {
+    window.clearTimeout(timer)
     for (const e of events) {
       window.removeEventListener(e, onInteract)
     }
@@ -46,15 +47,11 @@ function scheduleSentryInit() {
     run()
   }
 
+  // Hard delay — requestIdleCallback fires as soon as idle (timeout is a max, not a min).
+  const timer = window.setTimeout(run, 12_000)
+
   for (const e of events) {
     window.addEventListener(e, onInteract, { once: true, passive: true })
-  }
-
-  // Fallback: idle with long timeout so Lighthouse cold loads skip the SDK.
-  if (typeof requestIdleCallback !== 'undefined') {
-    requestIdleCallback(run, { timeout: 12_000 })
-  } else {
-    setTimeout(run, 12_000)
   }
 }
 
