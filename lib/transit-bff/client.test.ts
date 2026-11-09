@@ -43,6 +43,10 @@ describe('fetchTransitBff', () => {
     expect(vi.mocked(fetch).mock.calls[0][0].toString()).toBe(
       'https://bff.example/api/next-train?line=AEL&sta=HOK&lang=en'
     )
+    expect(vi.mocked(fetch).mock.calls[0][1]?.headers).toMatchObject({
+      Accept: 'application/json',
+      'Sec-Fetch-Site': 'same-origin',
+    })
   })
 
   it('maps a failure envelope to ApiError', async () => {

@@ -43,7 +43,10 @@ export async function fetchTransitBff<T>(
   let res: Response
   try {
     res = await fetch(url, {
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+        'Sec-Fetch-Site': 'same-origin',
+      },
       cache: 'no-store',
     })
   } catch {
