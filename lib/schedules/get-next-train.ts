@@ -1,3 +1,4 @@
+import { fetchTransitBff, useJavaBackend } from '@lib/transit-bff/client'
 import { fetchLrSchedule } from '@lib/upstream/lr/client'
 import { fetchMtrSchedule } from '@lib/upstream/mtr/client'
 import type { ApiMeta } from './contracts/api-response'
@@ -82,6 +83,16 @@ async function getLrNextTrain(
 export async function getNextTrain(
   input: GetNextTrainInput
 ): Promise<GetNextTrainResult> {
+  if (useJavaBackend()) {
+    return fetchTransitBff<NextTrainDto>('/api/next-train', {
+      mode: input.mode ?? 'mtr',
+      line: input.line,
+      sta: input.sta,
+      lang: input.lang,
+      fresh: input.fresh ? '1' : undefined,
+    })
+  }
+
   const mode = input.mode ?? 'mtr'
 
   switch (mode) {
