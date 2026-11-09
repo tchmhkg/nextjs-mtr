@@ -23,35 +23,50 @@ const nonNegInt = (fallback: number) =>
     z.coerce.number().int().nonnegative().default(fallback)
   )
 
-const envSchema = z.object({
-  MTR_NEXT_TRAIN_API_URL: z.preprocess(
-    emptyToUndefined,
-    z.url().default(DEFAULT_MTR_API)
-  ),
-  LR_NEXT_TRAIN_API_URL: z.preprocess(
-    emptyToUndefined,
-    z.url().default(DEFAULT_LR_API)
-  ),
-  SCHEDULE_REVALIDATE_SECONDS: positiveInt(30),
-  SCHEDULE_S_MAXAGE_SECONDS: positiveInt(30),
-  SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS: nonNegInt(60),
-  ALERT_URL_ALLOWED_HOSTS: z.preprocess(
-    emptyToUndefined,
-    z.string().default('mtr.com.hk')
-  ),
-  FRESH_COOLDOWN_MS: nonNegInt(0),
-  RATE_LIMIT_REQUESTS: positiveInt(60),
-  RATE_LIMIT_WINDOW_MS: positiveInt(60_000),
-  FRESH_RATE_LIMIT_REQUESTS: positiveInt(30),
-  FRESH_RATE_LIMIT_WINDOW_MS: positiveInt(60_000),
-  UPSTASH_REDIS_REST_URL: optionalUrl,
-  UPSTASH_REDIS_REST_TOKEN: z.preprocess(
-    emptyToUndefined,
-    z.string().optional()
-  ),
-  NEXT_PUBLIC_SITE_URL: z.url(),
-  NEXT_PUBLIC_SCHEDULE_POLL_MS: positiveInt(30_000),
-})
+const envSchema = z
+  .object({
+    BACKEND_PROVIDER: z.preprocess(
+      emptyToUndefined,
+      z.enum(['js', 'java']).default('js')
+    ),
+    BACKEND_API_BASE_URL: optionalUrl,
+    MTR_NEXT_TRAIN_API_URL: z.preprocess(
+      emptyToUndefined,
+      z.url().default(DEFAULT_MTR_API)
+    ),
+    LR_NEXT_TRAIN_API_URL: z.preprocess(
+      emptyToUndefined,
+      z.url().default(DEFAULT_LR_API)
+    ),
+    SCHEDULE_REVALIDATE_SECONDS: positiveInt(30),
+    SCHEDULE_S_MAXAGE_SECONDS: positiveInt(30),
+    SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS: nonNegInt(60),
+    ALERT_URL_ALLOWED_HOSTS: z.preprocess(
+      emptyToUndefined,
+      z.string().default('mtr.com.hk')
+    ),
+    FRESH_COOLDOWN_MS: nonNegInt(0),
+    RATE_LIMIT_REQUESTS: positiveInt(60),
+    RATE_LIMIT_WINDOW_MS: positiveInt(60_000),
+    FRESH_RATE_LIMIT_REQUESTS: positiveInt(30),
+    FRESH_RATE_LIMIT_WINDOW_MS: positiveInt(60_000),
+    UPSTASH_REDIS_REST_URL: optionalUrl,
+    UPSTASH_REDIS_REST_TOKEN: z.preprocess(
+      emptyToUndefined,
+      z.string().optional()
+    ),
+    NEXT_PUBLIC_SITE_URL: z.url(),
+    NEXT_PUBLIC_SCHEDULE_POLL_MS: positiveInt(30_000),
+  })
+  .superRefine((data, ctx) => {
+    if (data.BACKEND_PROVIDER === 'java' && !data.BACKEND_API_BASE_URL) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['BACKEND_API_BASE_URL'],
+        message: 'BACKEND_API_BASE_URL is required when BACKEND_PROVIDER=java',
+      })
+    }
+  })
 
 export type AppEnv = z.infer<typeof envSchema>
 
@@ -70,6 +85,8 @@ function resolveSiteUrl(): string {
 
 function readEnv(): AppEnv {
   return envSchema.parse({
+    BACKEND_PROVIDER: process.env.BACKEND_PROVIDER,
+    BACKEND_API_BASE_URL: process.env.BACKEND_API_BASE_URL,
     MTR_NEXT_TRAIN_API_URL: process.env.MTR_NEXT_TRAIN_API_URL,
     LR_NEXT_TRAIN_API_URL: process.env.LR_NEXT_TRAIN_API_URL,
     SCHEDULE_REVALIDATE_SECONDS: process.env.SCHEDULE_REVALIDATE_SECONDS,
