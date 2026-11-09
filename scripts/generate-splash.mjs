@@ -47,11 +47,14 @@ async function make(pxW, pxH) {
   return file
 }
 
-const keep = new Set()
-for (const s of sizes) {
-  const { pxW, pxH } = pixels(s)
-  keep.add(await make(pxW, pxH))
-}
+const keep = new Set(
+  await Promise.all(
+    sizes.map((s) => {
+      const { pxW, pxH } = pixels(s)
+      return make(pxW, pxH)
+    })
+  )
+)
 
 for (const name of readdirSync(outDir)) {
   if (!name.endsWith('.png')) continue
