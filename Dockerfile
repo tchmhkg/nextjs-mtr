@@ -8,7 +8,7 @@ RUN apk add --no-cache libc6-compat \
   && (corepack enable && corepack prepare yarn@1.22.22 --activate \
       || npm install -g yarn@1.22.22 --force --ignore-scripts)
 COPY package.json yarn.lock ./
-# ponytail: skip package lifecycle scripts in image builds (Sonar/CWE supply-chain).
+# Skip package lifecycle scripts in image builds (Sonar/CWE supply-chain).
 # Native bins (e.g. SWC) are fetched during `next build`, not install.
 RUN yarn install --frozen-lockfile --production=false --ignore-scripts
 

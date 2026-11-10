@@ -295,13 +295,14 @@ Copy `.env.local.example` to `.env.local`. Tunables (cache TTLs, poll interval, 
 | `SCHEDULE_S_MAXAGE_SECONDS` | `30` | API Cache-Control |
 | `SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS` | `60` | API Cache-Control |
 | `ALERT_URL_ALLOWED_HOSTS` | `mtr.com.hk` | Comma-separated host suffixes |
-| `FRESH_COOLDOWN_MS` | `0` | Per-IP cooldown for `fresh=1` (no Upstash); `0` = no cooldown |
+| `FRESH_COOLDOWN_MS` | `2000` | Per-IP cooldown for `fresh=1`; `0` = no cooldown |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | metadataBase / OG |
 | `NEXT_PUBLIC_SCHEDULE_POLL_MS` | `30000` | Client poll; set at build for client |
 | `NEXT_PUBLIC_GITHUB_URL` | unset | Navbar GitHub button hidden if empty |
-| `UPSTASH_*` / `RATE_LIMIT_*` | see example | Upstash rate limits |
+| `TRUSTED_PROXIES` | empty | CIDRs allowed to set `X-Forwarded-For` / `X-Real-IP`. Empty ignores those headers. `x-vercel-forwarded-for` is always honoured. |
+| `UPSTASH_*` / `RATE_LIMIT_*` | see example | Rate limits always apply; Upstash makes them multi-instance |
 
-Without Upstash, `fresh=1` uses a per-instance memory cooldown (`FRESH_COOLDOWN_MS`). With Upstash configured, general and fresh request limits apply across instances.
+General and `fresh=1` rate limits always run. Without Upstash they are per-instance in memory; with Upstash they are shared. `FRESH_COOLDOWN_MS` is an additional per-IP gap on `fresh=1`.
 
 The API is public (no end-user auth). Forced refresh (`fresh=1`) requires same-origin `Sec-Fetch-Site`.
 

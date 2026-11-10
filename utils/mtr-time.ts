@@ -2,7 +2,7 @@
  * Advance an MTR `yyyy-MM-dd HH:mm:ss` timestamp by wall-clock elapsed ms.
  * Uses the same Date.parse path as result-item (replace `-` with `/`).
  *
- * ponytail: simple local Date arithmetic; ceiling is TZ skew if the device
+ * Simple local Date arithmetic; ceiling is TZ skew if the device
  * clock ≠ HKT. Upgrade: parse with explicit +08:00 offset.
  */
 export function advanceMtrTimestamp(
