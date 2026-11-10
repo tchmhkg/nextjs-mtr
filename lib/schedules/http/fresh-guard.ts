@@ -1,18 +1,12 @@
 import { env } from '@lib/env'
 import { ApiError } from '@lib/schedules/errors/api-error'
+import { clientIpFromRequest } from '@lib/schedules/http/client-ip'
 import { assertFreshRateLimit } from '@lib/schedules/http/rate-limit'
 
-/** ponytail: per-instance Map when Upstash is unset; ceiling is multi-instance drift. */
-const lastFreshByIp = new Map<string, number>()
+export { clientIpFromRequest }
 
-export function clientIpFromRequest(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) {
-    const first = forwarded.split(',')[0]?.trim()
-    if (first) return first
-  }
-  return request.headers.get('x-real-ip')?.trim() || 'unknown'
-}
+/** Per-instance cooldown map. Each replica tracks its own clients. */
+const lastFreshByIp = new Map<string, number>()
 
 function assertMemoryFreshCooldown(ip: string): void {
   if (env.FRESH_COOLDOWN_MS <= 0) return
@@ -49,9 +43,6 @@ export async function assertFreshAllowed(request: Request): Promise<void> {
   }
 
   const ip = clientIpFromRequest(request)
-  if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
-    await assertFreshRateLimit(ip)
-    return
-  }
   assertMemoryFreshCooldown(ip)
+  await assertFreshRateLimit(ip)
 }

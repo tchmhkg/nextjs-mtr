@@ -45,7 +45,11 @@ const envSchema = z
       emptyToUndefined,
       z.string().default('mtr.com.hk')
     ),
-    FRESH_COOLDOWN_MS: nonNegInt(0),
+    FRESH_COOLDOWN_MS: nonNegInt(2_000),
+    TRUSTED_PROXIES: z.preprocess(
+      emptyToUndefined,
+      z.string().default('')
+    ),
     RATE_LIMIT_REQUESTS: positiveInt(60),
     RATE_LIMIT_WINDOW_MS: positiveInt(60_000),
     FRESH_RATE_LIMIT_REQUESTS: positiveInt(30),
@@ -95,6 +99,7 @@ function readEnv(): AppEnv {
       process.env.SCHEDULE_STALE_WHILE_REVALIDATE_SECONDS,
     ALERT_URL_ALLOWED_HOSTS: process.env.ALERT_URL_ALLOWED_HOSTS,
     FRESH_COOLDOWN_MS: process.env.FRESH_COOLDOWN_MS,
+    TRUSTED_PROXIES: process.env.TRUSTED_PROXIES,
     RATE_LIMIT_REQUESTS: process.env.RATE_LIMIT_REQUESTS,
     RATE_LIMIT_WINDOW_MS: process.env.RATE_LIMIT_WINDOW_MS,
     FRESH_RATE_LIMIT_REQUESTS: process.env.FRESH_RATE_LIMIT_REQUESTS,
